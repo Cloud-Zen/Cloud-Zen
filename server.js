@@ -92,7 +92,7 @@ async function getTelegramClient() {
     }
 
     const { TelegramClient } = await import("teleproto");
-    const { StringSession } = await import("teleproto/sessions");
+    const { StringSession } = await import("teleproto/sessions/index.js");
 
     const session = new StringSession(TELEGRAM_SESSION);
     const client = new TelegramClient(session, TELEGRAM_API_ID, TELEGRAM_API_HASH, {
@@ -288,7 +288,12 @@ async function grantActionAccess(req, res, kind) {
   if (isLocked(req, kind)) return res.status(423).json({ error: `${kind[0].toUpperCase() + kind.slice(1)} access is locked for 24 hours on this device.` });
   const expected = kind === "upload" ? UPLOAD_PASSWORD : DOWNLOAD_PASSWORD;
   const password = String(req.body?.password ?? "").trim();
-  if (!safeEqual(password, expected)) {
+  // Compatibility: APP_PASSWORD can also unlock upload/download. This prevents
+  // an accidental mismatch when the owner uses one security password for the
+  // whole private cloud. Dedicated UPLOAD_PASSWORD/DOWNLOAD_PASSWORD still
+  // work and remain preferred when configured.
+  const accepted = [expected, APP_PASSWORD].filter(Boolean);
+  if (!accepted.some(candidate => safeEqual(password, candidate))) {
     const locked = registerFailure(req, kind);
     return res.status(locked ? 423 : 403).json({ error: locked ? `${kind[0].toUpperCase() + kind.slice(1)} access locked for 24 hours.` : "Incorrect security password." });
   }
@@ -875,4 +880,3 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
-    
