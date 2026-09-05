@@ -274,8 +274,8 @@ button{
         );
 
     transition:
-        opacity .9s ease,
-        visibility .9s ease;
+        opacity .45s ease,
+        visibility .45s ease;
 }
 
 #introScreen.hide{
@@ -3389,22 +3389,7 @@ input[type="password"]::placeholder{
   window.czToast = czToast;
 
   async function ensureDownloadAccessPremium(){
-    const key = "cloudZenDownloadUnlocked";
-    const stampKey = "cloudZenDownloadUnlockedAt";
-    const stamp = Number(sessionStorage.getItem(stampKey) || 0);
-    if(sessionStorage.getItem(key) === "1" && Date.now() - stamp < 15*60*1000) return true;
-    sessionStorage.removeItem(key); sessionStorage.removeItem(stampKey);
-    const value = await czSweet({icon:"🔐",title:"Download protected",text:"Your files can be viewed without this extra password. Enter the download password only when you want to download a file.",input:true,confirmText:"Unlock download",placeholder:"Download password"});
-    if(value === null) return false;
-    if(!value){ czToast("Password is required.","bad"); return false; }
-    const response = await fetch("/api/access/download",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:value})});
-    let data=null; try{data=await response.json()}catch(_){ }
-    if(!response.ok){
-      await czSweet({icon:"⚠️",title:"Access denied",text:data?.error||"The download password is incorrect.",confirmText:"Try again",cancel:false});
-      return false;
-    }
-    sessionStorage.setItem(key,"1"); sessionStorage.setItem(stampKey,String(Date.now()));
-    czToast("Download access unlocked","good");
+    // No second download password: the main Enter password protects the session.
     return true;
   }
   window.ensureDownloadAccess = ensureDownloadAccessPremium;
@@ -6995,15 +6980,8 @@ async function deleteFile(
     name
 ){
 
-    const ok =
-        confirm(
-            `Delete "${name}" permanently?`
-        );
-
-
-    if(!ok){
-        return;
-    }
+    const value = await (window.czSweet ? window.czSweet({icon:"🗑️",title:"Delete file?",text:`Permanently delete “${name}”. Enter the delete password to continue.`,input:true,confirmText:"Delete permanently",placeholder:"Delete password"}) : Promise.resolve(prompt("Delete password:")));
+    if(value === null || value === "") return;
 
 
     try{
@@ -7021,7 +6999,8 @@ async function deleteFile(
 
                 body:
                     JSON.stringify({
-                        name
+                        name,
+                        deletePassword: String(value).trim()
                     })
             }
         );
@@ -7186,45 +7165,12 @@ uploadCard.addEventListener(
 ========================================================= */
 
 async function unlockAction(kind){
-    if(kind !== "download"){
-        return true;
-    }
-
-    const key = "cloud_zen_download_unlocked";
-    const stampKey = `${key}_at`;
-    const cached = sessionStorage.getItem(key) === "1";
-    const cachedAt = Number(sessionStorage.getItem(stampKey) || 0);
-    const cacheValid = cached && cachedAt > 0 && (Date.now() - cachedAt) < (14 * 60 * 1000);
-
-    if(cacheValid) return true;
-
-    sessionStorage.removeItem(key);
-    sessionStorage.removeItem(stampKey);
-
-    const value = window.prompt("Enter Download / view password:");
-    if(value === null) return false;
-
-    const response = await fetch("/api/access/download", {
-        method:"POST",
-        credentials:"same-origin",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({password:String(value).trim()})
-    });
-
-    let data = null;
-    try{ data = await response.json(); }catch(_){}
-
-    if(!response.ok){
-        throw new Error(data?.error || "Security check failed");
-    }
-
-    sessionStorage.setItem(key, "1");
-    sessionStorage.setItem(stampKey, String(Date.now()));
+    // Download uses the already-authenticated main session.
     return true;
 }
 
 async function ensureDownloadAccess(){
-    return await unlockAction("download");
+    return true;
 }
 
 /* =========================================================
@@ -7341,5 +7287,106 @@ async function uploadFile(
 
 
         const chunkUrl =
-            "/api/upload-ch
+            "/api/upload-chunk?" +
+            params.toString();
+
+        const sendChunk = () => uploadChunkWithProgress(
+            chunkUrl,
+            blob,
+            (loaded) => {
+
+                const currentUploaded =
+                    uploaded + loaded;
+
+                const percent =
+                    file.size
+                        ? currentUploaded /
+                            file.size *
+                            100
+                        : 100;
+
+                updateQueue(
+                    queue,
+                    percent,
+                    false,
+                    currentUploaded,
+                    file.size
+                );
+            }
+        );
+
+        let attempt = 0;
+        while(true){
+            try{
+                await sendChunk();
+                break;
+            }catch(error){
+                attempt += 1;
+                if(attempt > 4) throw error;
+
+                const waitMs = Math.min(8000, 750 * (2 ** (attempt - 1)));
+                showToast(`Retrying ${file.name} chunk ${index + 1}/${total}...`);
+                await new Promise(resolve => setTimeout(resolve, waitMs));
+            }
+        }
+
+
+        uploaded +=
+            blob.size;
+
+
+        updateQueue(
+            queue,
+            file.size
+                ? uploaded /
+                    file.size *
+                    100
+                : 100,
+            false,
+            uploaded,
+            file.size
+        );
+    }
+
+
+    updateQueue(
+        queue,
+        100,
+        true,
+        file.size,
+        file.size
+    );
+
+
+    rememberRecent(
+        file.name
+    );
+
+
+    try{
+        await loadStorage();
+    }catch(error){
+        console.error(
+            "STORAGE REFRESH AFTER UPLOAD ERROR:",
+            error
+        );
+    }
+
+
+    showToast(
+        `${file.name} uploaded`
+    );
+}
+
+
+function uploadChunkWithProgress(
+    url,
+    blob,
+    onProgress
+){
+
+    return new Promise(
+        (resolve, reject) => {
+
+     
 Preview truncated for large file
