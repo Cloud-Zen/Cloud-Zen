@@ -7045,17 +7045,25 @@ uploadCard.addEventListener(
 
 async function unlockAction(kind){
     const key = kind === "upload" ? "cloud_zen_upload_unlocked" : "cloud_zen_download_unlocked";
-    if(sessionStorage.getItem(key) === "1") return true;
+    const stampKey = `${key}_at`;
+    const cached = sessionStorage.getItem(key) === "1";
+    const cachedAt = Number(sessionStorage.getItem(stampKey) || 0);
+    const cacheValid = cached && cachedAt > 0 && (Date.now() - cachedAt) < (14 * 60 * 1000);
+
+    if(cacheValid) return true;
+
+    sessionStorage.removeItem(key);
+    sessionStorage.removeItem(stampKey);
 
     const label = kind === "upload" ? "Upload password" : "Download / view password";
     const value = window.prompt(`Enter ${label}:`);
-    if(!value) return false;
+    if(value === null) return false;
 
     const response = await fetch(`/api/access/${kind}`, {
         method:"POST",
         credentials:"same-origin",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({password:value})
+        body:JSON.stringify({password:String(value).trim()})
     });
 
     let data = null;
@@ -7066,6 +7074,7 @@ async function unlockAction(kind){
     }
 
     sessionStorage.setItem(key, "1");
+    sessionStorage.setItem(stampKey, String(Date.now()));
     return true;
 }
 
@@ -7195,9 +7204,12 @@ async function uploadFile(
             });
 
 
-        await uploadChunkWithProgress(
+        const chunkUrl =
             "/api/upload-chunk?" +
-            params.toString(),
+            params.toString();
+
+        const sendChunk = () => uploadChunkWithProgress(
+            chunkUrl,
             blob,
             (loaded) => {
 
@@ -7220,6 +7232,20 @@ async function uploadFile(
                 );
             }
         );
+
+        try{
+            await sendChunk();
+        }catch(error){
+            if(error?.status === 403){
+                sessionStorage.removeItem("cloud_zen_upload_unlocked");
+                sessionStorage.removeItem("cloud_zen_upload_unlocked_at");
+                const relocked = await ensureUploadAccess();
+                if(!relocked) throw new Error("Upload password required");
+                await sendChunk();
+            }else{
+                throw error;
+            }
+        }
 
 
         uploaded +=
@@ -7365,12 +7391,12 @@ function uploadChunkWithProgress(
                         xhr.status >= 300
                     ){
 
-                        reject(
-                            new Error(
-                                data?.error ||
-                                "Upload failed"
-                            )
+                        const error = new Error(
+                            data?.error ||
+                            "Upload failed"
                         );
+                        error.status = xhr.status;
+                        reject(error);
 
                         return;
                     }
@@ -8097,4 +8123,4 @@ window.addEventListener(
 </body>
     </html>
 
-  
+    
