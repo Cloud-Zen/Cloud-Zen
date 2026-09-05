@@ -7044,7 +7044,11 @@ uploadCard.addEventListener(
 ========================================================= */
 
 async function unlockAction(kind){
-    const key = kind === "upload" ? "cloud_zen_upload_unlocked" : "cloud_zen_download_unlocked";
+    if(kind !== "download"){
+        return true;
+    }
+
+    const key = "cloud_zen_download_unlocked";
     const stampKey = `${key}_at`;
     const cached = sessionStorage.getItem(key) === "1";
     const cachedAt = Number(sessionStorage.getItem(stampKey) || 0);
@@ -7055,11 +7059,10 @@ async function unlockAction(kind){
     sessionStorage.removeItem(key);
     sessionStorage.removeItem(stampKey);
 
-    const label = kind === "upload" ? "Upload password" : "Download / view password";
-    const value = window.prompt(`Enter ${label}:`);
+    const value = window.prompt("Enter Download / view password:");
     if(value === null) return false;
 
-    const response = await fetch(`/api/access/${kind}`, {
+    const response = await fetch("/api/access/download", {
         method:"POST",
         credentials:"same-origin",
         headers:{"Content-Type":"application/json"},
@@ -7076,10 +7079,6 @@ async function unlockAction(kind){
     sessionStorage.setItem(key, "1");
     sessionStorage.setItem(stampKey, String(Date.now()));
     return true;
-}
-
-async function ensureUploadAccess(){
-    return await unlockAction("upload");
 }
 
 async function ensureDownloadAccess(){
@@ -7129,11 +7128,6 @@ const CHUNK_SIZE =
 async function uploadFile(
     file
 ){
-
-    const unlocked = await ensureUploadAccess();
-    if(!unlocked){
-        throw new Error("Upload password required");
-    }
 
     const total =
         Math.ceil(
@@ -7239,14 +7233,6 @@ async function uploadFile(
                 await sendChunk();
                 break;
             }catch(error){
-                if(error?.status === 403){
-                    sessionStorage.removeItem("cloud_zen_upload_unlocked");
-                    sessionStorage.removeItem("cloud_zen_upload_unlocked_at");
-                    const relocked = await ensureUploadAccess();
-                    if(!relocked) throw new Error("Upload password required");
-                    continue;
-                }
-
                 attempt += 1;
                 if(attempt > 4) throw error;
 
