@@ -3370,44 +3370,6 @@ input[type="password"]::placeholder{
         </section>
 
 
-        <section
-            id="storageDetailsCard"
-            class="storageDetailsCard"
-        >
-
-            <div class="storageDetailsHead">
-
-                <div>
-
-                    <h2 class="storageDetailsTitle">
-                        Storage Locations
-                    </h2>
-
-                    <p class="storageDetailsSub">
-                        See used space and free space for every connected cloud.
-                    </p>
-
-                </div>
-
-                <button
-                    id="storageDetailsRefresh"
-                    class="storageDetailsRefresh"
-                    type="button"
-                >
-                    Refresh
-                </button>
-
-            </div>
-
-
-            <div
-                id="storageProviderGrid"
-                class="storageProviderGrid"
-            ></div>
-
-        </section>
-
-
         <div class="cloudToolbar">
 
             <div class="searchBox">
@@ -5137,29 +5099,55 @@ storageDetailsRefresh?.addEventListener(
 
 downloadAllButton?.addEventListener(
     "click",
-    () => {
+    async () => {
 
         const confirmed =
             window.confirm(
-                "Download all files from every connected storage as one ZIP? Large clouds may take a long time and the ZIP can be very large."
+                "Download all files as one ZIP? Large clouds may take a long time and the ZIP can be very large."
             );
 
         if(!confirmed){
             return;
         }
 
-        const a =
-            document.createElement("a");
+        const password =
+            prompt(
+                "Enter download password:"
+            );
 
-        a.href =
-            "/api/download-all";
+        if(password === null){
+            return;
+        }
 
-        a.download =
-            "my-personal-cloud-all-storage.zip";
+        try{
+            await api(
+                "/api/access/download",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        downloadPassword:password
+                    })
+                }
+            );
 
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+            const a =
+                document.createElement("a");
+
+            a.href =
+                "/api/download-all";
+
+            a.download =
+                "my-personal-cloud-all-storage.zip";
+
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }catch(error){
+            alert(error.message);
+        }
     }
 );
 
@@ -5959,6 +5947,26 @@ function createFileCard(
     );
 
 
+    const rename =
+        document.createElement(
+            "button"
+        );
+
+    rename.className =
+        "fileAction";
+
+    rename.textContent =
+        "Rename";
+
+    rename.addEventListener(
+        "click",
+        () =>
+            renameFile(
+                file.name
+            )
+    );
+
+
     const share =
         document.createElement(
             "button"
@@ -6042,6 +6050,7 @@ function createFileCard(
     actions.append(
         open,
         download,
+        rename,
         share,
         more
     );
@@ -6476,32 +6485,52 @@ function downloadFile(
     name
 ){
 
-    const a =
-        document.createElement(
-            "a"
+    const password =
+        prompt(
+            "Enter download password:"
         );
 
+    if(password === null){
+        return;
+    }
 
-    a.href =
-        downloadUrl(
+    api(
+        "/api/access/download",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                downloadPassword:password
+            })
+        }
+    ).then(() => {
+        const a =
+            document.createElement(
+                "a"
+            );
+
+        a.href =
+            downloadUrl(
+                name
+            );
+
+        a.download =
             name
+                .split("/")
+                .pop();
+
+        document.body.appendChild(
+            a
         );
 
+        a.click();
 
-    a.download =
-        name
-            .split("/")
-            .pop();
-
-
-    document.body.appendChild(
-        a
-    );
-
-
-    a.click();
-
-    a.remove();
+        a.remove();
+    }).catch(error => {
+        alert(error.message);
+    });
 }
 
 
@@ -6680,6 +6709,61 @@ function closeViewer(){
 
 
 /* =========================================================
+   RENAME
+========================================================= */
+
+async function renameFile(
+    name
+){
+
+    const newName =
+        prompt(
+            `Rename "${name}" to:`,
+            name
+        );
+
+    if(newName === null || !newName.trim()){
+        return;
+    }
+
+    const renamePassword =
+        prompt(
+            "Enter rename password:"
+        );
+
+    if(renamePassword === null){
+        return;
+    }
+
+    try{
+        await api(
+            "/api/files",
+            {
+                method:"PATCH",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    name,
+                    newName:newName.trim(),
+                    renamePassword
+                })
+            }
+        );
+
+        starred.delete(name);
+        writeJSON(STAR_KEY,[...starred]);
+        recent = recent.filter(item => item !== name);
+        writeJSON(RECENT_KEY,recent);
+        showToast("File renamed");
+        await loadEverything();
+    }catch(error){
+        alert(error.message);
+    }
+}
+
+
+/* =========================================================
    DELETE
 ========================================================= */
 
@@ -6698,6 +6782,15 @@ async function deleteFile(
     }
 
 
+    const deletePassword =
+        prompt(
+            "Enter delete password:"
+        );
+
+    if(deletePassword === null){
+        return;
+    }
+
     try{
 
         await api(
@@ -6713,7 +6806,8 @@ async function deleteFile(
 
                 body:
                     JSON.stringify({
-                        name
+                        name,
+                        deletePassword
                     })
             }
         );
