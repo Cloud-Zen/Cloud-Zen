@@ -1,4 +1,5 @@
-  "use strict";
+"use strict";
+
 /* Run locally, not on Render, to create the Telegram MTProto session string. */
 const readline = require("node:readline/promises");
 const { stdin: input, stdout: output } = require("node:process");
@@ -38,4 +39,4 @@ const { stdin: input, stdout: output } = require("node:process");
   console.error(error?.stack || error);
   process.exit(1);
 });
-
+                       
