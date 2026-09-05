@@ -39,6 +39,7 @@ const TMP_DIR = path.join(os.tmpdir(), "cloud-zen");
 ========================= */
 const APP_PASSWORD = String(process.env.APP_PASSWORD ?? "").trim();
 const DELETE_PASSWORD = String(process.env.DELETE_PASSWORD ?? "").trim();
+const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD ?? "").trim();
 const SESSION_SECRET = String(process.env.SESSION_SECRET ?? "").trim();
 const TELEGRAM_API_ID = Number(process.env.TELEGRAM_API_ID || 0);
 const TELEGRAM_API_HASH = String(process.env.TELEGRAM_API_HASH || "").trim();
@@ -55,8 +56,8 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DEVICE_LOCK_MS = 24 * 60 * 60 * 1000;
 const MAX_LOGIN_FAILURES = 3;
 
-if (!APP_PASSWORD || !DELETE_PASSWORD || !SESSION_SECRET) {
-  console.warn("[Cloud-Zen] APP_PASSWORD, DELETE_PASSWORD and SESSION_SECRET must be set in Render.");
+if (!APP_PASSWORD || !DELETE_PASSWORD || !DOWNLOAD_PASSWORD || !SESSION_SECRET) {
+  console.warn("[Cloud-Zen] APP_PASSWORD, DELETE_PASSWORD, DOWNLOAD_PASSWORD and SESSION_SECRET must be set in Render.");
 }
 if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH || !TELEGRAM_SESSION) {
   console.warn("[Cloud-Zen] Telegram MTProto credentials are not fully configured.");
@@ -280,14 +281,21 @@ function requireUploadPassword(req, res, next) {
 }
 
 function requireDownloadPassword(req, res, next) {
-  // The main Enter password already authenticates the private cloud.
-  // There is intentionally NO second download password.
+  if (isLocked(req, "download")) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
+  const password = String(req.body?.password ?? req.body?.downloadPassword ?? req.query?.password ?? "").trim();
+  if (!DOWNLOAD_PASSWORD || !safeEqual(password, DOWNLOAD_PASSWORD)) {
+    const locked = registerFailure(req, "download");
+    return res.status(locked ? 423 : 403).json({
+      error: locked ? "Download access locked for 24 hours." : "Incorrect download password."
+    });
+  }
+  clearFailures(req, "download");
   next();
 }
 
 function requireDeletePassword(req, res, next) {
   if (isLocked(req, "delete")) return res.status(423).json({ error: "Delete access is locked for 24 hours on this device." });
-  const password = String(req.body?.deletePassword ?? "").trim();
+  const password = String(req.body?.password ?? req.body?.deletePassword ?? "").trim();
   if (!DELETE_PASSWORD || !safeEqual(password, DELETE_PASSWORD)) {
     const locked = registerFailure(req, "delete");
     return res.status(locked ? 423 : 403).json({
@@ -295,6 +303,19 @@ function requireDeletePassword(req, res, next) {
     });
   }
   clearFailures(req, "delete");
+  next();
+}
+
+function requireRenamePassword(req, res, next) {
+  if (isLocked(req, "rename")) return res.status(423).json({ error: "Rename access is locked for 24 hours on this device." });
+  const password = String(req.body?.password ?? req.body?.renamePassword ?? "").trim();
+  if (!DOWNLOAD_PASSWORD || !safeEqual(password, DOWNLOAD_PASSWORD)) {
+    const locked = registerFailure(req, "rename");
+    return res.status(locked ? 423 : 403).json({
+      error: locked ? "Rename access locked for 24 hours." : "Incorrect rename password."
+    });
+  }
+  clearFailures(req, "rename");
   next();
 }
 
@@ -764,7 +785,7 @@ app.get(/^\/api\/stream\/(.+)$/, requireAuth, async (req, res) => {
   }
 });
 
-app.get(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, async (req, res) => {
+async function downloadFileHandler(req, res) {
   try {
     const name = decodeURIComponent(req.params[0]);
     const file = await findFile(name);
@@ -774,7 +795,10 @@ app.get(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, async (
     if (!res.headersSent) res.status(500).send(error.message || "Download failed");
     else res.destroy(error);
   }
-});
+}
+
+app.get(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, downloadFileHandler);
+app.post(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, downloadFileHandler);
 
 
 /* =========================
@@ -800,7 +824,7 @@ function verifyShareToken(token) {
   } catch (_) { return null; }
 }
 
-app.patch("/api/files", requireAuth, async (req, res) => {
+async function renameFileHandler(req, res) {
   try {
     const oldName = cleanName(req.body?.name);
     const newName = cleanName(req.body?.newName);
@@ -825,7 +849,10 @@ app.patch("/api/files", requireAuth, async (req, res) => {
     console.error("RENAME ERROR:", error);
     return res.status(500).json({ error: error.message || "Rename failed" });
   }
-});
+}
+
+app.patch("/api/files", requireAuth, requireRenamePassword, renameFileHandler);
+app.post("/api/files/rename", requireAuth, requireRenamePassword, renameFileHandler);
 
 app.post("/api/share", requireAuth, async (req, res) => {
   try {
@@ -1001,4 +1028,5 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
+
   
