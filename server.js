@@ -55,8 +55,8 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DEVICE_LOCK_MS = 24 * 60 * 60 * 1000;
 const MAX_LOGIN_FAILURES = 3;
 
-if (!APP_PASSWORD || !UPLOAD_PASSWORD || !DOWNLOAD_PASSWORD || !SESSION_SECRET) {
-  console.warn("[Cloud-Zen] APP_PASSWORD, UPLOAD_PASSWORD, DOWNLOAD_PASSWORD and SESSION_SECRET must be set in Render.");
+if (!APP_PASSWORD || !DOWNLOAD_PASSWORD || !SESSION_SECRET) {
+  console.warn("[Cloud-Zen] APP_PASSWORD, DOWNLOAD_PASSWORD and SESSION_SECRET must be set in Render.");
 }
 if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH || !TELEGRAM_SESSION) {
   console.warn("[Cloud-Zen] Telegram MTProto credentials are not fully configured.");
@@ -265,12 +265,8 @@ function requireAuth(req, res, next) {
   next();
 }
 
+// Upload password removed by design. The main APP_PASSWORD session remains required.
 function requireUploadPassword(req, res, next) {
-  if (isLocked(req, "upload")) return res.status(423).json({ error: "Upload access is locked for 24 hours on this device." });
-  if (!validActionToken(actionCookie(req, "upload"), "upload")) {
-    return res.status(403).json({ error: "Upload access is locked until you enter the upload password." });
-  }
-  req.cloudSession.uploadOk = true;
   next();
 }
 
@@ -284,34 +280,44 @@ function requireDownloadPassword(req, res, next) {
 }
 
 async function grantActionAccess(req, res, kind) {
-  if (isLocked(req, kind)) return res.status(423).json({ error: `${kind[0].toUpperCase() + kind.slice(1)} access is locked for 24 hours on this device.` });
-  const expected = kind === "upload" ? UPLOAD_PASSWORD : DOWNLOAD_PASSWORD;
-  const password = String(req.body?.password ?? "").trim();
-  // Compatibility: APP_PASSWORD can also unlock upload/download. This prevents
-  // an accidental mismatch when the owner uses one security password for the
-  // whole private cloud. Dedicated UPLOAD_PASSWORD/DOWNLOAD_PASSWORD still
-  // work and remain preferred when configured.
-  const accepted = [expected, APP_PASSWORD].filter(Boolean);
-  if (!accepted.some(candidate => safeEqual(password, candidate))) {
-    const locked = registerFailure(req, kind);
-    return res.status(locked ? 423 : 403).json({ error: locked ? `${kind[0].toUpperCase() + kind.slice(1)} access locked for 24 hours.` : "Incorrect security password." });
+  // Upload access is no longer password-protected. Only download keeps
+  // the secondary security layer.
+  if (kind !== "download") {
+    return res.status(404).json({ error: "Not found" });
   }
-  clearFailures(req, kind);
-  const token = createActionToken(kind);
-  const cookieName = kind === "upload" ? "cloud_zen_upload_access" : "cloud_zen_download_access";
+
+  if (isLocked(req, "download")) {
+    return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
+  }
+
+  const expected = DOWNLOAD_PASSWORD;
+  const password = String(req.body?.password ?? "").trim();
+  const accepted = [expected, APP_PASSWORD].filter(Boolean);
+
+  if (!accepted.some(candidate => safeEqual(password, candidate))) {
+    const locked = registerFailure(req, "download");
+    return res.status(locked ? 423 : 403).json({
+      error: locked
+        ? "Download access locked for 24 hours."
+        : "Incorrect security password."
+    });
+  }
+
+  clearFailures(req, "download");
+  const token = createActionToken("download");
   const secure = process.env.NODE_ENV === "production";
   res.setHeader("Set-Cookie", [
-    `${cookieName}=${encodeURIComponent(token)}`,
+    `cloud_zen_download_access=${encodeURIComponent(token)}`,
     "Path=/",
     "HttpOnly",
     "SameSite=Lax",
     "Max-Age=900",
     secure ? "Secure" : ""
   ].filter(Boolean).join("; "));
+
   return res.json({ ok: true, expiresIn: 900 });
 }
 
-app.post("/api/access/upload", requireAuth, (req, res) => grantActionAccess(req, res, "upload"));
 app.post("/api/access/download", requireAuth, (req, res) => grantActionAccess(req, res, "download"));
 
 app.post("/api/auth/login", (req, res) => {
@@ -879,4 +885,3 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
-                   
