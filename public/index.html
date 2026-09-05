@@ -7233,17 +7233,26 @@ async function uploadFile(
             }
         );
 
-        try{
-            await sendChunk();
-        }catch(error){
-            if(error?.status === 403){
-                sessionStorage.removeItem("cloud_zen_upload_unlocked");
-                sessionStorage.removeItem("cloud_zen_upload_unlocked_at");
-                const relocked = await ensureUploadAccess();
-                if(!relocked) throw new Error("Upload password required");
+        let attempt = 0;
+        while(true){
+            try{
                 await sendChunk();
-            }else{
-                throw error;
+                break;
+            }catch(error){
+                if(error?.status === 403){
+                    sessionStorage.removeItem("cloud_zen_upload_unlocked");
+                    sessionStorage.removeItem("cloud_zen_upload_unlocked_at");
+                    const relocked = await ensureUploadAccess();
+                    if(!relocked) throw new Error("Upload password required");
+                    continue;
+                }
+
+                attempt += 1;
+                if(attempt > 4) throw error;
+
+                const waitMs = Math.min(8000, 750 * (2 ** (attempt - 1)));
+                showToast(`Retrying ${file.name} chunk ${index + 1}/${total}...`);
+                await new Promise(resolve => setTimeout(resolve, waitMs));
             }
         }
 
@@ -8123,4 +8132,3 @@ window.addEventListener(
 </body>
     </html>
 
-    
