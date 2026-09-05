@@ -3097,11 +3097,6 @@ input[type="password"]::placeholder{
    UI UPGRADE — STORAGE ACCORDION + QUICK ACTION MENU
    Added only; original styles and elements remain intact.
 ========================================================= */
-.storageDetailsCard.storageCompact .storageProviderGrid{display:none;}
-.storageDetailsCard.storageCompact .storageDetailsHead{margin-bottom:0;}
-.storageAccordionButton{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:#dbe5f2;border-radius:11px;padding:8px 11px;cursor:pointer;font-size:11px;font-weight:850;white-space:nowrap;transition:transform .18s ease,background .18s ease;}
-.storageAccordionButton:hover{background:rgba(255,255,255,.08);transform:translateY(-1px);}
-.storageAccordionButton .accordionChevron{display:inline-block;transition:transform .22s ease;}
 .fileActions{position:relative;}
 .fileActions .fileMoreButton{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);color:#dbe5f2;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;line-height:1;letter-spacing:2px;transition:background .18s ease,transform .18s ease;}
 .fileActions .fileMoreButton:hover{background:rgba(255,255,255,.09);transform:translateY(-1px);}
@@ -3111,40 +3106,19 @@ input[type="password"]::placeholder{
 .fileCard:not(.quickActionsOpen) .deleteRow{display:none !important;}
 .fileCard.quickActionsOpen .deleteRow{display:flex !important;}
 @media(max-width:760px){.storageProviderGrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(220px,82%);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.storageProvider{scroll-snap-align:start;}}
-@media(max-width:470px){.storageAccordionButton{padding:8px 9px;}}
-
-/* =========================================================
-   REQUESTED UPGRADE — HIDE EXTERNAL CLOUD PROVIDER PANEL
-   Original provider code is preserved below for compatibility.
-========================================================= */
-#storageDetailsCard{display:none !important;}
-
-/* =========================================================
-   REQUESTED UPGRADE — PASSWORD MODAL
-========================================================= */
-#actionPasswordModal{
-    position:fixed; inset:0; z-index:1500; display:none;
-    align-items:center; justify-content:center; padding:18px;
-    background:rgba(3,8,14,.84); backdrop-filter:blur(16px);
-}
+@media(max-width:470px){
+/* SECURE ACTIONS — authorization is enforced by the backend. */
+#actionPasswordModal{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,8,14,.82);backdrop-filter:blur(18px);}
 #actionPasswordModal.show{display:flex;}
-.actionPasswordBox{
-    width:min(390px,92vw); padding:24px; text-align:center;
-    border:1px solid var(--line); border-radius:22px;
-    background:#0a1625; box-shadow:var(--shadow);
-}
+.actionPasswordBox{width:min(390px,92vw);padding:24px;border:1px solid var(--line);border-radius:22px;background:#0a1625;box-shadow:var(--shadow);}
 .actionPasswordTitle{margin:0 0 7px;font-size:18px;font-weight:900;}
 .actionPasswordText{margin:0 0 16px;color:var(--muted);font-size:12px;line-height:1.5;}
-#actionPasswordInput{
-    width:100%; padding:13px 15px; border:1px solid var(--line);
-    border-radius:12px; outline:none; color:#fff; background:rgba(255,255,255,.045);
-}
-#actionPasswordInput:focus{border-color:var(--line2);box-shadow:0 0 0 4px rgba(143,200,255,.05);}
-.actionPasswordButtons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
-.actionPasswordButtons button{padding:11px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-weight:800;}
-#actionPasswordCancel{color:#dbe5f2;background:rgba(255,255,255,.045);}
-#actionPasswordConfirm{color:#06101b;background:linear-gradient(100deg,#9ed7ff,#bcaeff);}
+#actionPasswordInput{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:12px;outline:none;color:#fff;background:rgba(255,255,255,.045);}
 #actionPasswordError{min-height:18px;margin-top:9px;color:#ff9eb8;font-size:12px;}
+.actionPasswordButtons{display:flex;gap:8px;margin-top:10px;}
+.actionPasswordButtons button{flex:1;padding:11px;border:1px solid var(--line);border-radius:11px;color:#dce8f5;background:rgba(255,255,255,.05);cursor:pointer;font-weight:800;}
+.actionPasswordButtons .confirm{border:0;color:#06101b;background:linear-gradient(100deg,#9ed7ff,#bcaeff);}
+.fileActions .renameAction{color:#bfe1ff;}
 
 </style>
 
@@ -3327,18 +3301,7 @@ input[type="password"]::placeholder{
                 >
                     ↻
                 </button>
-
-
-                <button
-                    id="downloadAllButton"
-                    class="iconButton qrButton"
-                    title="Download all files from all connected storages as one ZIP"
-                >
-                    ↓ All
-                </button>
-
-
-                <button
+<button
                     id="logoutButton"
                     class="logout"
                 >
@@ -3402,47 +3365,7 @@ input[type="password"]::placeholder{
             </div>
 
         </section>
-
-
-        <section
-            id="storageDetailsCard"
-            class="storageDetailsCard"
-        >
-
-            <div class="storageDetailsHead">
-
-                <div>
-
-                    <h2 class="storageDetailsTitle">
-                        Storage Locations
-                    </h2>
-
-                    <p class="storageDetailsSub">
-                        See used space and free space for every connected cloud.
-                    </p>
-
-                </div>
-
-                <button
-                    id="storageDetailsRefresh"
-                    class="storageDetailsRefresh"
-                    type="button"
-                >
-                    Refresh
-                </button>
-
-            </div>
-
-
-            <div
-                id="storageProviderGrid"
-                class="storageProviderGrid"
-            ></div>
-
-        </section>
-
-
-        <div class="cloudToolbar">
+<div class="cloudToolbar">
 
             <div class="searchBox">
 
@@ -3699,22 +3622,19 @@ input[type="password"]::placeholder{
 
 
 
-<!-- =======================================================
-     PASSWORD-PROTECTED FILE ACTION MODAL
-======================================================= -->
-<section id="actionPasswordModal" aria-hidden="true">
-    <div class="actionPasswordBox">
-        <h3 id="actionPasswordTitle" class="actionPasswordTitle">Password Required</h3>
-        <p id="actionPasswordText" class="actionPasswordText">Enter the password to continue.</p>
-        <input id="actionPasswordInput" type="password" placeholder="Enter password" autocomplete="off">
+<!-- SECURE ACTION PASSWORD MODAL -->
+<div id="actionPasswordModal" aria-hidden="true">
+    <div class="actionPasswordBox" role="dialog" aria-modal="true">
+        <h2 id="actionPasswordTitle" class="actionPasswordTitle">Security Check</h2>
+        <p id="actionPasswordText" class="actionPasswordText">Enter your password to continue.</p>
+        <input id="actionPasswordInput" type="password" autocomplete="current-password" placeholder="Enter password">
+        <div id="actionPasswordError"></div>
         <div class="actionPasswordButtons">
             <button id="actionPasswordCancel" type="button">Cancel</button>
-            <button id="actionPasswordConfirm" type="button">Continue</button>
+            <button id="actionPasswordConfirm" class="confirm" type="button">Confirm</button>
         </div>
-        <div id="actionPasswordError"></div>
     </div>
-</section>
-
+</div>
 <!-- =======================================================
      TOAST
 ======================================================= -->
@@ -4215,21 +4135,6 @@ const storageRemaining =
         "storageRemaining"
     );
 
-const storageProviderGrid =
-    document.getElementById(
-        "storageProviderGrid"
-    );
-
-const storageDetailsRefresh =
-    document.getElementById(
-        "storageDetailsRefresh"
-    );
-
-const downloadAllButton =
-    document.getElementById(
-        "downloadAllButton"
-    );
-
 const searchInput =
     document.getElementById(
         "searchInput"
@@ -4249,17 +4154,6 @@ const toast =
     document.getElementById(
         "toast"
     );
-
-
-const actionPasswordModal = document.getElementById("actionPasswordModal");
-const actionPasswordTitle = document.getElementById("actionPasswordTitle");
-const actionPasswordText = document.getElementById("actionPasswordText");
-const actionPasswordInput = document.getElementById("actionPasswordInput");
-const actionPasswordCancel = document.getElementById("actionPasswordCancel");
-const actionPasswordConfirm = document.getElementById("actionPasswordConfirm");
-const actionPasswordError = document.getElementById("actionPasswordError");
-
-let pendingPasswordAction = null;
 
 
 /* =========================================================
@@ -4590,6 +4484,109 @@ function showToast(
         );
 }
 
+
+
+/* SECURE ACTION PASSWORD MODAL */
+const actionPasswordModal = document.getElementById("actionPasswordModal");
+const actionPasswordInput = document.getElementById("actionPasswordInput");
+const actionPasswordText = document.getElementById("actionPasswordText");
+const actionPasswordError = document.getElementById("actionPasswordError");
+const actionPasswordCancel = document.getElementById("actionPasswordCancel");
+const actionPasswordConfirm = document.getElementById("actionPasswordConfirm");
+
+let actionPasswordResolver = null;
+
+function requestActionPassword(message){
+    return new Promise(resolve => {
+        actionPasswordResolver = resolve;
+        actionPasswordText.textContent = message;
+        actionPasswordError.textContent = "";
+        actionPasswordInput.value = "";
+        actionPasswordModal.classList.add("show");
+        actionPasswordModal.setAttribute("aria-hidden","false");
+        setTimeout(() => actionPasswordInput.focus(), 50);
+    });
+}
+
+function closeActionPassword(value){
+    actionPasswordModal.classList.remove("show");
+    actionPasswordModal.setAttribute("aria-hidden","true");
+    if(actionPasswordResolver){
+        const resolve = actionPasswordResolver;
+        actionPasswordResolver = null;
+        resolve(value);
+    }
+}
+
+actionPasswordCancel.addEventListener("click", () => closeActionPassword(null));
+actionPasswordModal.addEventListener("click", event => {
+    if(event.target === actionPasswordModal) closeActionPassword(null);
+});
+actionPasswordInput.addEventListener("keydown", event => {
+    if(event.key === "Enter"){
+        event.preventDefault();
+        actionPasswordConfirm.click();
+    }else if(event.key === "Escape"){
+        event.preventDefault();
+        closeActionPassword(null);
+    }
+});
+actionPasswordConfirm.addEventListener("click", () => {
+    const value = actionPasswordInput.value;
+    if(!value){
+        actionPasswordError.textContent = "Password is required.";
+        actionPasswordInput.focus();
+        return;
+    }
+    closeActionPassword(value);
+});
+
+async function secureDownloadFile(name){
+    const password = await requestActionPassword(
+        "Enter your security password to download this file."
+    );
+    if(!password) return;
+
+    try{
+        const response = await fetch(downloadUrl(name), {
+            method:"POST",
+            credentials:"same-origin",
+            headers:{
+                "Content-Type":"application/json",
+                "Accept":"application/octet-stream"
+            },
+            body:JSON.stringify({password})
+        });
+
+        if(response.status === 401){
+            showLogin();
+            throw new Error("Authentication required");
+        }
+        if(response.status === 403){
+            throw new Error("Incorrect download password");
+        }
+        if(!response.ok){
+            let message = "Download failed";
+            try{
+                const data = await response.json();
+                message = data?.error || message;
+            }catch(_){}
+            throw new Error(message);
+        }
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objectUrl;
+        a.download = name.split("/").pop();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    }catch(error){
+        alert(error.message || "Download failed");
+    }
+}
 
 /* =========================================================
    AUTH API
@@ -4973,156 +4970,6 @@ async function loadStorage(){
         `Free: ${data.remainingText}`;
 
 
-    renderStorageProviders(data);
-}
-
-
-function renderStorageProviders(data){
-
-    if(!storageProviderGrid){
-        return;
-    }
-
-
-    const providers = [
-
-        {
-            key:"b2",
-            name:"Backblaze B2",
-            data:data.b2 || {}
-        },
-
-        {
-            key:"mega",
-            name:"MEGA",
-            data:data.mega || {}
-        },
-
-        {
-            key:"idriveE2",
-            name:"IDrive E2",
-            data:data.idriveE2 || {}
-        },
-
-        {
-            key:"cloudinary",
-            name:"Cloudinary",
-            data:data.cloudinary || {}
-        },
-
-        {
-            key:"filebase",
-            name:"Filebase",
-            data:data.filebase || {}
-        },
-
-        {
-            key:"koofr",
-            name:"Koofr",
-            data:data.koofr || {}
-        }
-    ];
-
-
-    storageProviderGrid.innerHTML = "";
-
-
-    providers.forEach(provider => {
-
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "storageProvider";
-
-
-        const configured =
-            provider.data.configured !== false;
-
-        const connected =
-            provider.data.connected !== false;
-
-        const used =
-            Number(
-                provider.data.usedBytes ??
-                provider.data.totalBytes ??
-                0
-            );
-
-        const capacity =
-            Number(
-                provider.data.capacityBytes ??
-                provider.data.limitBytes ??
-                0
-            );
-
-        const remaining =
-            Number(
-                provider.data.remainingBytes ??
-                Math.max(0, capacity - used)
-            );
-
-        const percent =
-            capacity > 0
-                ? Math.min(
-                    100,
-                    (used / capacity) * 100
-                )
-                : 0;
-
-        const safePercent =
-            Number(percent.toFixed(2));
-
-        let statusText = "Connected";
-        let statusClass = "";
-
-        if(!configured){
-            statusText = "Not configured";
-            statusClass = "unconfigured";
-        }else if(!connected){
-            statusText = "Not connected";
-            statusClass = "offline";
-        }else if(safePercent >= 99.5){
-            statusText = "Near storage limit";
-            statusClass = "offline";
-        }
-
-
-        item.innerHTML = `
-            <div class="storageProviderTop">
-                <div class="storageProviderName">
-                    ${escapeHtml(provider.name)}
-                </div>
-                <div class="storageProviderPercent">
-                    ${configured ? safePercent : 0}%
-                </div>
-            </div>
-
-            <div class="storageProviderBar">
-                <div
-                    class="storageProviderFill"
-                    style="width:${configured ? safePercent : 0}%"
-                ></div>
-            </div>
-
-            <div class="storageProviderMeta">
-                <span>Used: ${escapeHtml(
-                    provider.data.usedText ||
-                    formatClientBytes(used)
-                )}</span>
-                <span>Free: ${escapeHtml(
-                    provider.data.remainingText ||
-                    formatClientBytes(remaining)
-                )}</span>
-            </div>
-
-            <div class="storageProviderStatus ${statusClass}">
-                ${escapeHtml(statusText)}
-            </div>
-        `;
-
-        storageProviderGrid.appendChild(item);
-    });
 }
 
 
@@ -5155,90 +5002,6 @@ function formatClientBytes(bytes){
 /* =========================================================
    STORAGE ACCORDION — COLLAPSE LONG PROVIDER LIST
 ========================================================= */
-(function initStorageAccordion(){
-    const detailsCard = document.getElementById("storageDetailsCard");
-    const head = detailsCard?.querySelector(".storageDetailsHead");
-    if(!detailsCard || !head) return;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "storageAccordionButton";
-    button.innerHTML = `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`;
-
-    button.addEventListener("click", () => {
-        const collapsed = detailsCard.classList.toggle("storageCompact");
-        button.innerHTML = collapsed
-            ? `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`
-            : `Hide <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌃</span>`;
-    });
-
-    head.appendChild(button);
-    detailsCard.classList.add("storageCompact");
-})();
-
-storageDetailsRefresh?.addEventListener(
-    "click",
-    async () => {
-        try{
-            storageDetailsRefresh.disabled = true;
-            storageDetailsRefresh.textContent = "Loading...";
-            await loadStorage();
-        }catch(error){
-            console.error(error);
-            showToast(
-                error.message ||
-                "Could not refresh storage"
-            );
-        }finally{
-            storageDetailsRefresh.disabled = false;
-            storageDetailsRefresh.textContent = "Refresh";
-        }
-    }
-);
-
-
-downloadAllButton?.addEventListener(
-    "click",
-    async () => {
-        try{
-            const actionPassword = await requestActionPassword(
-                "Download All — Password Required",
-                "Enter the download password to download all files as a ZIP."
-            );
-
-            const a = document.createElement("a");
-            a.href = "/api/download-all";
-            a.download = "my-personal-cloud-all-storage.zip";
-            a.setAttribute("data-password-protected", "true");
-            document.body.appendChild(a);
-
-            /*
-               The header is the security contract expected by the backend.
-               Browsers do not allow custom headers on a normal anchor download,
-               so use fetch + Blob for this protected download.
-            */
-            const response = await fetch(a.href, {
-                credentials: "same-origin",
-                headers: { "X-Download-Password": actionPassword }
-            });
-            if(!response.ok){
-                let message = "Download failed";
-                try{ const data = await response.json(); message = data?.error || message; }catch(_){}
-                throw new Error(message);
-            }
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            a.href = url;
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-            a.remove();
-        }catch(error){
-            if(error?.message !== "Action cancelled") alert(error.message || "Could not download files");
-        }
-    }
-);
-
-
 /* =========================================================
    FILES
 ========================================================= */
@@ -6033,26 +5796,6 @@ function createFileCard(
     );
 
 
-    const rename = document.createElement("button");
-    rename.className = "fileAction";
-    rename.textContent = "Rename";
-    rename.addEventListener("click", async () => {
-        const currentName = String(file.name || "");
-        const proposed = window.prompt("Enter the new file name:", currentName);
-        if(proposed === null) return;
-        const newName = proposed.trim();
-        if(!newName || newName === currentName){
-            if(newName === currentName) showToast("Name unchanged");
-            return;
-        }
-        try{
-            await renameFile(currentName, newName);
-        }catch(error){
-            alert(error.message || "Could not rename file");
-        }
-    });
-
-
     const share =
         document.createElement(
             "button"
@@ -6077,6 +5820,23 @@ function createFileCard(
                 file
             );
         }
+    );
+
+
+    const rename =
+        document.createElement(
+            "button"
+        );
+
+    rename.className =
+        "fileAction renameAction";
+
+    rename.textContent =
+        "Rename";
+
+    rename.addEventListener(
+        "click",
+        () => renameFile(file)
     );
 
 
@@ -6136,8 +5896,8 @@ function createFileCard(
     actions.append(
         open,
         download,
-        rename,
         share,
+        rename,
         more
     );
 
@@ -6567,45 +6327,9 @@ function downloadUrl(
 }
 
 
-async function downloadFile(
-    name
-){
-    try{
-        const actionPassword = await requestActionPassword(
-            "Download — Password Required",
-            `Enter the download password for “${name.split("/").pop()}”.`
-        );
-
-        const response = await fetch(
-            downloadUrl(name),
-            {
-                credentials:"same-origin",
-                headers:{
-                    "X-Download-Password": actionPassword
-                }
-            }
-        );
-
-        if(!response.ok){
-            let message = "Download failed";
-            try{ const data = await response.json(); message = data?.error || message; }catch(_){}
-            throw new Error(message);
-        }
-
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = name.split("/").pop();
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }catch(error){
-        if(error?.message !== "Action cancelled") alert(error.message || "Could not download file");
-    }
+function downloadFile(name){
+    return secureDownloadFile(name);
 }
-
 
 
 /* =========================================================
@@ -6783,109 +6507,127 @@ function closeViewer(){
 
 
 /* =========================================================
-   PASSWORD-PROTECTED ACTIONS
-========================================================= */
-function requestActionPassword(title, text){
-    return new Promise((resolve, reject) => {
-        pendingPasswordAction = { resolve, reject };
-        actionPasswordTitle.textContent = title;
-        actionPasswordText.textContent = text;
-        actionPasswordInput.value = "";
-        actionPasswordError.textContent = "";
-        actionPasswordModal.classList.add("show");
-        actionPasswordModal.setAttribute("aria-hidden", "false");
-        setTimeout(() => actionPasswordInput.focus(), 50);
-    });
-}
-
-function finishPasswordAction(confirmed){
-    const pending = pendingPasswordAction;
-    pendingPasswordAction = null;
-    actionPasswordModal.classList.remove("show");
-    actionPasswordModal.setAttribute("aria-hidden", "true");
-    const value = actionPasswordInput.value;
-    actionPasswordInput.value = "";
-    actionPasswordError.textContent = "";
-    if(!pending) return;
-    if(confirmed && value.trim()){
-        pending.resolve(value);
-    }else if(confirmed){
-        pendingPasswordAction = pending;
-        actionPasswordError.textContent = "Password is required.";
-        actionPasswordModal.classList.add("show");
-        actionPasswordModal.setAttribute("aria-hidden", "false");
-        setTimeout(() => actionPasswordInput.focus(), 50);
-    }else{
-        pending.reject(new Error("Action cancelled"));
-    }
-}
-
-actionPasswordCancel.addEventListener("click", () => finishPasswordAction(false));
-actionPasswordConfirm.addEventListener("click", () => finishPasswordAction(true));
-actionPasswordInput.addEventListener("keydown", event => {
-    if(event.key === "Enter") finishPasswordAction(true);
-    if(event.key === "Escape") finishPasswordAction(false);
-});
-actionPasswordModal.addEventListener("click", event => {
-    if(event.target === actionPasswordModal) finishPasswordAction(false);
-});
-
-async function renameFile(oldName, newName){
-    const response = await fetch("/api/files", {
-        method:"PATCH",
-        credentials:"same-origin",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ name:oldName, oldName, newName })
-    });
-    let data = null;
-    try{ data = await response.json(); }catch(_){}
-    if(response.status === 401){ showLogin(); throw new Error("Authentication required"); }
-    if(!response.ok){
-        throw new Error(data?.error || "Could not rename file");
-    }
-    showToast("File renamed");
-    await loadEverything();
-}
-
-/* =========================================================
    DELETE
 ========================================================= */
 
 async function deleteFile(
     name
 ){
-    const ok = confirm(`Delete "${name}" permanently?`);
-    if(!ok) return;
-
-    try{
-        const actionPassword = await requestActionPassword(
-            "Delete — Password Required",
-            `Enter the delete password to permanently remove “${name}”.`
+    const ok =
+        confirm(
+            `Delete "${name}" permanently?`
         );
 
+    if(!ok){
+        return;
+    }
+
+    const password = await requestActionPassword(
+        "Enter your security password to permanently delete this item."
+    );
+    if(!password){
+        return;
+    }
+
+    try{
         await api(
             "/api/files",
             {
                 method:"DELETE",
                 headers:{
-                    "Content-Type":"application/json",
-                    "X-Delete-Password": actionPassword
+                    "Content-Type":
+                        "application/json"
                 },
-                body:JSON.stringify({name, password:actionPassword})
+                body:
+                    JSON.stringify({
+                        name,
+                        password
+                    })
             }
         );
 
         starred.delete(name);
-        writeJSON(STAR_KEY,[...starred]);
-        recent = recent.filter(item => item !== name);
-        writeJSON(RECENT_KEY,recent);
-        showToast("File deleted");
+
+        writeJSON(
+            STAR_KEY,
+            [...starred]
+        );
+
+        recent =
+            recent.filter(
+                item =>
+                    item !== name
+            );
+
+        writeJSON(
+            RECENT_KEY,
+            recent
+        );
+
+        showToast(
+            "File deleted"
+        );
+
         await loadEverything();
+
     }catch(error){
-        if(error?.message !== "Action cancelled") alert(error.message);
+        alert(
+            error.message
+        );
     }
 }
 
+
+/* =========================================================
+   RENAME
+========================================================= */
+async function renameFile(file){
+    const currentName = String(file?.name || "");
+    if(!currentName) return;
+
+    const oldBaseName = currentName.split("/").pop();
+    const newName = window.prompt(
+        `Rename "${currentName}" to:`,
+        oldBaseName
+    );
+
+    if(newName === null) return;
+
+    const trimmedName = newName.trim();
+    if(!trimmedName){
+        alert("A file name is required.");
+        return;
+    }
+    if(trimmedName === oldBaseName) return;
+
+    const password = await requestActionPassword(
+        "Enter your security password to rename this item."
+    );
+    if(!password) return;
+
+    try{
+        await api(
+            "/api/files/rename",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:
+                    JSON.stringify({
+                        name:currentName,
+                        newName:trimmedName,
+                        password
+                    })
+            }
+        );
+
+        showToast("File renamed");
+        await loadEverything();
+    }catch(error){
+        alert(error.message || "Rename failed");
+    }
+}
 
 
 /* =========================================================
@@ -7830,5 +7572,193 @@ qrModal.addEventListener(
 
 
 /* =========================================================
-   LOAD EVERYT
-Preview truncated for large file
+   LOAD EVERYTHING
+========================================================= */
+
+async function loadEverything(){
+
+    try{
+
+        await Promise.all([
+            loadStorage(),
+            loadFiles()
+        ]);
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   FORMAT BYTES
+========================================================= */
+
+function formatBytes(
+    bytes
+){
+
+    const value =
+        Number(bytes);
+
+
+    if(
+        !Number.isFinite(value) ||
+        value <= 0
+    ){
+
+        return "0 B";
+    }
+
+
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB",
+        "TB"
+    ];
+
+
+    const index =
+        Math.min(
+            Math.floor(
+                Math.log(value) /
+                Math.log(1024)
+            ),
+            units.length - 1
+        );
+
+
+    return (
+        value /
+        Math.pow(
+            1024,
+            index
+        )
+    )
+        .toFixed(
+            index === 0
+                ? 0
+                : 1
+        ) +
+        " " +
+        units[index];
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHtml(
+    value
+){
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key ===
+            "Escape"
+        ){
+
+            closeViewer();
+
+            closeQRCode();
+        }
+
+
+        if(
+            event.key === "/" &&
+
+            document.activeElement !==
+                searchInput &&
+
+            document.activeElement !==
+                password
+        ){
+
+            event.preventDefault();
+
+            searchInput.focus();
+        }
+    }
+);
+
+
+/* =========================================================
+   WELCOME / START
+========================================================= */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        setTimeout(
+            welcomeVoice,
+            450
+        );
+
+
+        setTimeout(
+            () => {
+
+                intro.classList.add(
+                    "hide"
+                );
+
+
+                checkAuthentication();
+
+            },
+            2500
+        );
+    }
+);
+
+</script>
+
+</body>
+    </html>
+
+
+
+    
