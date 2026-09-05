@@ -37,10 +37,10 @@ const TMP_DIR = path.join(os.tmpdir(), "cloud-zen");
 /* =========================
    ENVIRONMENT / SECRETS
 ========================= */
-const APP_PASSWORD = String(process.env.APP_PASSWORD || "");
-const UPLOAD_PASSWORD = String(process.env.UPLOAD_PASSWORD || "");
-const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD || "");
-const SESSION_SECRET = String(process.env.SESSION_SECRET || "");
+const APP_PASSWORD = String(process.env.APP_PASSWORD ?? "").trim();
+const UPLOAD_PASSWORD = String(process.env.UPLOAD_PASSWORD ?? "").trim();
+const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD ?? "").trim();
+const SESSION_SECRET = String(process.env.SESSION_SECRET ?? "").trim();
 const TELEGRAM_API_ID = Number(process.env.TELEGRAM_API_ID || 0);
 const TELEGRAM_API_HASH = String(process.env.TELEGRAM_API_HASH || "").trim();
 const TELEGRAM_SESSION = String(process.env.TELEGRAM_SESSION || "").trim();
@@ -133,24 +133,56 @@ async function getTelegramClient() {
 /* =========================
    AUTH / DEVICE LOCK
 ========================= */
-const sessions = new Map();
 const authFailures = new Map();
 const deviceLocks = new Map();
-const actionTokens = new Map();
 
-function createActionToken(req, kind) {
-  const token = crypto.randomBytes(32).toString("hex");
-  actionTokens.set(token, { kind, device: deviceKey(req), expiresAt: Date.now() + 15 * 60 * 1000 });
-  return token;
+function b64url(value) {
+  return Buffer.from(String(value)).toString("base64url");
 }
 
-function validActionToken(req, token, kind) {
-  const record = actionTokens.get(String(token || ""));
-  if (!record || record.kind !== kind || record.expiresAt <= Date.now() || record.device !== deviceKey(req)) {
-    if (record && record.expiresAt <= Date.now()) actionTokens.delete(String(token || ""));
-    return false;
+function signPayload(payload) {
+  if (!SESSION_SECRET) throw new Error("SESSION_SECRET is not configured.");
+  const body = b64url(JSON.stringify(payload));
+  const signature = crypto.createHmac("sha256", SESSION_SECRET).update(body).digest("base64url");
+  return `${body}.${signature}`;
+}
+
+function verifyPayload(token) {
+  if (!SESSION_SECRET || !token) return null;
+  const parts = String(token).split(".");
+  if (parts.length !== 2) return null;
+  const [body, signature] = parts;
+  if (!body || !signature) return null;
+  const expected = crypto.createHmac("sha256", SESSION_SECRET).update(body).digest("base64url");
+  const a = Buffer.from(signature);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+
+  let payload;
+  try {
+    payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+  } catch (_) {
+    return null;
   }
-  return true;
+  if (!payload || !Number.isFinite(Number(payload.exp)) || Number(payload.exp) <= Date.now()) return null;
+  return payload;
+}
+
+function createActionToken(kind) {
+  return signPayload({
+    type: "action",
+    kind,
+    exp: Date.now() + 15 * 60 * 1000
+  });
+}
+
+function validActionToken(token, kind) {
+  const record = verifyPayload(token);
+  return Boolean(
+    record &&
+    record.type === "action" &&
+    record.kind === kind
+  );
 }
 
 function actionCookie(req, kind) {
@@ -210,26 +242,20 @@ function safeEqual(a, b) {
   return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
 }
 
-function createSession(req) {
-  const raw = crypto.randomBytes(32).toString("hex");
-  const token = crypto.createHmac("sha256", SESSION_SECRET).update(raw).digest("hex");
-  sessions.set(token, {
-    createdAt: Date.now(),
-    expiresAt: Date.now() + SESSION_TTL_MS,
-    device: deviceKey(req),
-    uploadOk: false,
-    downloadOk: false
+function createSession() {
+  return signPayload({
+    type: "session",
+    iat: Date.now(),
+    exp: Date.now() + SESSION_TTL_MS
   });
-  return token;
 }
 
 function getSession(req) {
   const cookie = String(req.headers.cookie || "");
   const match = cookie.match(/(?:^|;\s*)cloud_zen_session=([^;]+)/);
   if (!match) return null;
-  const session = sessions.get(decodeURIComponent(match[1]));
-  if (!session || session.expiresAt <= Date.now()) return null;
-  if (session.device !== deviceKey(req)) return null;
+  const session = verifyPayload(decodeURIComponent(match[1]));
+  if (!session || session.type !== "session") return null;
   return session;
 }
 
@@ -242,7 +268,7 @@ function requireAuth(req, res, next) {
 
 function requireUploadPassword(req, res, next) {
   if (isLocked(req, "upload")) return res.status(423).json({ error: "Upload access is locked for 24 hours on this device." });
-  if (!validActionToken(req, actionCookie(req, "upload"), "upload")) {
+  if (!validActionToken(actionCookie(req, "upload"), "upload")) {
     return res.status(403).json({ error: "Upload access is locked until you enter the upload password." });
   }
   req.cloudSession.uploadOk = true;
@@ -251,7 +277,7 @@ function requireUploadPassword(req, res, next) {
 
 function requireDownloadPassword(req, res, next) {
   if (isLocked(req, "download")) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
-  if (!validActionToken(req, actionCookie(req, "download"), "download")) {
+  if (!validActionToken(actionCookie(req, "download"), "download")) {
     return res.status(403).json({ error: "Download access is locked until you enter the download password." });
   }
   req.cloudSession.downloadOk = true;
@@ -261,13 +287,13 @@ function requireDownloadPassword(req, res, next) {
 async function grantActionAccess(req, res, kind) {
   if (isLocked(req, kind)) return res.status(423).json({ error: `${kind[0].toUpperCase() + kind.slice(1)} access is locked for 24 hours on this device.` });
   const expected = kind === "upload" ? UPLOAD_PASSWORD : DOWNLOAD_PASSWORD;
-  const password = String(req.body?.password || "");
+  const password = String(req.body?.password ?? "").trim();
   if (!safeEqual(password, expected)) {
     const locked = registerFailure(req, kind);
     return res.status(locked ? 423 : 403).json({ error: locked ? `${kind[0].toUpperCase() + kind.slice(1)} access locked for 24 hours.` : "Incorrect security password." });
   }
   clearFailures(req, kind);
-  const token = createActionToken(req, kind);
+  const token = createActionToken(kind);
   const cookieName = kind === "upload" ? "cloud_zen_upload_access" : "cloud_zen_download_access";
   const secure = process.env.NODE_ENV === "production";
   res.setHeader("Set-Cookie", [
@@ -286,13 +312,13 @@ app.post("/api/access/download", requireAuth, (req, res) => grantActionAccess(re
 
 app.post("/api/auth/login", (req, res) => {
   if (isLocked(req, "login")) return res.status(423).json({ error: "Access locked for 24 hours on this device." });
-  const password = String(req.body?.password || "");
+  const password = String(req.body?.password ?? "").trim();
   if (!safeEqual(password, APP_PASSWORD)) {
     const locked = registerFailure(req, "login");
     return res.status(locked ? 423 : 401).json({ error: locked ? "Access locked for 24 hours." : "Incorrect password" });
   }
   clearFailures(req, "login");
-  const token = createSession(req);
+  const token = createSession();
   const secure = process.env.NODE_ENV === "production";
   res.setHeader("Set-Cookie", [
     `cloud_zen_session=${encodeURIComponent(token)}`,
@@ -310,9 +336,11 @@ app.get("/api/auth/me", (req, res) => {
 
 app.post("/api/auth/logout", (req, res) => {
   const cookie = String(req.headers.cookie || "");
-  const match = cookie.match(/(?:^|;\s*)cloud_zen_session=([^;]+)/);
-  if (match) sessions.delete(decodeURIComponent(match[1]));
-  res.setHeader("Set-Cookie", "cloud_zen_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+  res.setHeader("Set-Cookie", [
+    "cloud_zen_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
+    "cloud_zen_upload_access=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
+    "cloud_zen_download_access=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0"
+  ]);
   res.json({ ok: true });
 });
 
@@ -847,4 +875,4 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
-  
+    
