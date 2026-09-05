@@ -26,4 +26,8 @@ Dark/light premium visual system and animated space/cloud background
 Important honesty boundary
 Persistent folders, a true Trash/Restore lifecycle, multi-user ACL/editor permissions, server-side audit database, provider federation, and durable background uploads after the browser is closed are not implemented by this backend. They are not represented as fake server functionality.
 Render environment
-Keep the existing secrets in Render only: APP_PASSWORD, DOWNLOAD_PASSWORD, SESSION_SECRET, TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION, TELEGRAM_STORAGE_CHAT, CHUNK_SIZE, MAX_FILE_SIZE, TELEGRAM_WORKERS. Never commit Telegram session/API secrets.
+Keep the existing secrets in Render only: APP_PASSWORD, DELETE_PASSWORD, SESSION_SECRET, TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION, TELEGRAM_STORAGE_CHAT, CHUNK_SIZE, MAX_FILE_SIZE, TELEGRAM_WORKERS. Never commit Telegram session/API secrets.
+Password model
+Enter password: APP_PASSWORD — the only main access password.
+Delete password: DELETE_PASSWORD — required only for permanent deletion.
+There is intentionally no separate download/upload password.
