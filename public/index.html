@@ -1,463 +1,91 @@
 <!doctype html>
-<html lang="hi" class="dark">
+<html lang="en" class="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="theme-color" content="#0f172a">
-  <title>Cloud-Zen Ultimate Private Cloud</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: { brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a' } }
-        }
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .glass-panel { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .animate-modal { animation: fadeIn 0.25s ease-out forwards; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b1020">
+<meta name="color-scheme" content="dark light">
+<title>Cloud-Zen • Welcome Cloud</title>
+<style>
+:root{--bg:#f4f8ff;--surface:rgba(255,255,255,.86);--surface2:#fff;--text:#102033;--muted:#65758b;--line:rgba(22,44,74,.10);--blue:#3b82f6;--blue2:#6366f1;--danger:#ef4444;--ok:#10b981;--shadow:0 18px 60px rgba(40,73,120,.14)}
+.dark{--bg:#090d18;--surface:rgba(17,24,39,.84);--surface2:#111827;--text:#f5f8ff;--muted:#94a3b8;--line:rgba(255,255,255,.09);--shadow:0 22px 70px rgba(0,0,0,.45)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}body{overflow-x:hidden}button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.hidden{display:none!important}
+#app{min-height:100dvh}.mobile{width:min(100%,520px);min-height:100dvh;margin:auto;position:relative;overflow:hidden;background:var(--bg)}
+.glass{background:var(--surface);border:1px solid var(--line);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:var(--shadow)}
+.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#233c72 0,#0d1427 34%,#070b14 72%);transition:opacity .7s}.splash.hide{opacity:0;pointer-events:none}.splashIn{text-align:center;padding:28px}.logo{width:92px;height:92px;border-radius:30px;margin:auto;display:grid;place-items:center;background:linear-gradient(135deg,#3b82f6,#6366f1);box-shadow:0 0 55px #3b82f655,0 18px 45px #0007;animation:float 2.2s ease-in-out infinite}.logo svg{width:52px;fill:white}.welcome{font-size:50px;line-height:1;font-weight:900;letter-spacing:-.06em;margin:24px 0 10px;background:linear-gradient(90deg,#9ed7ff,#c7b8ff,#a6f0ff);-webkit-background-clip:text;color:transparent}.sub{color:#a9b7ca;margin:0 0 26px}.loader{height:4px;width:min(310px,75vw);border-radius:99px;background:#ffffff18;overflow:hidden}.loader i{display:block;height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#818cf8);animation:load 3.5s linear forwards}@keyframes load{to{width:100%}}@keyframes float{50%{transform:translateY(-8px) scale(1.03)}}
+.login{min-height:100dvh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 50% 25%,#233d70 0,transparent 35%)}.loginCard{width:100%;padding:28px;border-radius:28px}.loginLogo{width:62px;height:62px;border-radius:20px;background:#3b82f622;border:1px solid #60a5fa44;display:grid;place-items:center;margin:0 auto 16px}.loginLogo svg{width:35px;fill:#60a5fa}.title{text-align:center;font-size:23px;font-weight:800;margin:0 0 6px}.muted{text-align:center;color:var(--muted);font-size:13px;line-height:1.55}.label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin:20px 0 8px}.input{width:100%;height:50px;padding:0 15px;border-radius:15px;background:var(--surface2);border:1px solid var(--line);outline:0;color:var(--text)}.input:focus{border-color:#60a5fa}.primary{width:100%;height:50px;border-radius:15px;background:linear-gradient(135deg,var(--blue),var(--blue2));font-weight:800;box-shadow:0 14px 30px #3b82f633}.error{min-height:20px;color:#fb7185;font-size:12px;text-align:center;margin:9px 0}
+.header{position:sticky;top:0;z-index:20;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:10px}.brandMark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:grid;place-items:center}.brandMark svg{width:25px;fill:#fff}.brandName{font-weight:850;font-size:16px}.status{font-size:10px;color:var(--ok);margin-top:2px}.iconBtn{width:40px;height:40px;border-radius:13px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center}.actions{display:flex;gap:7px}
+main{padding:14px 14px 100px}.hero{padding:18px;border-radius:24px;background:linear-gradient(135deg,#1d4ed8,#4338ca 62%,#7c3aed);color:#fff;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-55px;top:-65px;background:#fff2}.eyebrow{font-size:11px;opacity:.78;text-transform:uppercase;letter-spacing:.12em}.hero h2{font-size:26px;margin:7px 0 4px}.hero p{margin:0;font-size:12px;opacity:.8}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.stat{padding:14px;border-radius:20px}.stat b{font-size:17px}.stat span{display:block;color:var(--muted);font-size:10px;margin-top:3px}.storage{margin-top:12px;padding:17px;border-radius:23px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.storageTitle{font-weight:800}.storageNum{font-size:20px;font-weight:900;margin-top:3px}.percent{font-size:13px;color:#60a5fa;font-weight:800}.bar{height:8px;border-radius:99px;background:#64748b25;margin:14px 0 9px;overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);transition:width .7s}.storageFoot{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+.sectionHead{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.sectionHead h3{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0}.chips{display:flex;gap:8px;overflow:auto;padding:2px 0 5px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;padding:9px 12px;border-radius:13px;background:var(--surface2);border:1px solid var(--line);font-size:11px}.chip.active{background:#3b82f620;color:#60a5fa;border-color:#3b82f655}.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quick button{padding:12px 5px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}.quick i{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;margin:auto auto 6px;font-style:normal;background:#3b82f61a;color:#60a5fa}.quick span{font-size:10px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;margin-top:14px}.search{flex:1;position:relative}.search input{padding-left:38px}.search span{position:absolute;left:13px;top:14px;color:var(--muted)}select{height:48px;padding:0 10px;border-radius:14px;background:var(--surface2);color:var(--text);border:1px solid var(--line);outline:0}.viewToggle{display:flex;background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:3px}.viewToggle button{width:39px;border-radius:11px;background:transparent;color:var(--muted)}.viewToggle button.active{background:#3b82f622;color:#60a5fa}
+.files{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.files.list{grid-template-columns:1fr}.file{padding:11px;border-radius:20px;overflow:hidden;min-width:0}.thumb{height:105px;border-radius:15px;background:#0b1220;display:grid;place-items:center;overflow:hidden;position:relative}.thumb img,.thumb video{width:100%;height:100%;object-fit:cover}.fileIcon{font-size:33px;color:#60a5fa}.fileInfo{padding:9px 2px 0}.fileName{font-size:11px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{font-size:9px;color:var(--muted);margin-top:3px}.fileActions{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.mini{height:30px;border-radius:9px;background:var(--surface2);border:1px solid var(--line);font-size:10px}.mini.danger{color:#fb7185}.star{position:absolute;right:7px;top:7px;width:29px;height:29px;border-radius:9px;background:#0007;color:#fff}.files.list .file{display:grid;grid-template-columns:82px 1fr;gap:10px}.files.list .thumb{height:82px}.files.list .fileActions{grid-column:1/-1}.empty{padding:35px 10px;text-align:center;color:var(--muted);font-size:12px}
+.bottom{position:fixed;z-index:25;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);height:72px;background:color-mix(in srgb,var(--surface2) 92%,transparent);backdrop-filter:blur(20px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}.bottom button{background:transparent;color:var(--muted);font-size:10px}.bottom button.active{color:#60a5fa}.bottom b{display:block;font-size:20px;margin-bottom:3px}.fab{position:fixed;z-index:26;bottom:85px;left:calc(50% + 155px);width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,#3b82f6,#6366f1);box-shadow:0 15px 35px #3b82f655;font-size:24px}
+.overlay{position:fixed;inset:0;z-index:60;background:#02061799;backdrop-filter:blur(12px);display:flex;align-items:flex-end;justify-content:center}.sheet{width:min(100%,520px);max-height:88dvh;overflow:auto;background:var(--surface2);border:1px solid var(--line);border-radius:28px 28px 0 0;padding:18px}.sheet.center{align-self:center;border-radius:28px;width:calc(100% - 28px)}.sheetHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.sheetTitle{font-weight:850}.close{width:36px;height:36px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}.drawer{position:absolute;inset:0 auto 0 0;width:82%;max-width:360px;background:var(--surface2);border-right:1px solid var(--line);padding:22px;transform:translateX(-105%);transition:.28s;box-shadow:20px 0 70px #0008}.overlay.open .drawer{transform:none}.menu{display:grid;gap:7px}.menu button{height:48px;text-align:left;padding:0 13px;border-radius:14px;background:transparent}.menu button.active,.menu button:hover{background:#3b82f618;color:#60a5fa}.menu b{margin-left:10px}.dangerText{color:#fb7185}.modalActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.secondary{height:48px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-weight:700}.dangerBtn{height:48px;border-radius:14px;background:#ef4444;color:#fff;font-weight:800}.viewer{align-items:center}.viewerBox{width:min(96%,510px);max-height:90dvh;border-radius:26px;background:#020617;color:#fff;overflow:hidden}.viewerContent{max-height:78dvh;display:grid;place-items:center;background:#000}.viewerContent img,.viewerContent video{max-width:100%;max-height:78dvh}.viewerContent iframe{width:100%;height:78dvh;border:0}.viewerContent audio{width:90%}.multiBar{position:fixed;z-index:30;bottom:75px;left:50%;transform:translateX(-50%);width:min(calc(100% - 20px),500px);padding:10px;border-radius:18px;background:#111827ee;border:1px solid #ffffff18;display:flex;align-items:center;justify-content:space-between;gap:6px}.multiBar button{height:38px;padding:0 11px;border-radius:11px;background:#ffffff0c;font-size:11px}.multiBar .selected{font-weight:800}.check{position:absolute;left:7px;top:7px;width:28px;height:28px;border-radius:9px;background:#0008;color:#fff;display:grid;place-items:center}.selectedCard{outline:2px solid #60a5fa}
+@media(max-width:420px){.welcome{font-size:44px}.quick{gap:5px}.fab{left:auto;right:16px}.files{gap:8px}.thumb{height:96px}}@media(min-width:700px){body{background:#dfe9f8}.mobile{box-shadow:0 0 90px #7892b433}}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col select-none overflow-x-hidden">
-
-  <!-- 1. WELCOME SCREEN (2-3 Seconds Splash) -->
-  <div id="splashScreen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-700">
-    <div class="relative flex items-center justify-center mb-6">
-      <div class="absolute -inset-4 rounded-full bg-blue-500/20 blur-xl animate-pulse"></div>
-      <div class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-2xl shadow-blue-500/40">
-        <i class="fa-solid fa-cloud text-white text-4xl animate-bounce"></i>
-      </div>
-    </div>
-    <h1 class="text-2xl font-bold tracking-tight text-white mb-2">Cloud-Zen</h1>
-    <p class="text-xs text-slate-400 tracking-widest uppercase">Ultimate Private Cloud Workspace</p>
-    <div class="w-32 h-1 bg-slate-800 rounded-full mt-8 overflow-hidden">
-      <div id="splashBar" class="h-full bg-blue-500 w-0 transition-all duration-[2500px] ease-out"></div>
-    </div>
-  </div>
-
-  <!-- 2. APP LAUNCH & SIGN IN SCREEN (Master Password) -->
-  <div id="authScreen" class="fixed inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center p-6 hidden">
-    <div class="w-full max-w-sm glass-panel p-8 rounded-3xl shadow-2xl border border-slate-800 flex flex-col items-center text-center animate-modal">
-      <div class="w-16 h-16 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-2xl mb-4 border border-blue-500/30">
-        <i class="fa-solid fa-shield-halved"></i>
-      </div>
-      <h2 class="text-xl font-bold text-white mb-1">Welcome Back</h2>
-      <p class="text-xs text-slate-400 mb-6">Enter your master app password to access your secure cloud storage.</p>
-      
-      <form id="loginForm" class="w-full space-y-4">
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fa-solid fa-lock"></i></span>
-          <input type="password" id="loginPassword" required placeholder="Enter App Password" 
-            class="w-full h-12 bg-slate-900/80 border border-slate-700/60 rounded-xl pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
-        </div>
-        <div id="loginError" class="text-red-400 text-xs min-h-[16px]"></div>
-        <button type="submit" class="w-full h-12 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] transition font-semibold text-white rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2">
-          <span>Sign In With Cloud</span>
-          <i class="fa-solid fa-arrow-right text-xs"></i>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- 3. MAIN APP INTERFACE -->
-  <div id="mainApp" class="flex-1 flex flex-col w-full max-w-md mx-auto relative hidden pb-20">
-    
-    <!-- Top Header Navigation -->
-    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-30">
-      <div class="flex items-center space-x-3">
-        <button id="drawerBtn" class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-300 hover:bg-slate-800 transition"><i class="fa-solid fa-bars"></i></button>
-        <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Cloud-Zen</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <button onclick="openGlobalSearch()" class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-300 hover:bg-slate-800 transition"><i class="fa-solid fa-magnifying-glass"></i></button>
-        <div class="w-9 h-9 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm">MS</div>
-      </div>
-    </header>
-
-    <!-- Main Container Views -->
-    <main class="flex-1 overflow-y-auto p-4 space-y-6">
-      
-      <!-- DASHBOARD (HOME) -->
-      <div id="viewHome" class="space-y-6">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden group hover:border-blue-500/50 transition cursor-pointer" onclick="switchView('files')">
-            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3"><i class="fa-solid fa-folder-open"></i></div>
-            <div><h3 class="font-semibold text-sm text-white">My Files</h3><p class="text-xs text-slate-400 mt-0.5" id="fileCountSummary">Loading...</p></div>
-          </div>
-          <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/50 transition cursor-pointer" onclick="openStorageDetails()">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3"><i class="fa-solid fa-chart-pie"></i></div>
-            <div><h3 class="font-semibold text-sm text-white">Storage</h3><p class="text-xs text-slate-400 mt-0.5" id="storageSummaryText">Telegram Cloud</p></div>
-          </div>
-        </div>
-
-        <!-- Quick Categories -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Quick Access</h4>
-            <span class="text-xs text-blue-400 cursor-pointer hover:underline" onclick="switchView('files')">View All</span>
-          </div>
-          <div class="grid grid-cols-4 gap-3 text-center">
-            <div onclick="switchView('files')" class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center hover:bg-slate-900 transition cursor-pointer">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1.5"><i class="fa-solid fa-file-lines"></i></div>
-              <span class="text-[11px] text-slate-300">Documents</span>
-            </div>
-            <div onclick="switchView('files')" class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center hover:bg-slate-900 transition cursor-pointer">
-              <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5"><i class="fa-solid fa-image"></i></div>
-              <span class="text-[11px] text-slate-300">Images</span>
-            </div>
-            <div onclick="switchView('files')" class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center hover:bg-slate-900 transition cursor-pointer">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1.5"><i class="fa-solid fa-video"></i></div>
-              <span class="text-[11px] text-slate-300">Videos</span>
-            </div>
-            <div onclick="openScanner()" class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center hover:bg-slate-900 transition cursor-pointer">
-              <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1.5"><i class="fa-solid fa-camera"></i></div>
-              <span class="text-[11px] text-slate-300">Scan</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Uploads -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Recent Uploads</h4>
-            <div class="flex space-x-2">
-              <button onclick="toggleViewMode('list')" id="listModeBtn" class="text-blue-400 text-xs px-2 py-1 rounded bg-slate-900"><i class="fa-solid fa-list"></i></button>
-              <button onclick="toggleViewMode('grid')" id="gridModeBtn" class="text-slate-400 text-xs px-2 py-1 rounded hover:bg-slate-900"><i class="fa-solid fa-grip"></i></button>
-            </div>
-          </div>
-          <div id="filesContainer" class="space-y-2">
-            <div class="text-center py-8 text-slate-500 text-sm">Loading files from cloud...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- FILES VIEW -->
-      <div id="viewFiles" class="space-y-4 hidden">
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-white">All Cloud Files</h2>
-          <div class="flex space-x-2">
-            <button onclick="openCreateFolder()" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 hover:bg-slate-700 transition"><i class="fa-solid fa-folder-plus mr-1"></i> New Folder</button>
-            <button onclick="downloadAllZip()" class="text-xs bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-xl border border-blue-500/30 hover:bg-blue-600/30 transition"><i class="fa-solid fa-download mr-1"></i> ZIP</button>
-          </div>
-        </div>
-        <div id="allFilesContainer" class="space-y-2"></div>
-      </div>
-
-      <!-- SETTINGS VIEW -->
-      <div id="viewSettings" class="space-y-4 hidden">
-        <h2 class="text-lg font-bold text-white mb-2">Settings Menu</h2>
-        <div class="space-y-2">
-          <div class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-slate-900/60 transition">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-user-gear"></i></div>
-              <div><h4 class="text-sm font-semibold text-white">Account Management</h4><p class="text-xs text-slate-400">Manish Sharma (Telegram Cloud)</p></div>
-            </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
-          </div>
-          <div class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-slate-900/60 transition">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-rotate"></i></div>
-              <div><h4 class="text-sm font-semibold text-white">Sync Status</h4><p class="text-xs text-slate-400">Real-time MTProto Connected</p></div>
-            </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
-          </div>
-          <div class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-slate-900/60 transition" onclick="triggerLogout()">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center"><i class="fa-solid fa-right-from-bracket"></i></div>
-              <div><h4 class="text-sm font-semibold text-white">Sign Out</h4><p class="text-xs text-slate-400">Clear secure session token</p></div>
-            </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
-          </div>
-        </div>
-      </div>
-
-    </main>
-
-    <!-- Floating Upload Button -->
-    <div class="absolute bottom-20 right-6 z-30">
-      <label class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-2xl shadow-xl shadow-blue-600/40 flex items-center justify-center cursor-pointer transition transform active:scale-95">
-        <i class="fa-solid fa-plus text-xl"></i>
-        <input type="file" id="fileUploadInput" class="hidden" multiple onchange="handleFileUpload(event)">
-      </label>
-    </div>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="absolute bottom-0 inset-x-0 h-16 bg-slate-950/90 backdrop-blur border-t border-slate-800 flex items-center justify-around px-2 z-30 text-xs">
-      <button onclick="switchView('home')" id="navHome" class="flex flex-col items-center justify-center flex-1 py-1 text-blue-400 transition"><i class="fa-solid fa-house text-base mb-1"><span>Home</span></button>
-      <button onclick="switchView('files')" id="navFiles" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition"><i class="fa-solid fa-folder text-base mb-1"><span>Files</span></button>
-      <button onclick="switchView('settings')" id="navSettings" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition"><i class="fa-solid fa-gear text-base mb-1"><span>Settings</span></button>
-    </nav>
-  </div>
-
-  <!-- DELETE PASSWORD MODAL -->
-  <div id="deleteModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="glass-panel w-full max-w-sm p-6 rounded-3xl space-y-4 border border-rose-500/30 animate-modal">
-      <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mx-auto"><i class="fa-solid fa-triangle-exclamation"></i></div>
-      <h3 class="font-bold text-white text-base text-center">Confirm Deletion</h3>
-      <p class="text-xs text-slate-400 text-center">Enter your secure <strong class="text-slate-200">DELETE password</strong> to permanently remove this file from Telegram cloud.</p>
-      <input type="password" id="deletePasswordInput" placeholder="Enter Delete Password" class="w-full h-12 bg-slate-900 border border-slate-700 rounded-xl px-4 text-sm text-white focus:outline-none focus:border-rose-500">
-      <div id="deleteError" class="text-rose-400 text-xs text-center min-h-[16px]"></div>
-      <div class="flex space-x-3">
-        <button onclick="closeDeleteModal()" class="flex-1 h-11 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition">Cancel</button>
-        <button onclick="confirmDeleteFile()" class="flex-1 h-11 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-xl text-xs transition shadow-lg shadow-rose-600/30">Delete Forever</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- UPLOAD PROGRESS MODAL -->
-  <div id="uploadModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="glass-panel w-full max-w-sm p-6 rounded-3xl space-y-4 border border-slate-800 animate-modal">
-      <h3 class="font-bold text-white text-base">Uploading to Cloud...</h3>
-      <p id="uploadFileName" class="text-xs text-slate-400 truncate">Preparing chunk...</p>
-      <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
-        <div id="uploadProgressBar" class="bg-blue-500 h-2.5 rounded-full w-0 transition-all duration-200"></div>
-      </div>
-      <div class="flex justify-between text-xs text-slate-400">
-        <span id="uploadPercentage">0%</span>
-        <button onclick="cancelCurrentUpload()" class="text-rose-400 hover:underline font-semibold">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- NAVIGATION DRAWER SIDEBAR -->
-  <div id="drawerOverlay" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden transition-opacity">
-    <div id="drawerSidebar" class="absolute inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col justify-between transform -translate-x-full transition-transform duration-300">
-      <div class="space-y-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold">CZ</div>
-            <div><h3 class="font-bold text-white text-sm">Cloud-Zen</h3><p class="text-[11px] text-slate-400">Manish Sharma</p></div>
-          </div>
-          <button id="closeDrawer" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <div class="space-y-1">
-          <a onclick="switchView('home'); closeDrawerMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-blue-600/10 text-blue-400 font-medium text-sm cursor-pointer"><i class="fa-solid fa-house w-5"><span>Home Dashboard</span></a>
-          <a onclick="switchView('files'); closeDrawerMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 text-sm cursor-pointer"><i class="fa-solid fa-folder-open w-5"><span>My Files</span></a>
-          <a onclick="openStorageDetails(); closeDrawerMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 text-sm cursor-pointer"><i class="fa-solid fa-chart-pie w-5"><span>Storage & Quota</span></a>
-          <a onclick="switchView('settings'); closeDrawerMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 text-sm cursor-pointer"><i class="fa-solid fa-gear w-5"><span>Settings Menu</span></a>
-        </div>
-      </div>
-      <div class="text-center text-xs text-slate-500 pb-2">Cloud-Zen v3.1.0 Ultimate</div>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT LOGIC -->
-  <script>
-    let globalFiles = [];
-    let fileToDelete = null;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => { document.getElementById('splashBar').style.width = '100%'; }, 100);
-      setTimeout(() => {
-        const splash = document.getElementById('splashScreen');
-        splash.style.opacity = '0';
-        setTimeout(() => splash.remove(), 700);
-        checkAuthSession();
-      }, 2500);
-    });
-
-    async function checkAuthSession() {
-      try {
-        const res = await fetch('/api/auth/me');
-        const data = await res.json();
-        if (data.authenticated) { showMainApp(); } else { document.getElementById('authScreen').classList.remove('hidden'); }
-      } catch (e) { document.getElementById('authScreen').classList.remove('hidden'); }
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const password = document.getElementById('loginPassword').value;
-      const errEl = document.getElementById('loginError');
-      errEl.textContent = '';
-      try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
-        const data = await res.json();
-        if (res.ok && data.ok) {
-          document.getElementById('authScreen').classList.add('hidden');
-          showMainApp();
-        } else { errEl.textContent = data.error || 'Incorrect password'; }
-      } catch (e) { errEl.textContent = 'Connection failed'; }
-    });
-
-    function showMainApp() {
-      document.getElementById('mainApp').classList.remove('hidden');
-      fetchFiles();
-      fetchStorage();
-    }
-
-    async function fetchFiles() {
-      try {
-        const res = await fetch('/api/files');
-        if (res.status === 401) { location.reload(); return; }
-        globalFiles = await res.json();
-        renderFilesList();
-      } catch (e) { console.error('Failed to load files'); }
-    }
-
-    async function fetchStorage() {
-      try {
-        const res = await fetch('/api/storage');
-        const data = await res.json();
-        if (data.usedText) { document.getElementById('storageSummaryText').textContent = data.usedText + ' used'; }
-      } catch (e) {}
-    }
-
-    function renderFilesList() {
-      const container = document.getElementById('filesContainer');
-      const allContainer = document.getElementById('allFilesContainer');
-      document.getElementById('fileCountSummary').textContent = `${globalFiles.length} files stored`;
-
-      if (globalFiles.length === 0) {
-        const emptyHtml = `<div class="text-center py-10 text-slate-500 text-xs">No files found in cloud storage.</div>`;
-        container.innerHTML = emptyHtml; allContainer.innerHTML = emptyHtml;
-        return;
-      }
-
-      let html = '';
-      globalFiles.forEach(file => {
-        const icon = getFileIcon(file.name);
-        html += `
-          <div class="glass-panel p-3.5 rounded-2xl flex items-center justify-between hover:border-slate-700 transition">
-            <div class="flex items-center space-x-3 overflow-hidden cursor-pointer" onclick="previewFile('${encodeURIComponent(file.name)}')">
-              <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-blue-400 shrink-0">${icon}</div>
-              <div class="overflow-hidden">
-                <h4 class="text-xs font-semibold text-white truncate">${file.name}</h4>
-                <p class="text-[10px] text-slate-400">${file.sizeText} · Telegram Cloud</p>
-              </div>
-            </div>
-            <div class="flex items-center space-x-1 shrink-0">
-              <a href="/api/download/${encodeURIComponent(file.name)}" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 text-xs"><i class="fa-solid fa-download"></i></a>
-              <button onclick="promptDelete('${file.name}')" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 text-xs"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html; allContainer.innerHTML = html;
-    }
-
-    function getFileIcon(name) {
-      const ext = name.split('.').pop().toLowerCase();
-      if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return '<i class="fa-solid fa-image text-rose-400"></i>';
-      if (['mp4', 'mov', 'webm'].includes(ext)) return '<i class="fa-solid fa-video text-purple-400"></i>';
-      if (['mp3', 'wav'].includes(ext)) return '<i class="fa-solid fa-music text-amber-400"></i>';
-      if (['pdf'].includes(ext)) return '<i class="fa-solid fa-file-pdf text-red-400"></i>';
-      return '<i class="fa-solid fa-file-lines text-blue-400"></i>';
-    }
-
-    // DELETE WITH PASSWORD MODAL FUNCTIONS
-    function promptDelete(name) {
-      fileToDelete = name;
-      document.getElementById('deletePasswordInput').value = '';
-      document.getElementById('deleteError').textContent = '';
-      document.getElementById('deleteModal').classList.remove('hidden');
-    }
-
-    function closeDeleteModal() {
-      fileToDelete = null;
-      document.getElementById('deleteModal').classList.add('hidden');
-    }
-
-    async function confirmDeleteFile() {
-      if (!fileToDelete) return;
-      const deletePassword = document.getElementById('deletePasswordInput').value;
-      const errEl = document.getElementById('deleteError');
-      errEl.textContent = '';
-
-      try {
-        const res = await fetch('/api/files', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: fileToDelete, deletePassword })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          closeDeleteModal();
-          fetchFiles();
-          fetchStorage();
-        } else {
-          errEl.textContent = data.error || 'Incorrect delete password';
-        }
-      } catch (e) {
-        errEl.textContent = 'Delete request error';
-      }
-    }
-
-    async function handleFileUpload(event) {
-      const files = event.target.files;
-      if (!files.length) return;
-      const modal = document.getElementById('uploadModal');
-      modal.classList.remove('hidden');
-      for (let file of files) { await uploadSingleFile(file); }
-      modal.classList.add('hidden');
-      fetchFiles(); fetchStorage();
-      event.target.value = '';
-    }
-
-    async function uploadSingleFile(file) {
-      const chunkSize = 67108864;
-      const totalChunks = Math.ceil(file.size / chunkSize);
-      const uploadId = 'up-' + Math.random().toString(36).substring(2, 15);
-      document.getElementById('uploadFileName').textContent = file.name;
-
-      for (let i = 0; i < totalChunks; i++) {
-        const start = i * chunkSize;
-        const end = Math.min(file.size, start + chunkSize);
-        const chunk = file.slice(start, end);
-        const url = `/api/upload-chunk?id=${uploadId}&index=${i}&total=${totalChunks}&size=${file.size}&name=${encodeURIComponent(file.name)}`;
-        try {
-          const res = await fetch(url, { method: 'POST', body: chunk });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Upload failed');
-          const pct = Math.round(((i + 1) / totalChunks) * 100);
-          document.getElementById('uploadProgressBar').style.width = pct + '%';
-          document.getElementById('uploadPercentage').textContent = pct + '%';
-        } catch (e) { alert('Upload failed: ' + e.message); break; }
-      }
-    }
-
-    function previewFile(nameEncoded) { window.open(`/api/stream/${nameEncoded}`, '_blank'); }
-    function downloadAllZip() { window.location.href = `/api/download-all`; }
-
-    function switchView(viewName) {
-      ['home', 'files', 'settings'].forEach(v => {
-        document.getElementById('view' + v.charAt(0).toUpperCase() + v.slice(1)).classList.add('hidden');
-        const navEl = document.getElementById('nav' + v.charAt(0).toUpperCase() + v.slice(1));
-        if(navEl) navEl.classList.replace('text-blue-400', 'text-slate-400');
-      });
-      document.getElementById('view' + viewName.charAt(0).toUpperCase() + viewName.slice(1)).classList.remove('hidden');
-      const activeNav = document.getElementById('nav' + viewName.charAt(0).toUpperCase() + viewName.slice(1));
-      if(activeNav) activeNav.classList.replace('text-slate-400', 'text-blue-400');
-    }
-
-    const drawerBtn = document.getElementById('drawerBtn');
-    const drawerOverlay = document.getElementById('drawerOverlay');
-    const drawerSidebar = document.getElementById('drawerSidebar');
-    const closeDrawer = document.getElementById('closeDrawer');
-
-    drawerBtn.onclick = () => { drawerOverlay.classList.remove('hidden'); setTimeout(() => drawerSidebar.classList.remove('-translate-x-full'), 10); };
-    function closeDrawerMenu() { drawerSidebar.classList.add('-translate-x-full'); setTimeout(() => drawerOverlay.classList.add('hidden'), 300); }
-    drawerOverlay.onclick = (e) => { if (e.target === drawerOverlay) closeDrawerMenu(); };
-    closeDrawer.onclick = closeDrawerMenu;
-
-    function openGlobalSearch() { alert('Global Search Feature Active. Type above to filter.'); }
-    function openStorageDetails() { alert('Telegram MTProto Cloud Storage Usage Overview.'); }
-    function openScanner() { alert('Document Scanner Ready.'); }
-    function openCreateFolder() { alert('Create Folder Dialog Active.'); }
-    async function triggerLogout() { await fetch('/api/auth/logout', { method: 'POST' }); location.reload(); }
-  </script>
-</body>
-    </html>
-      
+<body>
+<div id="splash" class="splash"><div class="splashIn"><div class="logo"><svg viewBox="0 0 64 64"><path d="M20 49h28a12 12 0 0 0 1-24 19 19 0 0 0-36 6A10 10 0 0 0 20 49Z"/></svg></div><div class="welcome">Welcome Cloud</div><p class="sub">Private • Professional • Personal Cloud</p><div class="loader"><i></i></div></div></div>
+<div class="mobile" id="app">
+<section id="login" class="login hidden"><div class="loginCard glass"><div class="loginLogo"><svg viewBox="0 0 64 64"><path d="M20 49h28a12 12 0 0 0 1-24 19 19 0 0 0-36 6A10 10 0 0 0 20 49Z"/></svg></div><h1 class="title">Welcome Cloud</h1><p class="muted">Enter your app password to unlock your private cloud workspace.</p><label class="label">App password</label><input id="password" class="input" type="password" autocomplete="current-password" placeholder="Enter app password"><div id="loginError" class="error"></div><button id="loginBtn" class="primary">Enter Website →</button></div></section>
+<section id="home" class="hidden">
+<header class="header"><div class="brand"><button id="menuBtn" class="iconBtn">☰</button><div class="brandMark"><svg viewBox="0 0 64 64"><path d="M20 49h28a12 12 0 0 0 1-24 19 19 0 0 0-36 6A10 10 0 0 0 20 49Z"/></svg></div><div><div class="brandName">Welcome Cloud</div><div class="status">● Secure storage online</div></div></div><div class="actions"><button id="themeBtn" class="iconBtn">☾</button><button id="refreshBtn" class="iconBtn">↻</button></div></header>
+<main>
+<div class="hero"><div class="eyebrow">Private cloud workspace</div><h2>Your files, your cloud.</h2><p>Open, stream, download, share and manage your personal library.</p></div>
+<div class="stats"><div class="stat glass"><b id="count">0</b><span>Files stored</span></div><div class="stat glass"><b id="starCount">0</b><span>Starred</span></div></div>
+<section class="storage glass"><div class="row"><div><div class="storageTitle">Storage Details</div><div id="storageNum" class="storageNum">0 B / 10 GB</div></div><div id="storagePct" class="percent">0%</div></div><div class="bar"><i id="storageBar"></i></div><div class="storageFoot"><span id="storageUsed">Used: 0 B</span><span id="storageFree">Free: 10 GB</span></div></section>
+<div class="sectionHead"><h3>Quick Access</h3></div><div class="quick"><button onclick="setTab('document')"><i>▤</i><span>Documents</span></button><button onclick="setTab('image')"><i>▧</i><span>Images</span></button><button onclick="setTab('video')"><i>▶</i><span>Videos</span></button><button onclick="scanDocument()"><i>⌑</i><span>Scan</span></button></div>
+<div class="sectionHead"><h3>Library</h3><button class="chip" onclick="openCreateFolder()">＋ Folder</button></div>
+<div class="chips" id="chips"><button class="chip active" data-tab="all">All Files</button><button class="chip" data-tab="video">Videos</button><button class="chip" data-tab="image">Images</button><button class="chip" data-tab="audio">Audio</button><button class="chip" data-tab="document">Documents</button><button class="chip" data-tab="recent">Recent</button><button class="chip" data-tab="starred">Starred</button><button class="chip" data-tab="shared">Shared</button><button class="chip" data-tab="trash">Trash</button></div>
+<div class="toolbar"><div class="search"><span>⌕</span><input id="search" class="input" type="search" placeholder="Search your personal cloud..."></div><select id="sort"><option value="name">Name</option><option value="date">Modified</option><option value="size">Size</option><option value="type">Type</option></select><div class="viewToggle"><button id="gridBtn" class="active">▦</button><button id="listBtn">☷</button></div></div>
+<div class="sectionHead"><h3>Your Files <span id="shown" style="font-size:10px;text-transform:none;letter-spacing:0"></span></h3><button id="selectBtn" class="chip">Select</button></div>
+<section id="files" class="files"></section>
+</main></section>
+<nav id="bottom" class="bottom hidden"><button data-view="home" class="active"><b>⌂</b>Home</button><button data-view="files"><b>▣</b>Files</button><button data-view="starred"><b>★</b>Starred</button><button data-view="settings"><b>⚙</b>Settings</button></nav><button id="fab" class="fab hidden">＋</button>
+</div>
+<div id="drawerOverlay" class="overlay hidden"><aside class="drawer"><div class="sheetHead"><div class="sheetTitle">Cloud-Zen Menu</div><button class="close" onclick="closeDrawer()">×</button></div><div class="menu"><button onclick="closeDrawer();setTab('all')">☁ <b>Home Dashboard</b></button><button onclick="closeDrawer();setTab('all')">▣ <b>My Files</b></button><button onclick="closeDrawer();openStorage()">◔ <b>Storage & Quota</b></button><button onclick="closeDrawer();setTab('shared')">⇄ <b>Shared With Me</b></button><button onclick="closeDrawer();setTab('starred')">★ <b>Starred Files & Folders</b></button><button onclick="closeDrawer();setTab('trash')">♻ <b>Trash & Recovery</b></button><button onclick="closeDrawer();openCreateFolder()">＋ <b>Create Folder</b></button><button onclick="closeDrawer();scanDocument()">⌑ <b>Scan Document</b></button><button onclick="closeDrawer();openSettings()">⚙ <b>Settings</b></button></div></aside></div>
+<div id="viewer" class="overlay viewer hidden"><div class="viewerBox"><div class="sheetHead" style="padding:12px 14px;margin:0"><div id="viewerTitle" class="sheetTitle"></div><button class="close" onclick="closeViewer()">×</button></div><div id="viewerContent" class="viewerContent"></div></div></div>
+<div id="deleteModal" class="overlay hidden"><div class="sheet center"><div class="sheetHead"><div class="sheetTitle dangerText">Confirm Deletion</div><button class="close" onclick="closeDelete()">×</button></div><p class="muted" style="text-align:left">Enter the secure <b>DELETE password</b>. The password is sent to your backend only for this delete request.</p><input id="deletePassword" class="input" type="password" autocomplete="off" placeholder="Enter delete password"><div id="deleteError" class="error"></div><div class="modalActions"><button class="secondary" onclick="closeDelete()">Cancel</button><button class="dangerBtn" onclick="confirmDelete()">Delete Forever</button></div></div></div>
+<div id="folderModal" class="overlay hidden"><div class="sheet center"><div class="sheetHead"><div class="sheetTitle">Create Folder</div><button class="close" onclick="closeFolder()">×</button></div><input id="folderName" class="input" placeholder="New folder name" maxlength="80"><div id="folderError" class="error"></div><div class="modalActions"><button class="secondary" onclick="closeFolder()">Cancel</button><button class="primary" onclick="createFolder()">Create</button></div></div></div>
+<div id="storageModal" class="overlay hidden"><div class="sheet center"><div class="sheetHead"><div class="sheetTitle">Storage Details</div><button class="close" onclick="closeStorage()">×</button></div><div id="storageDetail" class="muted" style="text-align:left"></div></div></div>
+<div id="settingsModal" class="overlay hidden"><div class="sheet center"><div class="sheetHead"><div class="sheetTitle">Settings Menu</div><button class="close" onclick="closeSettings()">×</button></div><div class="menu"><button onclick="toggleTheme()">◐ <b>Dark / Light Theme</b></button><button onclick="openStorage();closeSettings()">◔ <b>Storage Details</b></button><button onclick="openQRCode()">▣ <b>Website QR Code</b></button><button onclick="logout()" class="dangerText">↪ <b>Sign Out</b></button></div></div></div>
+<div id="qrModal" class="overlay hidden"><div class="sheet center"><div class="sheetHead"><div class="sheetTitle">Share Website</div><button class="close" onclick="closeQR()">×</button></div><div id="qrText" class="muted" style="text-align:left"></div><button class="primary" style="margin-top:14px" onclick="shareWebsite()">Share / Copy Link</button></div></div>
+<div id="toast" class="hidden" style="position:fixed;z-index:90;left:50%;bottom:92px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 15px;border-radius:14px;border:1px solid #ffffff18;font-size:11px;box-shadow:0 12px 35px #0008"></div>
+<script>
+const $=id=>document.getElementById(id);let files=[],tab='all',view='grid',selected=new Set(),selectMode=false,deleteTarget=null,toastTimer=null;const STAR='cloudzen.starred',RECENT='cloudzen.recent',FOLDERS='cloudzen.folders',THEME='cloudzen.theme';
+function read(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}function write(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}let starred=new Set(read(STAR,[])),recent=read(RECENT,[]),folders=read(FOLDERS,[]);
+function toast(m){$('toast').textContent=m;$('toast').classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),2400)}
+function theme(){const dark=localStorage.getItem(THEME)!=='light';document.documentElement.classList.toggle('dark',dark);$('themeBtn').textContent=dark?'☾':'☀';}function toggleTheme(){localStorage.setItem(THEME,document.documentElement.classList.contains('dark')?'light':'dark');theme()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function bytes(n){n=Number(n)||0;if(!n)return'0 B';let u=['B','KB','MB','GB','TB'],i=Math.min(Math.floor(Math.log(n)/Math.log(1024)),4);return (n/1024**i).toFixed(i?1:0)+' '+u[i]}
+async function api(url,opt={}){const r=await fetch(url,{credentials:'same-origin',...opt});let d=null;try{d=await r.json()}catch{}if(r.status===401){showLogin();throw Error('Authentication required')}if(!r.ok)throw Error(d?.error||'Request failed');return d}
+function showLogin(){$('login').classList.remove('hidden');$('home').classList.add('hidden');$('bottom').classList.add('hidden');$('fab').classList.add('hidden');setTimeout(()=>$('password').focus(),100)}function showApp(){$('login').classList.add('hidden');$('home').classList.remove('hidden');$('bottom').classList.remove('hidden');$('fab').classList.remove('hidden');loadEverything()}
+async function checkAuth(){try{const d=await api('/api/auth/me');d?.authenticated?showApp():showLogin()}catch{showLogin()}}
+$('loginBtn').onclick=async()=>{const p=$('password').value;$('loginError').textContent='';if(!p){$('loginError').textContent='Please enter your password.';return}$('loginBtn').disabled=true;$('loginBtn').textContent='Unlocking…';try{await api('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})});$('password').value='';showApp()}catch(e){$('loginError').textContent=e.message}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Enter Website →'}};$('password').onkeydown=e=>{if(e.key==='Enter')$('loginBtn').click()};
+async function logout(){try{await api('/api/auth/logout',{method:'POST'})}catch{}showLogin()}
+async function loadEverything(){await Promise.allSettled([loadStorage(),loadFiles()])}
+async function loadStorage(){try{const d=await api('/api/storage');$('storageNum').textContent=`${d.usedText||bytes(d.used||0)} / ${d.limitText||'10 GB'}`;$('storagePct').textContent=`${d.usedPercent??0}%`;$('storageBar').style.width=Math.min(100,Number(d.usedPercent)||0)+'%';$('storageUsed').textContent='Used: '+(d.usedText||bytes(d.used||0));$('storageFree').textContent='Free: '+(d.remainingText||'—');$('storageDetail').innerHTML=`<div style="font-size:25px;font-weight:900">${esc(d.usedText||'0 B')}</div><p>Used of ${esc(d.limitText||'10 GB')}</p><p>Remaining: ${esc(d.remainingText||'—')}</p><p>Usage: ${esc(String(d.usedPercent??0))}%</p>`}catch(e){toast(e.message)}}
+async function loadFiles(){try{const d=await api('/api/files');files=Array.isArray(d)?d:[];render()}catch(e){$('files').innerHTML=`<div class="empty">Unable to load cloud files.<br>${esc(e.message)}</div>`}}
+function typeOf(f){return String(f.type||'').toLowerCase()}function canDoc(f){const t=typeOf(f),n=String(f.name||'').toLowerCase();return t==='application/pdf'||/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|rtf|odt)$/i.test(n)}function icon(f){const t=typeOf(f);if(t.startsWith('image/'))return'▧';if(t.startsWith('video/'))return'▶';if(t.startsWith('audio/'))return'♫';if(canDoc(f))return'▤';return'□'}function stream(n){return'/api/stream/'+String(n).split('/').map(encodeURIComponent).join('/')}function download(n){const a=document.createElement('a');a.href='/api/download/'+String(n).split('/').map(encodeURIComponent).join('/');a.download=n.split('/').pop();document.body.appendChild(a);a.click();a.remove()}
+function filtered(){let a=[...files];if(tab==='video')a=a.filter(f=>typeOf(f).startsWith('video/'));if(tab==='image')a=a.filter(f=>typeOf(f).startsWith('image/'));if(tab==='audio')a=a.filter(f=>typeOf(f).startsWith('audio/'));if(tab==='document')a=a.filter(canDoc);if(tab==='starred')a=a.filter(f=>starred.has(f.name));if(tab==='recent')a=a.filter(f=>recent.includes(f.name));if(tab==='trash'||tab==='shared')a=[];const q=$('search').value.trim().toLowerCase();if(q)a=a.filter(f=>String(f.name||'').toLowerCase().includes(q));const s=$('sort').value;if(s==='name')a.sort((x,y)=>String(x.name).localeCompare(String(y.name)));if(s==='size')a.sort((x,y)=>(Number(y.size)||0)-(Number(x.size)||0));if(s==='date')a.sort((x,y)=>new Date(y.modified||0)-new Date(x.modified||0));if(s==='type')a.sort((x,y)=>typeOf(x).localeCompare(typeOf(y)));return a}
+function render(){const a=filtered();$('count').textContent=files.length;$('starCount').textContent=starred.size;$('shown').textContent=`(${a.length})`;if(tab==='trash'||tab==='shared'){const msg=tab==='trash'?'Trash & Recovery needs a server-side trash endpoint.':'Shared With Me needs a server-side shared-items endpoint.';$('files').innerHTML=`<div class="empty">${msg}<br><br><span style="font-size:10px">The UI is ready; the current backend only exposes auth, storage, files, stream, download and upload-chunk APIs.</span></div>`;return}if(!a.length){$('files').innerHTML='<div class="empty">No files found in this view.</div>';return}$('files').innerHTML='';a.forEach(f=>$('files').appendChild(card(f)))}
+function card(f){const el=document.createElement('article');el.className='file glass'+(selected.has(f.name)?' selectedCard':'');const t=typeOf(f),name=f.name||'Untitled';const thumb=document.createElement('div');thumb.className='thumb';if(selectMode){const c=document.createElement('button');c.className='check';c.textContent=selected.has(name)?'✓':'';c.onclick=()=>toggleSelect(name);thumb.appendChild(c)}if(t.startsWith('image/')){const im=document.createElement('img');im.src=stream(name);im.alt=name;thumb.appendChild(im)}else if(t.startsWith('video/')){const v=document.createElement('video');v.src=stream(name);v.muted=true;v.playsInline=true;v.preload='metadata';thumb.appendChild(v)}else{const i=document.createElement('div');i.className='fileIcon';i.textContent=icon(f);thumb.appendChild(i)}const st=document.createElement('button');st.className='star';st.textContent=starred.has(name)?'★':'☆';st.onclick=()=>toggleStar(name);thumb.appendChild(st);const info=document.createElement('div');info.className='fileInfo';info.innerHTML=`<div class="fileName" title="${esc(name)}">${esc(name)}</div><div class="meta">${esc(f.sizeText||bytes(f.size))}${f.modified?' · '+esc(new Date(f.modified).toLocaleDateString()):''}</div>`;const acts=document.createElement('div');acts.className='fileActions';[['Open',()=>openViewer(f)],['↓',()=>download(name)],['↗',()=>shareFile(f)],['Delete',()=>promptDelete(name)]].forEach(([txt,fn])=>{const b=document.createElement('button');b.className='mini'+(txt==='Delete'?' danger':'');b.textContent=txt;b.onclick=fn;acts.appendChild(b)});info.appendChild(acts);el.append(thumb,info);el.onclick=e=>{if(e.target.closest('button'))return;if(selectMode)toggleSelect(name);else openViewer(f)};return el}
+function toggleStar(n){starred.has(n)?starred.delete(n):starred.add(n);write(STAR,[...starred]);render()}
+function remember(n){recent=[n,...recent.filter(x=>x!==n)].slice(0,50);write(RECENT,recent)}
+function openViewer(f){remember(f.name);$('viewerTitle').textContent=f.name;$('viewerContent').innerHTML='';const t=typeOf(f),u=stream(f.name);if(t.startsWith('image/')){const x=new Image();x.src=u;$('viewerContent').appendChild(x)}else if(t.startsWith('video/')){const x=document.createElement('video');x.src=u;x.controls=true;x.playsInline=true;$('viewerContent').appendChild(x)}else if(t.startsWith('audio/')){const x=document.createElement('audio');x.src=u;x.controls=true;$('viewerContent').appendChild(x)}else if(t==='application/pdf'){const x=document.createElement('iframe');x.src=u;$('viewerContent').appendChild(x)}else{const p=document.createElement('div');p.className='empty';p.style.color='#fff';p.innerHTML='Preview unavailable for this file type.<br><br><button class="primary" style="width:auto;padding:0 18px" onclick="download('+JSON.stringify(f.name)+')">Download</button>';$('viewerContent').appendChild(p)}$('viewer').classList.remove('hidden')}
+function closeViewer(){$('viewer').classList.add('hidden');$('viewerContent').innerHTML=''}
+function promptDelete(n){deleteTarget=n;$('deletePassword').value='';$('deleteError').textContent='';$('deleteModal').classList.remove('hidden');setTimeout(()=>$('deletePassword').focus(),80)}function closeDelete(){deleteTarget=null;$('deleteModal').classList.add('hidden')}async function confirmDelete(){if(!deleteTarget)return;const p=$('deletePassword').value.trim();if(!p){$('deleteError').textContent='Delete password is required.';return}try{await api('/api/files',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:deleteTarget,deletePassword:p})});starred.delete(deleteTarget);recent=recent.filter(x=>x!==deleteTarget);write(STAR,[...starred]);write(RECENT,recent);closeDelete();toast('File deleted from cloud');await loadEverything()}catch(e){$('deleteError').textContent=e.message}}
+function toggleSelect(n){if(!selectMode)return;selected.has(n)?selected.delete(n):selected.add(n);render();renderMulti()}function startSelect(){selectMode=false;selected.clear();render();renderMulti()}function enterSelect(){selectMode=true;selected.clear();render();renderMulti();toast('Select files to continue')}function renderMulti(){document.querySelector('.multiBar')?.remove();if(!selected.size)return;const b=document.createElement('div');b.className='multiBar';b.innerHTML=`<span class="selected">${selected.size} selected</span><button onclick="shareSelected()">Share</button><button onclick="downloadSelected()">Download</button><button class="dangerText" onclick="deleteSelected()">Delete</button><button onclick="startSelect()">Cancel</button>`;document.body.appendChild(b)}async function shareSelected(){for(const n of selected){const f=files.find(x=>x.name===n);if(f)await shareFile(f)} }function downloadSelected(){selected.forEach(download)}async function deleteSelected(){const first=[...selected][0];if(first){selected.clear();promptDelete(first)}}
+async function shareFile(f){remember(f.name);const url=new URL(stream(f.name),location.origin).href;try{if(navigator.share){let sharedFile=null;try{const r=await fetch(stream(f.name),{credentials:'same-origin'});if(r.ok){const blob=await r.blob();sharedFile=new File([blob],f.name,{type:f.type||blob.type||'application/octet-stream'})}}catch{}if(sharedFile && navigator.canShare && navigator.canShare({files:[sharedFile]})){await navigator.share({title:f.name,text:'Shared from Welcome Cloud',files:[sharedFile]})}else{await navigator.share({title:f.name,text:'Shared from Welcome Cloud',url})}}else if(navigator.clipboard){await navigator.clipboard.writeText(url);toast('Share link copied')}}catch(e){if(e.name!=='AbortError')toast('Sharing was not available on this device')}}async function shareWebsite(){const url=location.href;try{if(navigator.share)await navigator.share({title:'Welcome Cloud',url});else{await navigator.clipboard.writeText(url);toast('Website link copied')}}catch(e){}}
+function openDrawer(){$('drawerOverlay').classList.remove('hidden');setTimeout(()=>$('drawerOverlay').classList.add('open'),10)}function closeDrawer(){$('drawerOverlay').classList.remove('open');setTimeout(()=>$('drawerOverlay').classList.add('hidden'),280)}$('menuBtn').onclick=openDrawer;$('drawerOverlay').onclick=e=>{if(e.target===$('drawerOverlay'))closeDrawer()}
+function setTab(t){tab=t;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));render()}document.querySelectorAll('[data-tab]').forEach(x=>x.onclick=()=>setTab(x.dataset.tab));$('search').oninput=render;$('sort').onchange=render;$('gridBtn').onclick=()=>{view='grid';$('files').classList.remove('list');$('gridBtn').classList.add('active');$('listBtn').classList.remove('active')};$('listBtn').onclick=()=>{view='list';$('files').classList.add('list');$('listBtn').classList.add('active');$('gridBtn').classList.remove('active')};$('selectBtn').onclick=()=>selectMode?startSelect():enterSelect();
+async function createFolder(){const n=$('folderName').value.trim();if(!n){$('folderError').textContent='Folder name is required.';return}try{const d=await api('/api/folders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d?.message||'Folder created');closeFolder();await loadFiles()}catch(e){folders=[...new Set([...folders,n])];write(FOLDERS,folders);toast('Folder saved in this browser. Backend /api/folders is not available yet.');closeFolder()}}
+function openCreateFolder(){$('folderName').value='';$('folderError').textContent='';$('folderModal').classList.remove('hidden');setTimeout(()=>$('folderName').focus(),80)}function closeFolder(){$('folderModal').classList.add('hidden')}
+function scanDocument(){const i=document.createElement('input');i.type='file';i.accept='image/*,application/pdf';i.setAttribute('capture','environment');i.onchange=async()=>{if(i.files?.length){await uploadFiles([...i.files])}};i.click()}async function uploadFiles(arr){for(const f of arr){await uploadFile(f)}}async function uploadFile(file){const chunk=100*1024*1024,total=Math.ceil(file.size/chunk),id=(crypto.randomUUID?.()||Date.now()+Math.random());for(let index=0;index<total;index++){const blob=file.slice(index*chunk,Math.min(file.size,(index+1)*chunk));const q=new URLSearchParams({id,index,total,size:file.size,name:file.name,relativePath:file.name});try{await api('/api/upload-chunk?'+q,{method:'POST',headers:{'Content-Type':'application/octet-stream','Content-Length':String(blob.size)},body:blob});toast(`${file.name}: ${Math.round((index+1)/total*100)}%`)}catch(e){toast('Upload failed: '+e.message);return}}remember(file.name);await loadEverything();toast(file.name+' uploaded')}
+function openStorage(){$('storageModal').classList.remove('hidden');loadStorage()}function closeStorage(){$('storageModal').classList.add('hidden')}function openSettings(){$('settingsModal').classList.remove('hidden')}function closeSettings(){$('settingsModal').classList.add('hidden')}function openQRCode(){$('qrText').textContent='Share this Welcome Cloud website with the device share sheet, or copy the link if sharing is unavailable.';$('qrModal').classList.remove('hidden')}function closeQR(){$('qrModal').classList.add('hidden')}
+$('themeBtn').onclick=toggleTheme;$('refreshBtn').onclick=loadEverything;$('fab').onclick=()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.onchange=()=>uploadFiles([...i.files]);i.click()};$('gridBtn').click();
+document.querySelectorAll('#bottom button').forEach(b=>b.onclick=()=>{const v=b.dataset.view;document.querySelectorAll('#bottom button').forEach(x=>x.classList.toggle('active',x===b));if(v==='home')setTab('all');else if(v==='files')setTab('all');else if(v==='starred')setTab('starred');else if(v==='settings')openSettings()});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'){closeViewer();closeDelete();closeFolder();closeStorage();closeSettings();closeQR();closeDrawer()}if(e.key==='/'&&document.activeElement!==$('search')&&document.activeElement!==$('password')){$('search').focus();e.preventDefault()}});
+window.addEventListener('load',()=>{theme();setTimeout(()=>{if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance('Welcome Cloud');u.rate=.88;u.pitch=1.02;u.volume=.65;speechSynthesis.cancel();speechSynthesis.speak(u)}},350);setTimeout(()=>{$('splash').classList.add('hide');setTimeout(()=>{$('splash').remove();checkAuth()},700)},3500)});
+</script>
+</body></html>
+                                  
