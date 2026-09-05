@@ -73,6 +73,15 @@ app.use(express.static(PUBLIC_DIR, {
   }
 }));
 
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  if (process.env.NODE_ENV === "production") res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  next();
+});
+
 /* =========================
    TELEGRAM CLIENT
 ========================= */
@@ -698,6 +707,7 @@ async function downloadChunkToFile(messageId, target) {
 }
 
 async function streamFileToResponse(req, res, meta, inline) {
+  await fsp.mkdir(TMP_DIR, { recursive: true });
   const rangeHeader = String(req.headers.range || "");
   const totalSize = Number(meta.size);
 
@@ -768,7 +778,7 @@ async function streamFileToResponse(req, res, meta, inline) {
 /* =========================
    STREAM / DOWNLOAD
 ========================= */
-app.get(/^\/api\/stream\/(.+)$/, requireAuth, requireDownloadPassword, async (req, res) => {
+app.get(/^\/api\/stream\/(.+)$/, requireAuth, async (req, res) => {
   try {
     const name = decodeURIComponent(req.params[0]);
     const file = await findFile(name);
@@ -789,6 +799,138 @@ app.get(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, async (
   } catch (error) {
     if (!res.headersSent) res.status(500).send(error.message || "Download failed");
     else res.destroy(error);
+  }
+});
+
+
+/* =========================
+   RENAME / SHARE / FILE INFO
+========================= */
+function safeTokenPayload(payload) {
+  return b64url(JSON.stringify(payload));
+}
+
+function createShareToken(name, ttlSeconds = 86400) {
+  const exp = Math.floor(Date.now() / 1000) + Math.max(300, Math.min(Number(ttlSeconds) || 86400, 7 * 86400));
+  const payload = safeTokenPayload({ n: cleanName(name), exp, nonce: crypto.randomBytes(8).toString("hex") });
+  return `${payload}.${signPayload(payload)}`;
+}
+
+function verifyShareToken(token) {
+  const [payload, signature] = String(token || "").split(".");
+  if (!payload || !signature || !safeEqual(signature, signPayload(payload))) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!data?.n || !Number.isFinite(data.exp) || data.exp < Math.floor(Date.now() / 1000)) return null;
+    return data;
+  } catch (_) { return null; }
+}
+
+app.patch("/api/files", requireAuth, async (req, res) => {
+  try {
+    const oldName = cleanName(req.body?.name);
+    const newName = cleanName(req.body?.newName);
+    if (!oldName || !newName || oldName === newName) return res.status(400).json({ error: "Enter a different file name." });
+    const file = await findFile(oldName);
+    if (!file) return res.status(404).json({ error: "File not found" });
+    if (fileIndex.has(newName)) return res.status(409).json({ error: "A file with that name already exists." });
+
+    const client = await getTelegramClient();
+    for (const chunk of file.chunks.values()) {
+      const messages = await client.getMessages(TELEGRAM_STORAGE_CHAT, { ids: [Number(chunk.messageId)] });
+      const message = Array.isArray(messages) ? messages[0] : messages;
+      if (!message) throw new Error(`Stored chunk ${chunk.index + 1} not found`);
+      const caption = captionFor({ ...file, name: newName }, chunk.index, chunk.sha256);
+      await client.editMessage(TELEGRAM_STORAGE_CHAT, { message: Number(chunk.messageId), text: caption });
+    }
+    const renamed = { ...file, name: newName, modified: new Date().toISOString() };
+    fileIndex.delete(oldName);
+    fileIndex.set(newName, renamed);
+    return res.json({ ok: true, file: publicFile(renamed) });
+  } catch (error) {
+    console.error("RENAME ERROR:", error);
+    return res.status(500).json({ error: error.message || "Rename failed" });
+  }
+});
+
+app.post("/api/share", requireAuth, async (req, res) => {
+  try {
+    const name = cleanName(req.body?.name);
+    const file = await findFile(name);
+    if (!file) return res.status(404).json({ error: "File not found" });
+    const token = createShareToken(name, req.body?.ttlSeconds || 86400);
+    const base = `${req.protocol}://${req.get("host")}`;
+    res.json({ ok: true, url: `${base}/s/${encodeURIComponent(token)}`, expiresIn: 86400, name: file.name });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Could not create share link" });
+  }
+});
+
+function sharedCookie(req) {
+  const cookie = String(req.headers.cookie || "");
+  const m = cookie.match(/(?:^|;\s*)cloud_zen_shared_download_access=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : "";
+}
+function validSharedDownload(token, req) {
+  const record = verifyPayload(sharedCookie(req));
+  return Boolean(record && record.type === "shared-download" && record.tokenHash === hashSecret(token));
+}
+
+app.post("/api/shared-access", async (req, res) => {
+  const token = String(req.body?.token || "");
+  const data = verifyShareToken(token);
+  if (!data) return res.status(410).json({ error: "Share link expired or invalid." });
+  if (isLocked(req, `share:${hashSecret(token)}`)) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
+  const password = String(req.body?.password || "").trim();
+  if (!safeEqual(password, DOWNLOAD_PASSWORD)) {
+    const locked = registerFailure(req, `share:${hashSecret(token)}`);
+    return res.status(locked ? 423 : 403).json({ error: locked ? "Download access locked for 24 hours." : "Incorrect security password." });
+  }
+  clearFailures(req, `share:${hashSecret(token)}`);
+  const payload = signPayload({ type: "shared-download", tokenHash: hashSecret(token), exp: Date.now() + 15 * 60 * 1000 });
+  const secure = process.env.NODE_ENV === "production";
+  res.setHeader("Set-Cookie", [`cloud_zen_shared_download_access=${encodeURIComponent(payload)}`, "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=900", secure ? "Secure" : ""].filter(Boolean).join("; "));
+  res.json({ ok: true, expiresIn: 900 });
+});
+
+// Exact one-segment token route prevents it from swallowing /download.
+app.get(/^\/s\/([^/]+)$/, async (req, res) => {
+  try {
+    const token = decodeURIComponent(req.params[0]);
+    const data = verifyShareToken(token);
+    if (!data) return res.status(410).send("This share link has expired or is invalid.");
+    const file = await findFile(data.n);
+    if (!file) return res.status(404).send("File not found");
+    const safeName = file.name.replace(/[<>]/g, "");
+    const payload = JSON.stringify({ name: safeName, size: file.size, type: mimeFor(file.name), url: `/api/shared-stream/${encodeURIComponent(token)}`, token }).replace(/</g, "\\u003c");
+    res.type("html").send(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#070b14"><title>${safeName}</title><style>body{margin:0;background:#070b14;color:#eef2ff;font-family:system-ui;display:grid;place-items:center;min-height:100vh;padding:24px;box-sizing:border-box}.card{width:min(920px,100%);padding:28px;border:1px solid #ffffff18;border-radius:28px;background:#ffffff08;backdrop-filter:blur(18px);box-shadow:0 30px 90px #0008}h1{font-size:clamp(20px,4vw,34px);margin:0 0 8px;word-break:break-word}.meta{color:#9aa7bf;margin-bottom:22px}video,audio,img,iframe{width:100%;max-height:70vh;border-radius:18px;background:#000;object-fit:contain}.btn{display:inline-flex;margin-top:18px;padding:12px 16px;border-radius:12px;background:#fff;color:#07101e;text-decoration:none;font-weight:750;border:0;cursor:pointer}.shade{position:fixed;inset:0;background:#0009;backdrop-filter:blur(10px);display:none;place-items:center;padding:18px}.box{width:min(420px,100%);background:#101a2b;border:1px solid #ffffff18;border-radius:22px;padding:24px;box-shadow:0 30px 100px #000}.box h2{margin:0 0 7px}.box p{color:#9aa7bf;font-size:13px}.box input{width:100%;height:46px;box-sizing:border-box;border-radius:12px;border:1px solid #ffffff18;background:#091321;color:#fff;padding:0 12px;margin:8px 0 12px}.err{color:#ffb5c0;font-size:12px;min-height:18px}</style></head><body><main class="card"><h1>${safeName}</h1><div class="meta">${formatBytes(file.size)} · ${mimeFor(file.name)}</div><div id="viewer"></div><button class="btn" id="downloadBtn">Download file</button></main><div class="shade" id="shade"><div class="box"><h2>Secure download</h2><p>Enter the download security password to continue.</p><input id="pw" type="password" autocomplete="off" placeholder="Security password"><div class="err" id="err"></div><button class="btn" id="unlock">Unlock & download</button></div></div><script>const f=${payload},v=document.getElementById('viewer'),u=f.url;if(f.type.startsWith('image/'))v.innerHTML='<img src="'+u+'">';else if(f.type.startsWith('video/'))v.innerHTML='<video src="'+u+'" controls playsinline preload="metadata"></video>';else if(f.type.startsWith('audio/'))v.innerHTML='<audio src="'+u+'" controls preload="metadata"></audio>';else if(f.type==='application/pdf'||f.type.startsWith('text/'))v.innerHTML='<iframe src="'+u+'" style="height:70vh"></iframe>';else v.innerHTML='<p style="color:#9aa7bf">Preview is not available for this file type.</p>';const sh=document.getElementById('shade');document.getElementById('downloadBtn').onclick=()=>sh.style.display='grid';document.getElementById('unlock').onclick=async()=>{const err=document.getElementById('err'),b=document.getElementById('unlock');b.disabled=true;b.textContent='Checking…';err.textContent='';try{const r=await fetch('/api/shared-access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:f.token,password:document.getElementById('pw').value})});const d=await r.json();if(!r.ok)throw Error(d.error||'Access denied');location.href='/s/'+encodeURIComponent(f.token)+'/download'}catch(e){err.textContent=e.message;b.disabled=false;b.textContent='Unlock & download'}};</script></body></html>`);
+  } catch (error) { res.status(500).send(error.message || "Share page failed"); }
+});
+
+app.get(/^\/api\/shared-stream\/(.+)$/, async (req, res) => {
+  try {
+    const token = decodeURIComponent(req.params[0]);
+    const data = verifyShareToken(token);
+    if (!data) return res.status(410).send("Share link expired");
+    const file = await findFile(data.n);
+    if (!file) return res.status(404).send("File not found");
+    await streamFileToResponse(req, res, file, true);
+  } catch (error) {
+    if (!res.headersSent) res.status(500).send(error.message || "Preview failed"); else res.destroy(error);
+  }
+});
+
+app.get(/^\/s\/([^/]+)\/download$/, async (req, res) => {
+  try {
+    const token = decodeURIComponent(req.params[0]);
+    const data = verifyShareToken(token);
+    if (!data) return res.status(410).send("Share link expired");
+    if (!validSharedDownload(token, req)) return res.status(403).send("Download access requires the security password.");
+    const file = await findFile(data.n);
+    if (!file) return res.status(404).send("File not found");
+    await streamFileToResponse(req, res, file, false);
+  } catch (error) {
+    if (!res.headersSent) res.status(500).send(error.message || "Download failed"); else res.destroy(error);
   }
 });
 
@@ -885,4 +1027,4 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
-                            
+  
