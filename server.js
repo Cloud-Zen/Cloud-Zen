@@ -38,8 +38,8 @@ const TMP_DIR = path.join(os.tmpdir(), "cloud-zen");
    ENVIRONMENT / SECRETS
 ========================= */
 const APP_PASSWORD = String(process.env.APP_PASSWORD ?? "").trim();
-const DELETE_PASSWORD = String(process.env.DELETE_PASSWORD ?? "").trim();
 const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD ?? "").trim();
+const DELETE_PASSWORD = String(process.env.DELETE_PASSWORD ?? "").trim();
 const SESSION_SECRET = String(process.env.SESSION_SECRET ?? "").trim();
 const TELEGRAM_API_ID = Number(process.env.TELEGRAM_API_ID || 0);
 const TELEGRAM_API_HASH = String(process.env.TELEGRAM_API_HASH || "").trim();
@@ -56,8 +56,8 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DEVICE_LOCK_MS = 24 * 60 * 60 * 1000;
 const MAX_LOGIN_FAILURES = 3;
 
-if (!APP_PASSWORD || !DELETE_PASSWORD || !DOWNLOAD_PASSWORD || !SESSION_SECRET) {
-  console.warn("[Cloud-Zen] APP_PASSWORD, DELETE_PASSWORD, DOWNLOAD_PASSWORD and SESSION_SECRET must be set in Render.");
+if (!APP_PASSWORD || !DOWNLOAD_PASSWORD || !DELETE_PASSWORD || !SESSION_SECRET) {
+  console.warn("[Cloud-Zen] APP_PASSWORD, DOWNLOAD_PASSWORD, DELETE_PASSWORD and SESSION_SECRET must be set in Render.");
 }
 if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH || !TELEGRAM_SESSION) {
   console.warn("[Cloud-Zen] Telegram MTProto credentials are not fully configured.");
@@ -281,21 +281,19 @@ function requireUploadPassword(req, res, next) {
 }
 
 function requireDownloadPassword(req, res, next) {
-  if (isLocked(req, "download")) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
-  const password = String(req.body?.password ?? req.body?.downloadPassword ?? req.query?.password ?? "").trim();
-  if (!DOWNLOAD_PASSWORD || !safeEqual(password, DOWNLOAD_PASSWORD)) {
-    const locked = registerFailure(req, "download");
-    return res.status(locked ? 423 : 403).json({
-      error: locked ? "Download access locked for 24 hours." : "Incorrect download password."
-    });
+  if (isLocked(req, "download")) {
+    return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
   }
-  clearFailures(req, "download");
+  const token = actionCookie(req, "download");
+  if (!validActionToken(token, "download")) {
+    return res.status(403).json({ error: "Download password required." });
+  }
   next();
 }
 
 function requireDeletePassword(req, res, next) {
   if (isLocked(req, "delete")) return res.status(423).json({ error: "Delete access is locked for 24 hours on this device." });
-  const password = String(req.body?.password ?? req.body?.deletePassword ?? "").trim();
+  const password = String(req.body?.deletePassword ?? "").trim();
   if (!DELETE_PASSWORD || !safeEqual(password, DELETE_PASSWORD)) {
     const locked = registerFailure(req, "delete");
     return res.status(locked ? 423 : 403).json({
@@ -306,22 +304,31 @@ function requireDeletePassword(req, res, next) {
   next();
 }
 
-function requireRenamePassword(req, res, next) {
-  if (isLocked(req, "rename")) return res.status(423).json({ error: "Rename access is locked for 24 hours on this device." });
-  const password = String(req.body?.password ?? req.body?.renamePassword ?? "").trim();
+// Unlock download/rename actions with the Render DOWNLOAD_PASSWORD.
+// The short-lived HttpOnly cookie is reused by both download and rename.
+app.post("/api/access/download", requireAuth, (req, res) => {
+  if (isLocked(req, "download")) {
+    return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
+  }
+  const password = String(req.body?.downloadPassword ?? "").trim();
   if (!DOWNLOAD_PASSWORD || !safeEqual(password, DOWNLOAD_PASSWORD)) {
-    const locked = registerFailure(req, "rename");
+    const locked = registerFailure(req, "download");
     return res.status(locked ? 423 : 403).json({
-      error: locked ? "Rename access locked for 24 hours." : "Incorrect rename password."
+      error: locked ? "Download access locked for 24 hours." : "Incorrect download password."
     });
   }
-  clearFailures(req, "rename");
-  next();
-}
-
-// Kept as a compatibility endpoint. It never introduces another password.
-app.post("/api/access/download", requireAuth, (req, res) => {
-  res.json({ ok: true, expiresIn: 0, message: "Download is protected by the main Enter password." });
+  clearFailures(req, "download");
+  const token = createActionToken("download");
+  const secure = process.env.NODE_ENV === "production";
+  res.setHeader("Set-Cookie", [
+    `cloud_zen_download_access=${encodeURIComponent(token)}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=900",
+    secure ? "Secure" : ""
+  ].filter(Boolean).join("; "));
+  res.json({ ok: true, expiresIn: 900, message: "Download access unlocked." });
 });
 
 app.post("/api/auth/login", (req, res) => {
@@ -785,7 +792,7 @@ app.get(/^\/api\/stream\/(.+)$/, requireAuth, async (req, res) => {
   }
 });
 
-async function downloadFileHandler(req, res) {
+app.get(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, async (req, res) => {
   try {
     const name = decodeURIComponent(req.params[0]);
     const file = await findFile(name);
@@ -795,10 +802,7 @@ async function downloadFileHandler(req, res) {
     if (!res.headersSent) res.status(500).send(error.message || "Download failed");
     else res.destroy(error);
   }
-}
-
-app.get(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, downloadFileHandler);
-app.post(/^\/api\/download\/(.+)$/, requireAuth, requireDownloadPassword, downloadFileHandler);
+});
 
 
 /* =========================
@@ -824,7 +828,7 @@ function verifyShareToken(token) {
   } catch (_) { return null; }
 }
 
-async function renameFileHandler(req, res) {
+app.patch("/api/files", requireAuth, requireDownloadPassword, async (req, res) => {
   try {
     const oldName = cleanName(req.body?.name);
     const newName = cleanName(req.body?.newName);
@@ -849,10 +853,7 @@ async function renameFileHandler(req, res) {
     console.error("RENAME ERROR:", error);
     return res.status(500).json({ error: error.message || "Rename failed" });
   }
-}
-
-app.patch("/api/files", requireAuth, requireRenamePassword, renameFileHandler);
-app.post("/api/files/rename", requireAuth, requireRenamePassword, renameFileHandler);
+});
 
 app.post("/api/share", requireAuth, async (req, res) => {
   try {
