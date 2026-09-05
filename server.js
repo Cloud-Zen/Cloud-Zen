@@ -38,7 +38,7 @@ const TMP_DIR = path.join(os.tmpdir(), "cloud-zen");
    ENVIRONMENT / SECRETS
 ========================= */
 const APP_PASSWORD = String(process.env.APP_PASSWORD ?? "").trim();
-const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD ?? "").trim();
+const DELETE_PASSWORD = String(process.env.DELETE_PASSWORD ?? "").trim();
 const SESSION_SECRET = String(process.env.SESSION_SECRET ?? "").trim();
 const TELEGRAM_API_ID = Number(process.env.TELEGRAM_API_ID || 0);
 const TELEGRAM_API_HASH = String(process.env.TELEGRAM_API_HASH || "").trim();
@@ -55,8 +55,8 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DEVICE_LOCK_MS = 24 * 60 * 60 * 1000;
 const MAX_LOGIN_FAILURES = 3;
 
-if (!APP_PASSWORD || !DOWNLOAD_PASSWORD || !SESSION_SECRET) {
-  console.warn("[Cloud-Zen] APP_PASSWORD, DOWNLOAD_PASSWORD and SESSION_SECRET must be set in Render.");
+if (!APP_PASSWORD || !DELETE_PASSWORD || !SESSION_SECRET) {
+  console.warn("[Cloud-Zen] APP_PASSWORD, DELETE_PASSWORD and SESSION_SECRET must be set in Render.");
 }
 if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH || !TELEGRAM_SESSION) {
   console.warn("[Cloud-Zen] Telegram MTProto credentials are not fully configured.");
@@ -280,54 +280,28 @@ function requireUploadPassword(req, res, next) {
 }
 
 function requireDownloadPassword(req, res, next) {
-  if (isLocked(req, "download")) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
-  if (!validActionToken(actionCookie(req, "download"), "download")) {
-    return res.status(403).json({ error: "Download access is locked until you enter the download password." });
-  }
-  req.cloudSession.downloadOk = true;
+  // The main Enter password already authenticates the private cloud.
+  // There is intentionally NO second download password.
   next();
 }
 
-async function grantActionAccess(req, res, kind) {
-  // Upload access is no longer password-protected. Only download keeps
-  // the secondary security layer.
-  if (kind !== "download") {
-    return res.status(404).json({ error: "Not found" });
-  }
-
-  if (isLocked(req, "download")) {
-    return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
-  }
-
-  const expected = DOWNLOAD_PASSWORD;
-  const password = String(req.body?.password ?? "").trim();
-  const accepted = [expected, APP_PASSWORD].filter(Boolean);
-
-  if (!accepted.some(candidate => safeEqual(password, candidate))) {
-    const locked = registerFailure(req, "download");
+function requireDeletePassword(req, res, next) {
+  if (isLocked(req, "delete")) return res.status(423).json({ error: "Delete access is locked for 24 hours on this device." });
+  const password = String(req.body?.deletePassword ?? "").trim();
+  if (!DELETE_PASSWORD || !safeEqual(password, DELETE_PASSWORD)) {
+    const locked = registerFailure(req, "delete");
     return res.status(locked ? 423 : 403).json({
-      error: locked
-        ? "Download access locked for 24 hours."
-        : "Incorrect security password."
+      error: locked ? "Delete access locked for 24 hours." : "Incorrect delete password."
     });
   }
-
-  clearFailures(req, "download");
-  const token = createActionToken("download");
-  const secure = process.env.NODE_ENV === "production";
-  res.setHeader("Set-Cookie", [
-    `cloud_zen_download_access=${encodeURIComponent(token)}`,
-    "Path=/",
-    "HttpOnly",
-    "SameSite=Lax",
-    "Max-Age=900",
-    secure ? "Secure" : ""
-  ].filter(Boolean).join("; "));
-
-  return res.json({ ok: true, expiresIn: 900 });
+  clearFailures(req, "delete");
+  next();
 }
 
-app.post("/api/access/download", requireAuth, (req, res) => grantActionAccess(req, res, "download"));
+// Kept as a compatibility endpoint. It never introduces another password.
+app.post("/api/access/download", requireAuth, (req, res) => {
+  res.json({ ok: true, expiresIn: 0, message: "Download is protected by the main Enter password." });
+});
 
 app.post("/api/auth/login", (req, res) => {
   if (isLocked(req, "login")) return res.status(423).json({ error: "Access locked for 24 hours on this device." });
@@ -882,9 +856,9 @@ app.post("/api/shared-access", async (req, res) => {
   if (!data) return res.status(410).json({ error: "Share link expired or invalid." });
   if (isLocked(req, `share:${hashSecret(token)}`)) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
   const password = String(req.body?.password || "").trim();
-  if (!safeEqual(password, DOWNLOAD_PASSWORD)) {
+  if (!safeEqual(password, APP_PASSWORD)) {
     const locked = registerFailure(req, `share:${hashSecret(token)}`);
-    return res.status(locked ? 423 : 403).json({ error: locked ? "Download access locked for 24 hours." : "Incorrect security password." });
+    return res.status(locked ? 423 : 403).json({ error: locked ? "Download access locked for 24 hours." : "Incorrect Enter password." });
   }
   clearFailures(req, `share:${hashSecret(token)}`);
   const payload = signPayload({ type: "shared-download", tokenHash: hashSecret(token), exp: Date.now() + 15 * 60 * 1000 });
@@ -937,7 +911,7 @@ app.get(/^\/s\/([^/]+)\/download$/, async (req, res) => {
 /* =========================
    DELETE
 ========================= */
-app.delete("/api/files", requireAuth, requireUploadPassword, async (req, res) => {
+app.delete("/api/files", requireAuth, requireDeletePassword, async (req, res) => {
   try {
     const name = cleanName(req.body?.name);
     const file = await findFile(name);
