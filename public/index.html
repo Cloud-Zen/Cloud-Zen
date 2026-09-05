@@ -15,7 +15,8 @@
     content="#030308"
 >
 
-<title>Cloud-Zen - Private Access</title>
+<meta name="cloud-zen-build" content="premium-final-2026-09-05">
+    <title>Cloud-Zen - Private Access</title>
 
 <style>
 
@@ -3313,6 +3314,21 @@ input[type="password"]::placeholder{
     }
 }
 
+
+/* Cloud-Zen mobile-first shell */
+.czMobileBottomNav{display:none}.czFab,.czFabMenu{display:none}
+@media(max-width:700px){
+  body{padding-bottom:88px}
+  #dashboard{padding-bottom:90px}
+  .topbar{position:sticky;top:0;z-index:100}
+  .cloudTabs{overflow-x:auto;scrollbar-width:none;white-space:nowrap}.cloudTabs::-webkit-scrollbar{display:none}
+  .czMobileBottomNav{position:fixed;left:10px;right:10px;bottom:10px;height:66px;z-index:10010;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px;border:1px solid rgba(255,255,255,.12);border-radius:21px;background:rgba(7,14,25,.92);backdrop-filter:blur(20px);box-shadow:0 18px 60px rgba(0,0,0,.42);padding-bottom:max(5px,env(safe-area-inset-bottom))}
+  .czMobileBottomNav button{background:transparent;border-radius:15px;color:#93a2b7;display:grid;place-items:center;line-height:1;gap:3px}.czMobileBottomNav button span{font-size:20px}.czMobileBottomNav button small{font-size:10px}.czMobileBottomNav button.active{background:rgba(143,200,255,.12);color:#fff}
+  .czFab{display:grid;place-items:center;position:fixed;right:22px;bottom:88px;z-index:10012;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#8fc8ff,#b7a2ff);color:#07111f;font-size:29px;font-weight:800;box-shadow:0 15px 40px rgba(0,0,0,.42);border:0}
+  .czFabMenu{position:fixed;right:22px;bottom:151px;z-index:10011;display:none;flex-direction:column;align-items:flex-end;gap:7px}.czFabMenu.show{display:flex}.czFabMenu button{padding:11px 14px;border-radius:13px;background:#122238;color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 35px rgba(0,0,0,.35);font-size:12px}
+}
+@media(min-width:701px){.czMobileBottomNav,.czFab,.czFabMenu{display:none!important}}
+
 </style>
 
 
@@ -3320,78 +3336,187 @@ input[type="password"]::placeholder{
      QR CODE LIBRARY
 ======================================================= -->
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
+<script>
 /* =========================================================
-   MOBILE ACTION DRAWER
+   CLOUD-ZEN PREMIUM FUNCTIONAL OVERRIDES
 ========================================================= */
-const mobileMenuButton = document.getElementById("mobileMenuButton");
-const mobileDrawer = document.getElementById("mobileDrawer");
-const mobileDrawerBackdrop = document.getElementById("mobileDrawerBackdrop");
-const mobileDrawerClose = document.getElementById("mobileDrawerClose");
+(() => {
+  const czModal = document.getElementById("czModal");
+  const czModalIcon = document.getElementById("czModalIcon");
+  const czModalTitle = document.getElementById("czModalTitle");
+  const czModalText = document.getElementById("czModalText");
+  const czModalInput = document.getElementById("czModalInput");
+  const czModalError = document.getElementById("czModalError");
+  const czModalCancel = document.getElementById("czModalCancel");
+  const czModalConfirm = document.getElementById("czModalConfirm");
+  const czToastStack = document.getElementById("czToastStack");
 
-function setMobileDrawer(open){
-    if(!mobileDrawer || !mobileDrawerBackdrop || !mobileMenuButton){
-        return;
-    }
-
-    mobileDrawer.classList.toggle("show", open);
-    mobileDrawerBackdrop.classList.toggle("show", open);
-    mobileDrawer.setAttribute("aria-hidden", String(!open));
-    mobileMenuButton.setAttribute("aria-expanded", String(open));
-}
-
-mobileMenuButton?.addEventListener("click", () => {
-    setMobileDrawer(!mobileDrawer.classList.contains("show"));
-});
-
-mobileDrawerBackdrop?.addEventListener("click", () => setMobileDrawer(false));
-mobileDrawerClose?.addEventListener("click", () => setMobileDrawer(false));
-
-document.querySelectorAll("[data-mobile-action]").forEach(button => {
-    button.addEventListener("click", () => {
-        const action = button.dataset.mobileAction;
-        setMobileDrawer(false);
-
-        if(action === "qr"){
-            qrButton?.click();
-        }else if(action === "refresh"){
-            document.getElementById("topRefresh")?.click();
-        }else if(action === "download"){
-            downloadAllButton?.click();
-        }else if(action === "logout"){
-            logoutButton?.click();
-        }
+  function czSweet({icon="✨", title="Cloud-Zen", text="", input=false, confirmText="OK", cancel=true, placeholder=""}={}){
+    return new Promise(resolve => {
+      czModalIcon.textContent = icon;
+      czModalTitle.textContent = title;
+      czModalText.textContent = text;
+      czModalInput.style.display = input ? "block" : "none";
+      czModalInput.placeholder = placeholder;
+      czModalInput.value = "";
+      czModalError.textContent = "";
+      czModalCancel.style.display = cancel ? "inline-flex" : "none";
+      czModalConfirm.textContent = confirmText;
+      czModal.style.display = "flex";
+      czModal.setAttribute("aria-hidden","false");
+      setTimeout(() => input && czModalInput.focus(), 80);
+      const done = value => {
+        czModal.style.display = "none";
+        czModal.setAttribute("aria-hidden","true");
+        czModalCancel.onclick = null;
+        czModalConfirm.onclick = null;
+        czModalInput.onkeydown = null;
+        resolve(value);
+      };
+      czModalCancel.onclick = () => done(null);
+      czModalConfirm.onclick = () => done(input ? String(czModalInput.value || "").trim() : true);
+      czModalInput.onkeydown = e => { if(e.key === "Enter"){ e.preventDefault(); czModalConfirm.click(); } if(e.key === "Escape") done(null); };
     });
-});
+  }
 
-/* =========================================================
-   SMOOTHER UPLOAD STATE FEEDBACK
-========================================================= */
-fileInput.addEventListener("click", () => {
-    showToast("Select files to upload");
-});
+  function czToast(message, kind=""){
+    const el=document.createElement("div"); el.className=`czToast ${kind}`; el.textContent=message; czToastStack.appendChild(el);
+    setTimeout(()=>el.remove(),2800);
+  }
+  window.czSweet = czSweet;
+  window.czToast = czToast;
 
-fileInput.addEventListener("change", () => {
-    uploadCard.classList.add("uploading");
-});
-
-/* The existing upload handler remains unchanged; this only clears
-   the visual state after its normal file-selection flow finishes. */
-const originalUploadInputValueReset = fileInput;
-setInterval(() => {
-    if(!originalUploadInputValueReset.files || originalUploadInputValueReset.files.length === 0){
-        uploadCard.classList.remove("uploading");
+  async function ensureDownloadAccessPremium(){
+    const key = "cloudZenDownloadUnlocked";
+    const stampKey = "cloudZenDownloadUnlockedAt";
+    const stamp = Number(sessionStorage.getItem(stampKey) || 0);
+    if(sessionStorage.getItem(key) === "1" && Date.now() - stamp < 15*60*1000) return true;
+    sessionStorage.removeItem(key); sessionStorage.removeItem(stampKey);
+    const value = await czSweet({icon:"🔐",title:"Download protected",text:"Your files can be viewed without this extra password. Enter the download password only when you want to download a file.",input:true,confirmText:"Unlock download",placeholder:"Download password"});
+    if(value === null) return false;
+    if(!value){ czToast("Password is required.","bad"); return false; }
+    const response = await fetch("/api/access/download",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:value})});
+    let data=null; try{data=await response.json()}catch(_){ }
+    if(!response.ok){
+      await czSweet({icon:"⚠️",title:"Access denied",text:data?.error||"The download password is incorrect.",confirmText:"Try again",cancel:false});
+      return false;
     }
-}, 500);
+    sessionStorage.setItem(key,"1"); sessionStorage.setItem(stampKey,String(Date.now()));
+    czToast("Download access unlocked","good");
+    return true;
+  }
+  window.ensureDownloadAccess = ensureDownloadAccessPremium;
 
-/* Extra feedback for the storage refresh control. */
-storageDetailsRefresh?.addEventListener("click", () => {
-    storageDetailsRefresh.classList.add("spinning");
-    setTimeout(() => storageDetailsRefresh.classList.remove("spinning"), 700);
-});
+  /* Open/view never asks for the download password. */
+  window.openViewer = async function(file){
+    rememberRecent(file.name);
+    viewerTitle.textContent=file.name;
+    viewerContent.innerHTML="";
+    const type=String(file.type||"").toLowerCase();
+    const url=streamUrl(file.name);
+    if(type.startsWith("image/")){ const img=new Image(); img.src=url; img.alt=file.name; img.loading="eager"; viewerContent.appendChild(img); }
+    else if(type.startsWith("video/")){ const v=document.createElement("video"); v.src=url; v.controls=true; v.playsInline=true; viewerContent.appendChild(v); }
+    else if(type.startsWith("audio/")){ const a=document.createElement("audio"); a.src=url; a.controls=true; viewerContent.appendChild(a); }
+    else if(type==="application/pdf"){ const iframe=document.createElement("iframe"); iframe.src=url; iframe.title=file.name; viewerContent.appendChild(iframe); }
+    else if(type.startsWith("text/") || type==="application/json" || type.includes("javascript")){ 
+      const pre=document.createElement("pre"); pre.style.cssText="white-space:pre-wrap;word-break:break-word;text-align:left;padding:20px;max-height:70vh;overflow:auto;width:100%;color:#eef2ff;background:rgba(0,0,0,.18);border-radius:16px";
+      try{ const r=await fetch(url,{credentials:"same-origin"}); if(!r.ok) throw new Error("Unable to open file"); pre.textContent=await r.text(); }catch(e){ pre.textContent="Preview unavailable. Use Download to save this file."; }
+      viewerContent.appendChild(pre);
+    } else {
+      viewerContent.appendChild(document.createElement("div"));
+      const wrap=viewerContent.firstChild; wrap.className="czFileInfo"; wrap.innerHTML=`<div class="czFileBigIcon">${iconFor(type)}</div><div><strong style="font-size:16px">${escapeHtml(file.name)}</strong><div style="color:#aeb8cc;font-size:12px;margin-top:5px">${escapeHtml(typeLabel(type))} • ${escapeHtml(file.sizeText||formatBytes(file.size))}</div></div>`;
+      const note=document.createElement("div"); note.style.cssText="grid-column:1/-1;color:#aeb8cc;font-size:13px;line-height:1.6"; note.textContent="This file type is stored safely but your browser does not provide an inline preview. You can download it with the protected Download action."; viewerContent.appendChild(note);
+    }
+    viewer.classList.add("show");
+  };
+
+  /* Download: protected modal + real browser download. */
+  window.downloadFile = async function(name){
+    if(!(await ensureDownloadAccessPremium())) return;
+    const a=document.createElement("a"); a.href=downloadUrl(name); a.download=name.split("/").pop(); document.body.appendChild(a); a.click(); a.remove();
+  };
+
+  /* Real signed share link, with native share + clipboard fallback. */
+  window.shareFile = async function(file){
+    try{
+      const data=await api("/api/share",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:file.name})});
+      if(navigator.share){
+        try{ await navigator.share({title:file.name,text:`Cloud-Zen shared file • valid for 24 hours`,url:data.url}); czToast("Share sheet opened","good"); return; }catch(e){ if(e?.name==="AbortError") return; }
+      }
+      await navigator.clipboard.writeText(data.url);
+      await czSweet({icon:"🔗",title:"Share link ready",text:"A secure 24-hour link was created and copied to your clipboard.",confirmText:"Done",cancel:false});
+    }catch(e){ await czSweet({icon:"⚠️",title:"Share failed",text:e.message||"Could not create a share link.",confirmText:"Close",cancel:false}); }
+  };
+
+  /* Rename action added to every file card after each render. */
+  function enhanceRenameButtons(){
+    document.querySelectorAll(".fileCard").forEach(card=>{
+      if(card.querySelector(".renameAction")) return;
+      const nameEl=card.querySelector(".fileName"); if(!nameEl) return;
+      const oldName=nameEl.textContent.trim();
+      const actions=card.querySelector(".fileActions"); if(!actions) return;
+      const btn=document.createElement("button"); btn.className="fileAction renameAction"; btn.textContent="Rename"; btn.title="Rename file";
+      btn.addEventListener("click",async e=>{ e.stopPropagation(); const next=await czSweet({icon:"✏️",title:"Rename file",text:`Choose a new name for ${oldName}`,input:true,confirmText:"Save name",placeholder:oldName}); if(next===null||!next||next===oldName) return; try{ await api("/api/files/rename",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({oldName,newName:next})}); czToast("File renamed successfully","good"); await loadFiles(); }catch(err){ await czSweet({icon:"⚠️",title:"Rename failed",text:err.message||"Could not rename this file.",confirmText:"Close",cancel:false}); } });
+      actions.appendChild(btn);
+    });
+  }
+  const originalRenderFiles=window.renderFiles || renderFiles;
+  window.renderFiles=function(){ originalRenderFiles(); enhanceRenameButtons(); };
+
+  /* Upgrade unsupported Open buttons from "Info" to a proper file details dialog. */
+  const originalCreateFileCard=window.createFileCard || createFileCard;
+  window.createFileCard=function(file){
+    const card=originalCreateFileCard(file);
+    const buttons=[...card.querySelectorAll(".fileActions .fileAction")];
+    const openBtn=buttons[0];
+    if(openBtn && !canPreview(file.type||"")){
+      openBtn.textContent="View info";
+      openBtn.onclick=async e=>{ e.stopPropagation(); await czSweet({icon:iconFor(file.type||""),title:"File details",text:`${file.name}\n${file.sizeText||formatBytes(file.size)} • ${typeLabel(file.type||"")}\nStored in Cloud-Zen. This format is not previewable in your browser.` ,confirmText:"Close",cancel:false}); };
+    }
+    return card;
+  };
+
+  /* Replace hard browser confirm/alert for delete/upload errors with the premium dialog. */
+  window.deleteFile=async function(name){
+    const ok=await czSweet({icon:"🗑️",title:"Delete file?",text:`This will permanently delete “${name}” from Cloud-Zen storage.`,confirmText:"Delete permanently",cancel:true});
+    if(!ok) return;
+    try{ await api("/api/files",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})}); starred.delete(name); writeJSON(STAR_KEY,[...starred]); recent=recent.filter(x=>x!==name); writeJSON(RECENT_KEY,recent); czToast("File deleted","good"); await loadEverything(); }
+    catch(e){ await czSweet({icon:"⚠️",title:"Delete failed",text:e.message||"Could not delete file.",confirmText:"Close",cancel:false}); }
+  };
+
+  /* Give the upload area richer success feedback while keeping upload password-free. */
+  const oldUploadFiles=window.uploadFiles || uploadFiles;
+  window.uploadFiles=async function(files){ try{ await oldUploadFiles(files); czToast(`${files.length} file${files.length===1?"":"s"} uploaded successfully`,"good"); }catch(e){ czToast(e.message||"Upload failed","bad"); throw e; } };
+
+  document.addEventListener("click",e=>{
+    const a=e.target.closest("a[href^=\"/api/download/\"]");
+    if(a){ e.preventDefault(); const name=decodeURIComponent(a.getAttribute("href").split("/api/download/")[1]); window.downloadFile(name); }
+  },true);
+})();
 
 </script>
+
+
+<style id="cloudzen-premium-upgrade">
+:root{--cz-bg:#060913;--cz-panel:rgba(11,18,33,.82);--cz-panel2:rgba(18,27,47,.72);--cz-line:rgba(255,255,255,.10);--cz-accent:#b9c9ff;--cz-accent2:#f3b4cf;--cz-text:#f7f8ff;--cz-muted:#aeb8cc;--cz-good:#73e2b0;}
+body{background:radial-gradient(circle at 20% 0%,rgba(117,143,255,.12),transparent 30%),radial-gradient(circle at 85% 20%,rgba(243,180,207,.10),transparent 28%),#060913!important;overflow-x:hidden}
+.cloudScene{opacity:.55;filter:blur(.2px)}
+.brandLogo,.introLogo{transform:scale(.82);transform-origin:center;filter:drop-shadow(0 0 18px rgba(185,201,255,.25))}
+.brandTitle{letter-spacing:-.035em}.brandStatus{opacity:.72}
+.topbar{backdrop-filter:blur(18px);background:rgba(5,9,18,.62)!important;border-bottom:1px solid var(--cz-line);box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.storageCard,.uploadCard,.fileCard,.sidebar,.mobileDrawer,.loginCard{background:linear-gradient(145deg,rgba(18,27,48,.88),rgba(7,12,24,.78))!important;border:1px solid var(--cz-line)!important;box-shadow:0 18px 55px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035)}
+.fileCard{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}.fileCard:hover{transform:translateY(-4px);border-color:rgba(185,201,255,.25)!important;box-shadow:0 22px 65px rgba(0,0,0,.35),0 0 0 1px rgba(185,201,255,.06)}
+.fileActions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important}.fileAction{min-height:38px;border-radius:12px!important;border:1px solid var(--cz-line)!important;background:rgba(255,255,255,.045)!important;transition:.2s ease}.fileAction:hover{transform:translateY(-1px);background:rgba(185,201,255,.10)!important}
+.fileAction.rename{display:block!important}.fileAction.delete{background:rgba(255,92,120,.06)!important}.fileAction.delete:hover{background:rgba(255,92,120,.12)!important}
+#czModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(2,5,12,.72);backdrop-filter:blur(16px);z-index:99999}.czModalCard{width:min(440px,100%);border:1px solid rgba(255,255,255,.12);border-radius:24px;background:linear-gradient(150deg,rgba(20,29,50,.98),rgba(7,12,23,.98));box-shadow:0 30px 90px rgba(0,0,0,.55);padding:24px;animation:czPop .24s ease}.czModalIcon{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(185,201,255,.18),rgba(243,180,207,.15));font-size:23px;margin-bottom:14px}.czModalTitle{font-size:20px;font-weight:750;color:var(--cz-text);margin-bottom:6px}.czModalText{font-size:13px;line-height:1.55;color:var(--cz-muted);margin-bottom:18px}.czModalInput{width:100%;padding:14px 15px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:var(--cz-text);outline:none;font-size:15px}.czModalInput:focus{border-color:rgba(185,201,255,.55);box-shadow:0 0 0 4px rgba(185,201,255,.08)}.czModalError{min-height:20px;color:#ff9aab;font-size:12px;margin-top:8px}.czModalActions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}.czModalBtn{border:0;border-radius:13px;padding:11px 16px;font-weight:700;cursor:pointer}.czModalBtn.secondary{background:rgba(255,255,255,.07);color:var(--cz-text)}.czModalBtn.primary{background:linear-gradient(135deg,#b9c9ff,#f3b4cf);color:#101423;box-shadow:0 8px 24px rgba(185,201,255,.16)}
+#czToastStack{position:fixed;right:16px;bottom:18px;z-index:100000;display:grid;gap:8px;width:min(360px,calc(100vw - 32px));pointer-events:none}.czToast{padding:13px 15px;border:1px solid rgba(255,255,255,.12);border-radius:15px;background:rgba(11,17,30,.94);box-shadow:0 18px 50px rgba(0,0,0,.4);color:var(--cz-text);font-size:13px;animation:czSlide .28s ease}.czToast.good{border-color:rgba(115,226,176,.28)}.czToast.bad{border-color:rgba(255,120,140,.28)}
+#czWelcomeLine{font-size:clamp(34px,9vw,68px);font-weight:300;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 30px rgba(185,201,255,.28);animation:czWelcome 1.15s ease both}.czWelcomeSub{font-size:12px;letter-spacing:.38em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-top:10px;animation:czFade 1.2s .3s both}
+.czFileInfo{display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:center}.czFileBigIcon{width:72px;height:72px;border-radius:20px;display:grid;place-items:center;font-size:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}.czDetailRows{display:grid;gap:8px;margin-top:18px}.czDetailRow{display:flex;justify-content:space-between;gap:16px;font-size:13px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}.czDetailRow span:first-child{color:var(--cz-muted)}.czDetailRow span:last-child{color:var(--cz-text);text-align:right;word-break:break-word}
+@keyframes czPop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}@keyframes czSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes czWelcome{from{opacity:0;letter-spacing:.65em;transform:translateY(8px)}to{opacity:1;letter-spacing:.34em;transform:none}}@keyframes czFade{from{opacity:0}to{opacity:1}}
+@media(max-width:600px){.fileActions{grid-template-columns:repeat(2,minmax(0,1fr))}.czModalCard{border-radius:20px;padding:20px}.brandLogo{transform:scale(.72)}}
+</style>
 
 </head>
 
@@ -3435,9 +3560,10 @@ storageDetailsRefresh?.addEventListener("click", () => {
             Welcome
         </h1>
 
-        <p class="introSub">
-            Cloud-Zen
+        <p class="introSub" id="czWelcomeLine">
+            CLOUD-ZEN
         </p>
+        <p class="czWelcomeSub">PRIVATE • PERSONAL • STORAGE</p>
 
         <div class="loadingLine"></div>
 
@@ -3844,6 +3970,8 @@ storageDetailsRefresh?.addEventListener("click", () => {
                 multiple
             >
 
+            <input id="scanInput" type="file" accept="image/*" capture="environment" hidden>
+
             <p class="uploadHint">
                 Large files • 4K videos • Documents • Images • Audio
             </p>
@@ -3917,6 +4045,20 @@ storageDetailsRefresh?.addEventListener("click", () => {
         Close
     </button>
 </aside>
+
+<!-- Mobile-first bottom navigation and FAB -->
+<nav id="mobileBottomNav" class="czMobileBottomNav" aria-label="Mobile navigation">
+  <button type="button" data-mobile-tab="home"><span>⌂</span><small>Home</small></button>
+  <button type="button" data-mobile-tab="shared"><span>↗</span><small>Shared</small></button>
+  <button type="button" data-mobile-tab="starred"><span>★</span><small>Starred</small></button>
+  <button type="button" data-mobile-tab="files"><span>▣</span><small>Files</small></button>
+</nav>
+<button id="czFab" class="czFab" type="button" aria-label="Upload and create">＋</button>
+<div id="czFabMenu" class="czFabMenu" aria-hidden="true">
+  <button type="button" data-fab="upload">↑ Upload file</button>
+  <button type="button" data-fab="folder">▣ Upload folder</button>
+  <button type="button" data-fab="scan">⌾ Scan document</button>
+</div>
 
 <!-- =======================================================
      VIEWER
@@ -7199,923 +7341,5 @@ async function uploadFile(
 
 
         const chunkUrl =
-            "/api/upload-chunk?" +
-            params.toString();
-
-        const sendChunk = () => uploadChunkWithProgress(
-            chunkUrl,
-            blob,
-            (loaded) => {
-
-                const currentUploaded =
-                    uploaded + loaded;
-
-                const percent =
-                    file.size
-                        ? currentUploaded /
-                            file.size *
-                            100
-                        : 100;
-
-                updateQueue(
-                    queue,
-                    percent,
-                    false,
-                    currentUploaded,
-                    file.size
-                );
-            }
-        );
-
-        let attempt = 0;
-        while(true){
-            try{
-                await sendChunk();
-                break;
-            }catch(error){
-                attempt += 1;
-                if(attempt > 4) throw error;
-
-                const waitMs = Math.min(8000, 750 * (2 ** (attempt - 1)));
-                showToast(`Retrying ${file.name} chunk ${index + 1}/${total}...`);
-                await new Promise(resolve => setTimeout(resolve, waitMs));
-            }
-        }
-
-
-        uploaded +=
-            blob.size;
-
-
-        updateQueue(
-            queue,
-            file.size
-                ? uploaded /
-                    file.size *
-                    100
-                : 100,
-            false,
-            uploaded,
-            file.size
-        );
-    }
-
-
-    updateQueue(
-        queue,
-        100,
-        true,
-        file.size,
-        file.size
-    );
-
-
-    rememberRecent(
-        file.name
-    );
-
-
-    try{
-        await loadStorage();
-    }catch(error){
-        console.error(
-            "STORAGE REFRESH AFTER UPLOAD ERROR:",
-            error
-        );
-    }
-
-
-    showToast(
-        `${file.name} uploaded`
-    );
-}
-
-
-function uploadChunkWithProgress(
-    url,
-    blob,
-    onProgress
-){
-
-    return new Promise(
-        (resolve, reject) => {
-
-            const xhr =
-                new XMLHttpRequest();
-
-            xhr.open(
-                "POST",
-                url,
-                true
-            );
-
-            xhr.withCredentials =
-                true;
-
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/octet-stream"
-            );
-
-            xhr.setRequestHeader(
-                "Content-Length",
-                String(blob.size)
-            );
-
-            xhr.upload.onprogress =
-                event => {
-
-                    if(
-                        event.lengthComputable
-                    ){
-
-                        onProgress(
-                            event.loaded
-                        );
-                    }
-                };
-
-            xhr.onerror =
-                () => {
-                    reject(
-                        new Error(
-                            "Network error during upload"
-                        )
-                    );
-                };
-
-            xhr.onabort =
-                () => {
-                    reject(
-                        new Error(
-                            "Upload cancelled"
-                        )
-                    );
-                };
-
-            xhr.onload =
-                async () => {
-
-                    let data = null;
-
-                    try{
-                        data =
-                            JSON.parse(
-                                xhr.responseText ||
-                                "null"
-                            );
-                    }catch(_){ }
-
-                    if(
-                        xhr.status === 401
-                    ){
-
-                        showLogin();
-
-                        reject(
-                            new Error(
-                                "Session expired"
-                            )
-                        );
-
-                        return;
-                    }
-
-                    if(
-                        xhr.status < 200 ||
-                        xhr.status >= 300
-                    ){
-
-                        const error = new Error(
-                            data?.error ||
-                            "Upload failed"
-                        );
-                        error.status = xhr.status;
-                        reject(error);
-
-                        return;
-                    }
-
-                    onProgress(
-                        blob.size
-                    );
-
-                    resolve(data);
-                };
-
-            xhr.send(blob);
-        }
-    );
-}
-
-
-
-/* =========================================================
-   QUEUE
-========================================================= */
-
-function createQueueItem(
-    file
-){
-
-    const item =
-        document.createElement(
-            "div"
-        );
-
-    item.className =
-        "queueItem";
-
-
-    const top =
-        document.createElement(
-            "div"
-        );
-
-    top.className =
-        "queueTop";
-
-
-    const name =
-        document.createElement(
-            "div"
-        );
-
-    name.className =
-        "queueName";
-
-    name.textContent =
-        file.name;
-
-
-    const percent =
-        document.createElement(
-            "div"
-        );
-
-    percent.className =
-        "queuePercent";
-
-    percent.textContent =
-        "0%";
-
-
-    top.append(
-        name,
-        percent
-    );
-
-
-    const remaining =
-        document.createElement(
-            "div"
-        );
-
-    remaining.className =
-        "queueRemaining";
-
-    remaining.textContent =
-        `${formatClientBytes(0)} uploaded • ${formatClientBytes(file.size)} left`;
-
-
-    const track =
-        document.createElement(
-            "div"
-        );
-
-    track.className =
-        "queueProgress";
-
-
-    const bar =
-        document.createElement(
-            "div"
-        );
-
-
-    track.appendChild(
-        bar
-    );
-
-
-    item.append(
-        top,
-        remaining,
-        track
-    );
-
-
-    uploadQueue.appendChild(
-        item
-    );
-
-
-    return {
-        item,
-        percent,
-        remaining,
-        bar
-    };
-}
-
-
-function updateQueue(
-    queue,
-    value,
-    done = false,
-    uploadedBytes = 0,
-    totalBytes = 0
-){
-
-    const rounded =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                Math.round(
-                    value
-                )
-            )
-        );
-
-
-    queue.percent.textContent =
-        done
-            ? "✓"
-            : `${rounded}%`;
-
-
-    queue.bar.style.width =
-        `${rounded}%`;
-
-
-    if(queue.remaining){
-
-        const remainingBytes =
-            Math.max(
-                0,
-                Number(totalBytes || 0) -
-                Number(uploadedBytes || 0)
-            );
-
-        queue.remaining.textContent =
-            done
-                ? "Complete"
-                : `${formatClientBytes(uploadedBytes)} uploaded • ${formatClientBytes(remainingBytes)} left`;
-    }
-
-
-    if(done){
-
-        setTimeout(
-            () => {
-
-                queue.item.remove();
-
-            },
-            1600
-        );
-    }
-}
-
-
-
-/* =========================================================
-   RANDOM ID
-========================================================= */
-
-function cryptoRandomId(){
-
-    if(
-        window.crypto &&
-        crypto.randomUUID
-    ){
-
-        return crypto.randomUUID();
-    }
-
-
-    return (
-        Date.now()
-            .toString(36) +
-        "-" +
-        Math.random()
-            .toString(36)
-            .slice(2)
-    );
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-searchInput.addEventListener(
-    "input",
-    renderFiles
-);
-
-
-sortSelect.addEventListener(
-    "change",
-    renderFiles
-);
-
-
-/* =========================================================
-   TABS
-========================================================= */
-
-document
-    .querySelectorAll(
-        ".cloudTab"
-    )
-    .forEach(
-        tab => {
-
-            tab.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(
-                            ".cloudTab"
-                        )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    tab.classList.add(
-                        "active"
-                    );
-
-
-                    activeTab =
-                        tab.dataset.tab;
-
-
-                    renderFiles();
-                }
-            );
-        }
-    );
-
-
-/* =========================================================
-   VIEW SWITCH
-========================================================= */
-
-document
-    .getElementById(
-        "gridView"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            currentView =
-                "grid";
-
-
-            fileList.classList.remove(
-                "listView"
-            );
-
-
-            document
-                .getElementById(
-                    "gridView"
-                )
-                .classList.add(
-                    "active"
-                );
-
-
-            document
-                .getElementById(
-                    "listView"
-                )
-                .classList.remove(
-                    "active"
-                );
-
-
-            localStorage.setItem(
-                VIEW_KEY,
-                "grid"
-            );
-        }
-    );
-
-
-document
-    .getElementById(
-        "listView"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            currentView =
-                "list";
-
-
-            fileList.classList.add(
-                "listView"
-            );
-
-
-            document
-                .getElementById(
-                    "listView"
-                )
-                .classList.add(
-                    "active"
-                );
-
-
-            document
-                .getElementById(
-                    "gridView"
-                )
-                .classList.remove(
-                    "active"
-                );
-
-
-            localStorage.setItem(
-                VIEW_KEY,
-                "list"
-            );
-        }
-    );
-
-
-/* =========================================================
-   REFRESH
-========================================================= */
-
-async function refreshAll(){
-
-    const buttons = [
-
-        document.getElementById(
-            "refreshButton"
-        ),
-
-        document.getElementById(
-            "topRefresh"
-        )
-    ];
-
-
-    buttons.forEach(
-        button =>
-            button.classList.add(
-                "spinning"
-            )
-    );
-
-
-    try{
-
-        await loadEverything();
-
-    }finally{
-
-        setTimeout(
-            () => {
-
-                buttons.forEach(
-                    button =>
-                        button.classList.remove(
-                            "spinning"
-                        )
-                );
-
-            },
-            650
-        );
-    }
-}
-
-
-document
-    .getElementById(
-        "refreshButton"
-    )
-    .addEventListener(
-        "click",
-        refreshAll
-    );
-
-
-document
-    .getElementById(
-        "topRefresh"
-    )
-    .addEventListener(
-        "click",
-        refreshAll
-    );
-
-
-/* =========================================================
-   QR
-========================================================= */
-
-function openQRCode(){
-
-    qrCode.innerHTML =
-        "";
-
-
-    if(
-        typeof QRCode ===
-        "undefined"
-    ){
-
-        qrCode.textContent =
-            "QR unavailable";
-
-
-        showToast(
-            "QR code library unavailable"
-        );
-
-
-        qrModal.classList.add(
-            "show"
-        );
-
-
-        return;
-    }
-
-
-    const websiteURL =
-        window.location.href;
-
-
-    new QRCode(
-        qrCode,
-        {
-
-            text:
-                websiteURL,
-
-            width:
-                164,
-
-            height:
-                164,
-
-            colorDark:
-                "#07111f",
-
-            colorLight:
-                "#ffffff",
-
-            correctLevel:
-                QRCode.CorrectLevel.M
-        }
-    );
-
-
-    qrModal.classList.add(
-        "show"
-    );
-}
-
-
-function closeQRCode(){
-
-    qrModal.classList.remove(
-        "show"
-    );
-
-    qrCode.innerHTML =
-        "";
-}
-
-
-qrButton.addEventListener(
-    "click",
-    openQRCode
-);
-
-
-qrClose.addEventListener(
-    "click",
-    closeQRCode
-);
-
-
-qrModal.addEventListener(
-    "click",
-    event => {
-
-        if(
-            event.target ===
-            qrModal
-        ){
-
-            closeQRCode();
-        }
-    }
-);
-
-
-/* =========================================================
-   LOAD EVERYTHING
-========================================================= */
-
-async function loadEverything(){
-
-    try{
-
-        await Promise.all([
-            loadStorage(),
-            loadFiles()
-        ]);
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   FORMAT BYTES
-========================================================= */
-
-function formatBytes(
-    bytes
-){
-
-    const value =
-        Number(bytes);
-
-
-    if(
-        !Number.isFinite(value) ||
-        value <= 0
-    ){
-
-        return "0 B";
-    }
-
-
-    const units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB"
-    ];
-
-
-    const index =
-        Math.min(
-            Math.floor(
-                Math.log(value) /
-                Math.log(1024)
-            ),
-            units.length - 1
-        );
-
-
-    return (
-        value /
-        Math.pow(
-            1024,
-            index
-        )
-    )
-        .toFixed(
-            index === 0
-                ? 0
-                : 1
-        ) +
-        " " +
-        units[index];
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHtml(
-    value
-){
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.key ===
-            "Escape"
-        ){
-
-            closeViewer();
-
-            closeQRCode();
-        }
-
-
-        if(
-            event.key === "/" &&
-
-            document.activeElement !==
-                searchInput &&
-
-            document.activeElement !==
-                password
-        ){
-
-            event.preventDefault();
-
-            searchInput.focus();
-        }
-    }
-);
-
-
-/* =========================================================
-   WELCOME / START
-========================================================= */
-
-window.addEventListener(
-    "load",
-    () => {
-
-        setTimeout(
-            welcomeVoice,
-            450
-        );
-
-
-        setTimeout(
-            () => {
-
-                intro.classList.add(
-                    "hide"
-                );
-
-
-                checkAuthentication();
-
-            },
-            2500
-        );
-    }
-);
-
-</script>
-
-</body>
-    </html>
-
-    
+            "/api/upload-ch
+Preview truncated for large file
