@@ -3112,6 +3112,40 @@ input[type="password"]::placeholder{
 .fileCard.quickActionsOpen .deleteRow{display:flex !important;}
 @media(max-width:760px){.storageProviderGrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(220px,82%);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.storageProvider{scroll-snap-align:start;}}
 @media(max-width:470px){.storageAccordionButton{padding:8px 9px;}}
+
+/* =========================================================
+   REQUESTED UPGRADE — HIDE EXTERNAL CLOUD PROVIDER PANEL
+   Original provider code is preserved below for compatibility.
+========================================================= */
+#storageDetailsCard{display:none !important;}
+
+/* =========================================================
+   REQUESTED UPGRADE — PASSWORD MODAL
+========================================================= */
+#actionPasswordModal{
+    position:fixed; inset:0; z-index:1500; display:none;
+    align-items:center; justify-content:center; padding:18px;
+    background:rgba(3,8,14,.84); backdrop-filter:blur(16px);
+}
+#actionPasswordModal.show{display:flex;}
+.actionPasswordBox{
+    width:min(390px,92vw); padding:24px; text-align:center;
+    border:1px solid var(--line); border-radius:22px;
+    background:#0a1625; box-shadow:var(--shadow);
+}
+.actionPasswordTitle{margin:0 0 7px;font-size:18px;font-weight:900;}
+.actionPasswordText{margin:0 0 16px;color:var(--muted);font-size:12px;line-height:1.5;}
+#actionPasswordInput{
+    width:100%; padding:13px 15px; border:1px solid var(--line);
+    border-radius:12px; outline:none; color:#fff; background:rgba(255,255,255,.045);
+}
+#actionPasswordInput:focus{border-color:var(--line2);box-shadow:0 0 0 4px rgba(143,200,255,.05);}
+.actionPasswordButtons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.actionPasswordButtons button{padding:11px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-weight:800;}
+#actionPasswordCancel{color:#dbe5f2;background:rgba(255,255,255,.045);}
+#actionPasswordConfirm{color:#06101b;background:linear-gradient(100deg,#9ed7ff,#bcaeff);}
+#actionPasswordError{min-height:18px;margin-top:9px;color:#ff9eb8;font-size:12px;}
+
 </style>
 
 
@@ -3664,6 +3698,23 @@ input[type="password"]::placeholder{
 </section>
 
 
+
+<!-- =======================================================
+     PASSWORD-PROTECTED FILE ACTION MODAL
+======================================================= -->
+<section id="actionPasswordModal" aria-hidden="true">
+    <div class="actionPasswordBox">
+        <h3 id="actionPasswordTitle" class="actionPasswordTitle">Password Required</h3>
+        <p id="actionPasswordText" class="actionPasswordText">Enter the password to continue.</p>
+        <input id="actionPasswordInput" type="password" placeholder="Enter password" autocomplete="off">
+        <div class="actionPasswordButtons">
+            <button id="actionPasswordCancel" type="button">Cancel</button>
+            <button id="actionPasswordConfirm" type="button">Continue</button>
+        </div>
+        <div id="actionPasswordError"></div>
+    </div>
+</section>
+
 <!-- =======================================================
      TOAST
 ======================================================= -->
@@ -4198,6 +4249,17 @@ const toast =
     document.getElementById(
         "toast"
     );
+
+
+const actionPasswordModal = document.getElementById("actionPasswordModal");
+const actionPasswordTitle = document.getElementById("actionPasswordTitle");
+const actionPasswordText = document.getElementById("actionPasswordText");
+const actionPasswordInput = document.getElementById("actionPasswordInput");
+const actionPasswordCancel = document.getElementById("actionPasswordCancel");
+const actionPasswordConfirm = document.getElementById("actionPasswordConfirm");
+const actionPasswordError = document.getElementById("actionPasswordError");
+
+let pendingPasswordAction = null;
 
 
 /* =========================================================
@@ -5137,32 +5199,44 @@ storageDetailsRefresh?.addEventListener(
 
 downloadAllButton?.addEventListener(
     "click",
-    () => {
-
-        const confirmed =
-            window.confirm(
-                "Download all files from every connected storage as one ZIP? Large clouds may take a long time and the ZIP can be very large."
+    async () => {
+        try{
+            const actionPassword = await requestActionPassword(
+                "Download All — Password Required",
+                "Enter the download password to download all files as a ZIP."
             );
 
-        if(!confirmed){
-            return;
+            const a = document.createElement("a");
+            a.href = "/api/download-all";
+            a.download = "my-personal-cloud-all-storage.zip";
+            a.setAttribute("data-password-protected", "true");
+            document.body.appendChild(a);
+
+            /*
+               The header is the security contract expected by the backend.
+               Browsers do not allow custom headers on a normal anchor download,
+               so use fetch + Blob for this protected download.
+            */
+            const response = await fetch(a.href, {
+                credentials: "same-origin",
+                headers: { "X-Download-Password": actionPassword }
+            });
+            if(!response.ok){
+                let message = "Download failed";
+                try{ const data = await response.json(); message = data?.error || message; }catch(_){}
+                throw new Error(message);
+            }
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            a.href = url;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            a.remove();
+        }catch(error){
+            if(error?.message !== "Action cancelled") alert(error.message || "Could not download files");
         }
-
-        const a =
-            document.createElement("a");
-
-        a.href =
-            "/api/download-all";
-
-        a.download =
-            "my-personal-cloud-all-storage.zip";
-
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
     }
 );
-
 
 
 /* =========================================================
@@ -5959,6 +6033,26 @@ function createFileCard(
     );
 
 
+    const rename = document.createElement("button");
+    rename.className = "fileAction";
+    rename.textContent = "Rename";
+    rename.addEventListener("click", async () => {
+        const currentName = String(file.name || "");
+        const proposed = window.prompt("Enter the new file name:", currentName);
+        if(proposed === null) return;
+        const newName = proposed.trim();
+        if(!newName || newName === currentName){
+            if(newName === currentName) showToast("Name unchanged");
+            return;
+        }
+        try{
+            await renameFile(currentName, newName);
+        }catch(error){
+            alert(error.message || "Could not rename file");
+        }
+    });
+
+
     const share =
         document.createElement(
             "button"
@@ -6042,6 +6136,7 @@ function createFileCard(
     actions.append(
         open,
         download,
+        rename,
         share,
         more
     );
@@ -6472,37 +6567,45 @@ function downloadUrl(
 }
 
 
-function downloadFile(
+async function downloadFile(
     name
 ){
-
-    const a =
-        document.createElement(
-            "a"
+    try{
+        const actionPassword = await requestActionPassword(
+            "Download — Password Required",
+            `Enter the download password for “${name.split("/").pop()}”.`
         );
 
-
-    a.href =
-        downloadUrl(
-            name
+        const response = await fetch(
+            downloadUrl(name),
+            {
+                credentials:"same-origin",
+                headers:{
+                    "X-Download-Password": actionPassword
+                }
+            }
         );
 
+        if(!response.ok){
+            let message = "Download failed";
+            try{ const data = await response.json(); message = data?.error || message; }catch(_){}
+            throw new Error(message);
+        }
 
-    a.download =
-        name
-            .split("/")
-            .pop();
-
-
-    document.body.appendChild(
-        a
-    );
-
-
-    a.click();
-
-    a.remove();
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name.split("/").pop();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }catch(error){
+        if(error?.message !== "Action cancelled") alert(error.message || "Could not download file");
+    }
 }
+
 
 
 /* =========================================================
@@ -6680,83 +6783,109 @@ function closeViewer(){
 
 
 /* =========================================================
+   PASSWORD-PROTECTED ACTIONS
+========================================================= */
+function requestActionPassword(title, text){
+    return new Promise((resolve, reject) => {
+        pendingPasswordAction = { resolve, reject };
+        actionPasswordTitle.textContent = title;
+        actionPasswordText.textContent = text;
+        actionPasswordInput.value = "";
+        actionPasswordError.textContent = "";
+        actionPasswordModal.classList.add("show");
+        actionPasswordModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => actionPasswordInput.focus(), 50);
+    });
+}
+
+function finishPasswordAction(confirmed){
+    const pending = pendingPasswordAction;
+    pendingPasswordAction = null;
+    actionPasswordModal.classList.remove("show");
+    actionPasswordModal.setAttribute("aria-hidden", "true");
+    const value = actionPasswordInput.value;
+    actionPasswordInput.value = "";
+    actionPasswordError.textContent = "";
+    if(!pending) return;
+    if(confirmed && value.trim()){
+        pending.resolve(value);
+    }else if(confirmed){
+        pendingPasswordAction = pending;
+        actionPasswordError.textContent = "Password is required.";
+        actionPasswordModal.classList.add("show");
+        actionPasswordModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => actionPasswordInput.focus(), 50);
+    }else{
+        pending.reject(new Error("Action cancelled"));
+    }
+}
+
+actionPasswordCancel.addEventListener("click", () => finishPasswordAction(false));
+actionPasswordConfirm.addEventListener("click", () => finishPasswordAction(true));
+actionPasswordInput.addEventListener("keydown", event => {
+    if(event.key === "Enter") finishPasswordAction(true);
+    if(event.key === "Escape") finishPasswordAction(false);
+});
+actionPasswordModal.addEventListener("click", event => {
+    if(event.target === actionPasswordModal) finishPasswordAction(false);
+});
+
+async function renameFile(oldName, newName){
+    const response = await fetch("/api/files", {
+        method:"PATCH",
+        credentials:"same-origin",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ name:oldName, oldName, newName })
+    });
+    let data = null;
+    try{ data = await response.json(); }catch(_){}
+    if(response.status === 401){ showLogin(); throw new Error("Authentication required"); }
+    if(!response.ok){
+        throw new Error(data?.error || "Could not rename file");
+    }
+    showToast("File renamed");
+    await loadEverything();
+}
+
+/* =========================================================
    DELETE
 ========================================================= */
 
 async function deleteFile(
     name
 ){
-
-    const ok =
-        confirm(
-            `Delete "${name}" permanently?`
-        );
-
-
-    if(!ok){
-        return;
-    }
-
+    const ok = confirm(`Delete "${name}" permanently?`);
+    if(!ok) return;
 
     try{
+        const actionPassword = await requestActionPassword(
+            "Delete — Password Required",
+            `Enter the delete password to permanently remove “${name}”.`
+        );
 
         await api(
             "/api/files",
             {
-
                 method:"DELETE",
-
                 headers:{
-                    "Content-Type":
-                        "application/json"
+                    "Content-Type":"application/json",
+                    "X-Delete-Password": actionPassword
                 },
-
-                body:
-                    JSON.stringify({
-                        name
-                    })
+                body:JSON.stringify({name, password:actionPassword})
             }
         );
 
-
-        starred.delete(
-            name
-        );
-
-
-        writeJSON(
-            STAR_KEY,
-            [...starred]
-        );
-
-
-        recent =
-            recent.filter(
-                item =>
-                    item !== name
-            );
-
-
-        writeJSON(
-            RECENT_KEY,
-            recent
-        );
-
-
-        showToast(
-            "File deleted"
-        );
-
-
+        starred.delete(name);
+        writeJSON(STAR_KEY,[...starred]);
+        recent = recent.filter(item => item !== name);
+        writeJSON(RECENT_KEY,recent);
+        showToast("File deleted");
         await loadEverything();
-
     }catch(error){
-
-        alert(
-            error.message
-        );
+        if(error?.message !== "Action cancelled") alert(error.message);
     }
 }
+
 
 
 /* =========================================================
@@ -7701,192 +7830,5 @@ qrModal.addEventListener(
 
 
 /* =========================================================
-   LOAD EVERYTHING
-========================================================= */
-
-async function loadEverything(){
-
-    try{
-
-        await Promise.all([
-            loadStorage(),
-            loadFiles()
-        ]);
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   FORMAT BYTES
-========================================================= */
-
-function formatBytes(
-    bytes
-){
-
-    const value =
-        Number(bytes);
-
-
-    if(
-        !Number.isFinite(value) ||
-        value <= 0
-    ){
-
-        return "0 B";
-    }
-
-
-    const units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB"
-    ];
-
-
-    const index =
-        Math.min(
-            Math.floor(
-                Math.log(value) /
-                Math.log(1024)
-            ),
-            units.length - 1
-        );
-
-
-    return (
-        value /
-        Math.pow(
-            1024,
-            index
-        )
-    )
-        .toFixed(
-            index === 0
-                ? 0
-                : 1
-        ) +
-        " " +
-        units[index];
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHtml(
-    value
-){
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.key ===
-            "Escape"
-        ){
-
-            closeViewer();
-
-            closeQRCode();
-        }
-
-
-        if(
-            event.key === "/" &&
-
-            document.activeElement !==
-                searchInput &&
-
-            document.activeElement !==
-                password
-        ){
-
-            event.preventDefault();
-
-            searchInput.focus();
-        }
-    }
-);
-
-
-/* =========================================================
-   WELCOME / START
-========================================================= */
-
-window.addEventListener(
-    "load",
-    () => {
-
-        setTimeout(
-            welcomeVoice,
-            450
-        );
-
-
-        setTimeout(
-            () => {
-
-                intro.classList.add(
-                    "hide"
-                );
-
-
-                checkAuthentication();
-
-            },
-            2500
-        );
-    }
-);
-
-</script>
-
-</body>
-    </html>
-
-
-    
+   LOAD EVERYT
+Preview truncated for large file
