@@ -20,7 +20,7 @@
 <style>
 
 /* =========================================================
-   ORIGINAL DASHBOARD VARIABLES â€” UNCHANGED
+   ORIGINAL DASHBOARD VARIABLES — UNCHANGED
 ========================================================= */
 
 :root{
@@ -1514,7 +1514,7 @@ input[type="password"]::placeholder{
 
 
 /* =========================================================
-   MULTI-STORAGE DETAILS â€” ADDED WITHOUT REMOVING ORIGINAL UI
+   MULTI-STORAGE DETAILS — ADDED WITHOUT REMOVING ORIGINAL UI
 ========================================================= */
 
 .storageDetailsCard{
@@ -3094,7 +3094,7 @@ input[type="password"]::placeholder{
 
 
 /* =========================================================
-   UI UPGRADE â€” STORAGE ACCORDION + QUICK ACTION MENU
+   UI UPGRADE — STORAGE ACCORDION + QUICK ACTION MENU
    Added only; original styles and elements remain intact.
 ========================================================= */
 .storageDetailsCard.storageCompact .storageProviderGrid{display:none;}
@@ -3156,7 +3156,7 @@ input[type="password"]::placeholder{
     <div class="introContent">
 
         <div class="introLogo">
-            â˜
+            ☁
         </div>
 
         <h1 class="introWelcome">
@@ -3257,7 +3257,7 @@ input[type="password"]::placeholder{
             <div class="brand">
 
                 <div class="brandLogo">
-                    â˜
+                    ☁
                 </div>
 
                 <div>
@@ -3267,7 +3267,7 @@ input[type="password"]::placeholder{
                     </h1>
 
                     <p class="brandStatus">
-                        â— Secure storage online
+                        ● Secure storage online
                     </p>
 
                 </div>
@@ -3282,7 +3282,7 @@ input[type="password"]::placeholder{
                     class="iconButton qrButton"
                     title="Website QR Code"
                 >
-                    â–£ QR
+                    ▣ QR
                 </button>
 
 
@@ -3291,7 +3291,7 @@ input[type="password"]::placeholder{
                     class="iconButton"
                     title="Refresh"
                 >
-                    â†»
+                    ↻
                 </button>
 
 
@@ -3300,7 +3300,7 @@ input[type="password"]::placeholder{
                     class="iconButton qrButton"
                     title="Download all files from all connected storages as one ZIP"
                 >
-                    â†“ All
+                    ↓ All
                 </button>
 
 
@@ -3412,7 +3412,7 @@ input[type="password"]::placeholder{
 
             <div class="searchBox">
 
-                <span>âŒ•</span>
+                <span>⌕</span>
 
                 <input
                     id="searchInput"
@@ -3455,7 +3455,7 @@ input[type="password"]::placeholder{
                     class="viewBtn active"
                     title="Grid view"
                 >
-                    â–¦
+                    ▦
                 </button>
 
                 <button
@@ -3463,7 +3463,7 @@ input[type="password"]::placeholder{
                     class="viewBtn"
                     title="List view"
                 >
-                    â˜·
+                    ☷
                 </button>
 
             </div>
@@ -3484,42 +3484,42 @@ input[type="password"]::placeholder{
                 class="cloudTab"
                 data-tab="all"
             >
-                ðŸ“ All Files
+                📁 All Files
             </button>
 
             <button
                 class="cloudTab"
                 data-tab="video"
             >
-                ðŸŽ¬ Videos
+                🎬 Videos
             </button>
 
             <button
                 class="cloudTab"
                 data-tab="image"
             >
-                ðŸ–¼ï¸ Images
+                🖼️ Images
             </button>
 
             <button
                 class="cloudTab"
                 data-tab="audio"
             >
-                ðŸŽµ Audio
+                🎵 Audio
             </button>
 
             <button
                 class="cloudTab"
                 data-tab="document"
             >
-                ðŸ“„ Documents
+                📄 Documents
             </button>
 
             <button
                 class="cloudTab"
                 data-tab="file"
             >
-                ðŸ“‚ Files
+                📂 Files
             </button>
 
             <button
@@ -3545,7 +3545,7 @@ input[type="password"]::placeholder{
         >
 
             <div class="uploadIcon">
-                â†‘
+                ↑
             </div>
 
             <label
@@ -3562,7 +3562,7 @@ input[type="password"]::placeholder{
             >
 
             <p class="uploadHint">
-                Large files â€¢ 4K videos â€¢ Documents â€¢ Images â€¢ Audio
+                Large files • 4K videos • Documents • Images • Audio
             </p>
 
             <div id="uploadQueue"></div>
@@ -3622,7 +3622,7 @@ input[type="password"]::placeholder{
                 id="closeViewer"
                 class="closeViewer"
             >
-                Ã—
+                ×
             </button>
 
         </div>
@@ -5091,7 +5091,7 @@ function formatClientBytes(bytes){
 
 
 /* =========================================================
-   STORAGE ACCORDION â€” COLLAPSE LONG PROVIDER LIST
+   STORAGE ACCORDION — COLLAPSE LONG PROVIDER LIST
 ========================================================= */
 (function initStorageAccordion(){
     const detailsCard = document.getElementById("storageDetailsCard");
@@ -5101,13 +5101,13 @@ function formatClientBytes(bytes){
     const button = document.createElement("button");
     button.type = "button";
     button.className = "storageAccordionButton";
-    button.innerHTML = `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">âŒ„</span>`;
+    button.innerHTML = `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`;
 
     button.addEventListener("click", () => {
         const collapsed = detailsCard.classList.toggle("storageCompact");
         button.innerHTML = collapsed
-            ? `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">âŒ„</span>`
-            : `Hide <span class="accordionLabel">Clouds</span> <span class="accordionChevron">âŒƒ</span>`;
+            ? `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`
+            : `Hide <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌃</span>`;
     });
 
     head.appendChild(button);
@@ -5174,7 +5174,7 @@ async function loadFiles(){
     fileList.innerHTML =
         `
         <div class="empty">
-            <div class="emptyIcon">â˜</div>
+            <div class="emptyIcon">☁</div>
             Loading your cloud...
         </div>
         `;
@@ -5201,7 +5201,7 @@ async function loadFiles(){
         fileList.innerHTML =
             `
             <div class="empty">
-                <div class="emptyIcon">âš </div>
+                <div class="emptyIcon">⚠</div>
                 ${escapeHtml(
                     error.message
                 )}
@@ -5627,7 +5627,7 @@ function renderFiles(){
         fileList.innerHTML =
             `
             <div class="empty">
-                <div class="emptyIcon">â˜</div>
+                <div class="emptyIcon">☁</div>
                 ${message}
             </div>
             `;
@@ -5709,8 +5709,8 @@ function createFileCard(
         starred.has(
             fileKey(file)
         )
-            ? "â˜…"
-            : "â˜†";
+            ? "★"
+            : "☆";
 
 
     if(
@@ -6027,7 +6027,7 @@ function createFileCard(
     );
 
     more.textContent =
-        "â€¢â€¢â€¢";
+        "•••";
 
     more.addEventListener(
         "click",
@@ -6288,7 +6288,7 @@ function iconFor(
             "video/"
         )
     )
-        return "ðŸŽ¬";
+        return "🎬";
 
 
     if(
@@ -6296,7 +6296,7 @@ function iconFor(
             "audio/"
         )
     )
-        return "ðŸŽµ";
+        return "🎵";
 
 
     if(
@@ -6304,14 +6304,14 @@ function iconFor(
             "image/"
         )
     )
-        return "ðŸ–¼ï¸";
+        return "🖼️";
 
 
     if(
         type ===
         "application/pdf"
     )
-        return "ðŸ“•";
+        return "📕";
 
 
     if(
@@ -6322,7 +6322,7 @@ function iconFor(
             "document"
         )
     )
-        return "ðŸ“„";
+        return "📄";
 
 
     if(
@@ -6333,7 +6333,7 @@ function iconFor(
             "excel"
         )
     )
-        return "ðŸ“Š";
+        return "📊";
 
 
     if(
@@ -6341,7 +6341,7 @@ function iconFor(
             "presentation"
         )
     )
-        return "ðŸ“½ï¸";
+        return "📽️";
 
 
     if(
@@ -6352,7 +6352,7 @@ function iconFor(
             "compressed"
         )
     )
-        return "ðŸ—œï¸";
+        return "🗜️";
 
 
     if(
@@ -6360,10 +6360,10 @@ function iconFor(
             "text/"
         )
     )
-        return "ðŸ“";
+        return "📝";
 
 
-    return "ðŸ“¦";
+    return "📦";
 }
 
 
@@ -7245,7 +7245,7 @@ function createQueueItem(
         "queueRemaining";
 
     remaining.textContent =
-        `${formatClientBytes(0)} uploaded â€¢ ${formatClientBytes(file.size)} left`;
+        `${formatClientBytes(0)} uploaded • ${formatClientBytes(file.size)} left`;
 
 
     const track =
@@ -7311,7 +7311,7 @@ function updateQueue(
 
     queue.percent.textContent =
         done
-            ? "âœ“"
+            ? "✓"
             : `${rounded}%`;
 
 
@@ -7331,7 +7331,7 @@ function updateQueue(
         queue.remaining.textContent =
             done
                 ? "Complete"
-                : `${formatClientBytes(uploadedBytes)} uploaded â€¢ ${formatClientBytes(remainingBytes)} left`;
+                : `${formatClientBytes(uploadedBytes)} uploaded • ${formatClientBytes(remainingBytes)} left`;
     }
 
 
@@ -7888,3 +7888,6 @@ window.addEventListener(
 </body>
     </html>
 
+
+
+    
