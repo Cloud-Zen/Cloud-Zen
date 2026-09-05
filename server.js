@@ -38,7 +38,6 @@ const TMP_DIR = path.join(os.tmpdir(), "cloud-zen");
    ENVIRONMENT / SECRETS
 ========================= */
 const APP_PASSWORD = String(process.env.APP_PASSWORD ?? "").trim();
-const UPLOAD_PASSWORD = String(process.env.UPLOAD_PASSWORD ?? "").trim();
 const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD ?? "").trim();
 const SESSION_SECRET = String(process.env.SESSION_SECRET ?? "").trim();
 const TELEGRAM_API_ID = Number(process.env.TELEGRAM_API_ID || 0);
@@ -880,3 +879,4 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
+                   
