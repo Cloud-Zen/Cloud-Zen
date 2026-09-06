@@ -7004,7 +7004,74 @@ async function uploadFiles(
 ========================================================= */
 
 const CHUNK_SIZE =
-    100 * 1024 * 1024;
+    16 * 1024 * 1024;
+
+
+const UPLOAD_CONCURRENCY_SMALL =
+    4;
+
+
+const UPLOAD_CONCURRENCY_LARGE =
+    6;
+
+
+const UPLOAD_RETRIES =
+    5;
+
+
+async function retryableChunkUpload(
+    url,
+    blob,
+    onProgress
+){
+
+    let lastError = null;
+
+    for(
+        let attempt = 0;
+        attempt < UPLOAD_RETRIES;
+        attempt++
+    ){
+
+        try{
+
+            return await uploadChunkWithProgress(
+                url,
+                blob,
+                onProgress
+            );
+
+        }catch(error){
+
+            lastError = error;
+
+            if(
+                error?.code === "AUTH" ||
+                attempt >= UPLOAD_RETRIES - 1
+            ){
+                throw error;
+            }
+
+            const retryAfter =
+                Number(error?.retryAfterMs || 0);
+
+            const wait =
+                retryAfter > 0
+                    ? Math.min(retryAfter, 15000)
+                    : Math.min(
+                        700 * Math.pow(2, attempt) +
+                        Math.random() * 500,
+                        12000
+                    );
+
+            await new Promise(
+                resolve => setTimeout(resolve, wait)
+            );
+        }
+    }
+
+    throw lastError || new Error("Chunk upload failed");
+}
 
 
 async function uploadFile(
@@ -7028,99 +7095,225 @@ async function uploadFile(
         );
 
 
-    let uploaded =
+    const progress =
+        new Array(total).fill(0);
+
+
+    let nextIndex =
         0;
 
 
-    for(
-        let index = 0;
-        index < total;
-        index++
-    ){
-
-        const start =
-            index *
-            CHUNK_SIZE;
+    let completed =
+        0;
 
 
-        const end =
-            Math.min(
-                file.size,
-                start +
-                CHUNK_SIZE
-            );
+    let firstError =
+        null;
 
 
-        const blob =
-            file.slice(
-                start,
-                end
-            );
+    const refreshProgress =
+        () => {
+
+            let uploaded =
+                0;
 
 
-        const params =
-            new URLSearchParams({
+            for(
+                const bytes of progress
+            ){
 
-                id,
-
-                index:
-                    String(index),
-
-                total:
-                    String(total),
-
-                size:
-                    String(file.size),
-
-                name:
-                    file.name,
-
-                relativePath:
-                    file.name
-            });
-
-
-        await uploadChunkWithProgress(
-            "/api/upload-chunk?" +
-            params.toString(),
-            blob,
-            (loaded) => {
-
-                const currentUploaded =
-                    uploaded + loaded;
-
-                const percent =
-                    file.size
-                        ? currentUploaded /
-                            file.size *
-                            100
-                        : 100;
-
-                updateQueue(
-                    queue,
-                    percent,
-                    false,
-                    currentUploaded,
-                    file.size
-                );
+                uploaded +=
+                    bytes;
             }
+
+
+            const percent =
+                file.size
+                    ? uploaded /
+                        file.size *
+                        100
+                    : 100;
+
+
+            updateQueue(
+                queue,
+                percent,
+                false,
+                uploaded,
+                file.size
+            );
+        };
+
+
+    const makeChunkUrl =
+        index => {
+
+            const start =
+                index *
+                CHUNK_SIZE;
+
+
+            const end =
+                Math.min(
+                    file.size,
+                    start +
+                    CHUNK_SIZE
+                );
+
+
+            const blob =
+                file.slice(
+                    start,
+                    end
+                );
+
+
+            const params =
+                new URLSearchParams({
+
+                    id,
+
+                    index:
+                        String(index),
+
+                    total:
+                        String(total),
+
+                    size:
+                        String(file.size),
+
+                    name:
+                        file.name,
+
+                    relativePath:
+                        file.name
+                });
+
+
+            return {
+                blob,
+                url:
+                    "/api/upload-chunk?" +
+                    params.toString()
+            };
+        };
+
+
+    const worker =
+        async () => {
+
+            while(
+                !firstError
+            ){
+
+                const index =
+                    nextIndex++;
+
+
+                if(
+                    index >= total
+                ){
+                    return;
+                }
+
+
+                const {
+                    blob,
+                    url
+                } =
+                    makeChunkUrl(
+                        index
+                    );
+
+
+                try{
+
+                    await retryableChunkUpload(
+                        url,
+                        blob,
+                        loaded => {
+
+                            progress[index] =
+                                Math.min(
+                                    loaded,
+                                    blob.size
+                                );
+
+                            refreshProgress();
+                        }
+                    );
+
+
+                    progress[index] =
+                        blob.size;
+
+
+                    completed++;
+
+                    refreshProgress();
+
+                }catch(error){
+
+                    firstError =
+                        error;
+
+                    return;
+                }
+            }
+        };
+
+
+    const concurrency =
+        file.size >= 512 * 1024 * 1024
+            ? UPLOAD_CONCURRENCY_LARGE
+            : UPLOAD_CONCURRENCY_SMALL;
+
+
+    const workers =
+        Math.min(
+            concurrency,
+            total
         );
 
 
-        uploaded +=
-            blob.size;
+    await Promise.all(
+        Array.from(
+            {
+                length: workers
+            },
+            () => worker()
+        )
+    );
 
 
-        updateQueue(
-            queue,
-            file.size
-                ? uploaded /
-                    file.size *
-                    100
-                : 100,
-            false,
-            uploaded,
-            file.size
+    if(
+        firstError
+    ){
+
+        try{
+
+            await fetch(
+                "/api/upload/" +
+                encodeURIComponent(id),
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
+
+        }catch(_){ }
+
+
+        throw firstError;
+    }
+
+
+    if(
+        completed !== total
+    ){
+
+        throw new Error(
+            "Upload did not finish all chunks"
         );
     }
 
@@ -7236,11 +7429,14 @@ function uploadChunkWithProgress(
 
                         showLogin();
 
-                        reject(
+                        const authError =
                             new Error(
                                 "Session expired"
-                            )
-                        );
+                            );
+
+                        authError.code = "AUTH";
+
+                        reject(authError);
 
                         return;
                     }
@@ -7250,12 +7446,23 @@ function uploadChunkWithProgress(
                         xhr.status >= 300
                     ){
 
-                        reject(
+                        const uploadError =
                             new Error(
                                 data?.error ||
                                 "Upload failed"
-                            )
-                        );
+                            );
+
+                        if(
+                            xhr.status === 429
+                        ){
+                            uploadError.retryAfterMs =
+                                Number(
+                                    data?.retryAfterMs ||
+                                    1200
+                                );
+                        }
+
+                        reject(uploadError);
 
                         return;
                     }
@@ -7952,36 +8159,5 @@ document.addEventListener(
 ========================================================= */
 
 window.addEventListener(
-    "load",
-    () => {
-
-        setTimeout(
-            welcomeVoice,
-            450
-        );
-
-
-        setTimeout(
-            () => {
-
-                intro.classList.add(
-                    "hide"
-                );
-
-
-                checkAuthentication();
-
-            },
-            2500
-        );
-    }
-);
-
-</script>
-
-</body>
-    </html>
-
-
-
-    
+    "load
+Preview truncated for large file
