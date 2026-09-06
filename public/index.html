@@ -3128,36 +3128,38 @@ body{
 #introScreen{
   z-index:1000!important;
   background:
-    radial-gradient(circle at 18% 20%,rgba(243,180,207,.13),transparent 30%),
-    radial-gradient(circle at 80% 48%,rgba(185,201,255,.10),transparent 32%),
-    radial-gradient(circle at 62% 88%,rgba(255,226,138,.10),transparent 28%),
-    rgba(5,6,11,.97)!important;
+    radial-gradient(circle at 18% 20%,rgba(243,180,207,.12),transparent 30%),
+    radial-gradient(circle at 80% 48%,rgba(185,201,255,.09),transparent 32%),
+    radial-gradient(circle at 62% 88%,rgba(255,226,138,.08),transparent 28%),
+    rgba(5,6,11,.58)!important;
+  backdrop-filter:blur(1.5px)!important;
+  -webkit-backdrop-filter:blur(1.5px)!important;
 }
 .introContent{width:min(650px,92vw)!important;}
 .introLogo{
-  width:174px!important;height:174px!important;margin:0 auto 88px!important;
-  border-radius:52px!important;
-  background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;
-  border:1px solid rgba(255,255,255,.22)!important;
-  box-shadow:inset 0 0 38px rgba(255,255,255,.035),0 0 45px rgba(243,180,207,.07)!important;
+  width:104px!important;height:104px!important;margin:0 auto 40px!important;
+  border-radius:31px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025))!important;
+  border:1px solid rgba(255,255,255,.20)!important;
+  box-shadow:inset 0 0 28px rgba(255,255,255,.03),0 0 38px rgba(243,180,207,.10)!important;
 }
-.introLogo::before{inset:-18px!important;border-radius:62px!important;border-color:rgba(255,255,255,.10)!important;}
-.zenStar{display:inline-block;color:#fff;font-size:72px;line-height:1;text-shadow:0 0 22px rgba(255,255,255,.28);}
-.introLogo .zenStar{font-size:66px;animation:zenStarPulse 2.2s ease-in-out infinite;}
+.introLogo::before{inset:-10px!important;border-radius:38px!important;border-color:rgba(255,255,255,.09)!important;}
+.zenStar{display:inline-block;color:#fff;font-size:72px;line-height:1;text-shadow:0 0 22px rgba(255,255,255,.34);}
+.introLogo .zenStar{font-size:42px;animation:zenStarPulse 2.2s ease-in-out infinite;}
 @keyframes zenStarPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.25)}}
 .introWelcome{
-  font-size:clamp(58px,11vw,82px)!important;
+  font-size:clamp(54px,10vw,72px)!important;
   color:#efad9d!important;-webkit-text-fill-color:#efad9d!important;
   background:none!important;filter:drop-shadow(0 0 24px rgba(243,180,207,.16))!important;
   letter-spacing:-.055em!important;
 }
 .introSub{
-  margin:58px 0 74px!important;color:#f3eff4!important;
-  font-size:clamp(22px,4.3vw,30px)!important;letter-spacing:.42em!important;
+  margin:38px 0 48px!important;color:#f3eff4!important;
+  font-size:clamp(18px,3.8vw,26px)!important;letter-spacing:.38em!important;
   text-transform:lowercase!important;
 }
 .introSub::first-letter{}
-.loadingLine{width:min(552px,80vw)!important;height:5px!important;background:rgba(255,255,255,.08)!important;box-shadow:0 0 22px rgba(243,180,207,.12)!important;}
+.loadingLine{width:min(552px,80vw)!important;height:4px!important;background:rgba(255,255,255,.08)!important;box-shadow:0 0 22px rgba(243,180,207,.12)!important;}
 .loadingLine::before{width:55%!important;background:linear-gradient(90deg,transparent,#f3b4cf,#f6c2ae,#ffe28a,transparent)!important;box-shadow:0 0 18px rgba(255,215,154,.8)!important;}
 
 /* Login — screenshot-sized compact premium card */
@@ -3180,13 +3182,13 @@ body{
 }
 .loginCard::before{display:none!important;}
 .loginIcon{
-  width:142px!important;height:142px!important;margin:0 0 50px!important;border-radius:38px!important;
+  width:96px!important;height:96px!important;margin:0 0 34px!important;border-radius:30px!important;
   background:linear-gradient(145deg,rgba(243,180,207,.10),rgba(255,226,138,.04))!important;
   border:1px solid rgba(255,226,138,.32)!important;
   box-shadow:inset 0 0 28px rgba(255,226,138,.04),0 0 35px rgba(243,180,207,.06)!important;
 }
 .loginIcon::before{display:none!important;}
-.loginIcon .zenStar{font-size:54px!important;color:#fff!important;}
+.loginIcon .zenStar{font-size:40px!important;color:#fff!important;}
 .loginTitle{font-size:clamp(38px,6vw,50px)!important;line-height:1!important;margin:0 0 30px!important;background:linear-gradient(100deg,#fff,#f3b4cf,#ffe0b1)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;}
 .loginText{font-size:22px!important;line-height:1.65!important;color:#aaa6b0!important;margin:0 0 42px!important;max-width:510px!important;}
 input[type=password]{height:104px!important;padding:0 34px!important;border-radius:30px!important;background:rgba(3,3,8,.58)!important;border:2px solid rgba(243,180,207,.36)!important;font-size:28px!important;color:#fff!important;}
@@ -3257,8 +3259,8 @@ input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shad
 
 @media(max-width:560px){
   #app{padding:0 14px 32px!important}.dashboard{padding-top:6px!important}.topbar{padding-top:22px!important}.brandTitle{font-size:30px!important}.brandStatus::after{font-size:16px!important}
-  .loginCard{width:92vw!important;padding:34px 28px 40px!important;border-radius:28px!important}.loginIcon{width:112px!important;height:112px!important;margin-bottom:34px!important}.loginTitle{font-size:36px!important}.loginText{font-size:18px!important;margin-bottom:30px!important}input[type=password]{height:82px!important;font-size:22px!important;padding:0 24px!important;border-radius:24px!important}.primary{height:82px!important;font-size:22px!important;border-radius:24px!important}
-  .introLogo{width:142px!important;height:142px!important;border-radius:42px!important;margin-bottom:58px!important}.introLogo .zenStar{font-size:54px!important}.introWelcome{font-size:62px!important}.introSub{font-size:19px!important;letter-spacing:.31em!important;margin:42px 0 58px!important}.loadingLine{width:80vw!important}
+  .loginCard{width:92vw!important;padding:34px 28px 40px!important;border-radius:28px!important}.loginIcon{width:88px!important;height:88px!important;margin-bottom:30px!important}.loginTitle{font-size:36px!important}.loginText{font-size:18px!important;margin-bottom:30px!important}input[type=password]{height:82px!important;font-size:22px!important;padding:0 24px!important;border-radius:24px!important}.primary{height:82px!important;font-size:22px!important;border-radius:24px!important}
+  .introLogo{width:92px!important;height:92px!important;border-radius:29px!important;margin-bottom:34px!important}.introLogo .zenStar{font-size:38px!important}.introWelcome{font-size:58px!important}.introSub{font-size:17px!important;letter-spacing:.29em!important;margin:34px 0 46px!important}.loadingLine{width:78vw!important}
   .uploadCard{padding:26px 20px 24px!important}.uploadButton,.startUploadButton{height:72px!important;font-size:20px!important;border-radius:22px!important}.selectedFilesText{font-size:18px!important;margin-bottom:28px!important}.filesHeader{padding:22px 20px 16px!important}.filesTitle{font-size:26px!important}.viewButtons{top:-54px!important}.viewBtn{width:62px!important;height:46px!important}.zenInfoCard{padding:26px 20px}.zenInfoCard p{font-size:17px!important}.zenQRCode{width:210px;height:210px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
@@ -3900,7 +3902,7 @@ window.addEventListener(
 
 const stars = [];
 
-const numStars = 150;
+const numStars = 190;
 
 
 for(
@@ -3951,6 +3953,7 @@ for(
 let shootingStars = [];
 
 let particles = [];
+let blastRings = [];
 
 
 function addShootingStar(){
@@ -3985,14 +3988,14 @@ setInterval(
     () => {
 
         if(
-            Math.random() > .4
+            Math.random() > .28
         ){
 
             addShootingStar();
         }
 
     },
-    2000
+    1500
 );
 
 
@@ -4031,23 +4034,15 @@ function animateStars(){
             }
 
 
-            ctx.beginPath();
-
-            ctx.arc(
-                star.x,
-                star.y,
-                star.radius,
-                0,
-                Math.PI * 2
-            );
-
-
-            ctx.fillStyle = star.color || "#ffffff";
+            ctx.save();
             ctx.globalAlpha = Math.abs(star.alpha);
-
-
+            ctx.shadowBlur = star.radius > 1.05 ? 10 : 4;
+            ctx.shadowColor = star.color || "#ffffff";
+            ctx.beginPath();
+            ctx.arc(star.x,star.y,star.radius,0,Math.PI*2);
+            ctx.fillStyle = star.color || "#ffffff";
             ctx.fill();
-            ctx.globalAlpha = 1;
+            ctx.restore();
         }
     );
 
@@ -4106,26 +4101,22 @@ function animateStars(){
         );
 
 
+        ctx.save();
         ctx.beginPath();
-
-        ctx.moveTo(
-            ss.x,
-            ss.y
-        );
-
-        ctx.lineTo(
-            tailX,
-            tailY
-        );
-
-
-        ctx.strokeStyle =
-            gradient;
-
-        ctx.lineWidth =
-            2;
-
+        ctx.moveTo(ss.x,ss.y);
+        ctx.lineTo(tailX,tailY);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2.2;
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = "rgba(255,190,170,.9)";
         ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(ss.x,ss.y,2.8,0,Math.PI*2);
+        ctx.fillStyle = "#fff";
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "#ffd5c5";
+        ctx.fill();
+        ctx.restore();
 
 
         ss.x +=
@@ -4153,9 +4144,10 @@ function animateStars(){
                 canvas.width
         ){
 
+            blastRings.push({x:ss.x,y:ss.y,r:2,alpha:.9,life:1});
             for(
                 let p = 0;
-                p < 25;
+                p < 34;
                 p++
             ){
 
@@ -4200,6 +4192,27 @@ function animateStars(){
                 1
             );
         }
+    }
+
+
+    /*
+       Soft crash shockwaves
+    */
+    for(let i=blastRings.length-1;i>=0;i--){
+        const ring=blastRings[i];
+        ring.r += 3.8;
+        ring.alpha -= .035;
+        ctx.save();
+        ctx.globalAlpha=Math.max(0,ring.alpha);
+        ctx.beginPath();
+        ctx.arc(ring.x,ring.y,ring.r,0,Math.PI*2);
+        ctx.strokeStyle="rgba(255,205,180,.95)";
+        ctx.lineWidth=2;
+        ctx.shadowBlur=18;
+        ctx.shadowColor="rgba(255,180,160,.9)";
+        ctx.stroke();
+        ctx.restore();
+        if(ring.alpha<=0) blastRings.splice(i,1);
     }
 
 
@@ -7572,62 +7585,5 @@ document
 
             localStorage.setItem(
                 VIEW_KEY,
-                "grid"
-            );
-        }
-    );
-
-
-document
-    .getElementById(
-        "listView"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            currentView =
-                "list";
-
-
-            fileList.classList.add(
-                "listView"
-            );
-
-
-            document
-                .getElementById(
-                    "listView"
-                )
-                .classList.add(
-                    "active"
-                );
-
-
-            document
-                .getElementById(
-                    "gridView"
-                )
-                .classList.remove(
-                    "active"
-                );
-
-
-            localStorage.setItem(
-                VIEW_KEY,
-                "list"
-            );
-        }
-    );
-
-
-/* =========================================================
-   REFRESH
-========================================================= */
-
-async function refreshAll(){
-
-    const buttons = [
-
-        document.get
+                "gri
 Preview truncated for large file
