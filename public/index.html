@@ -1514,6 +1514,212 @@ input[type="password"]::placeholder{
 
 
 /* =========================================================
+   MULTI-STORAGE DETAILS — ADDED WITHOUT REMOVING ORIGINAL UI
+========================================================= */
+
+.storageDetailsCard{
+
+    margin-top:14px;
+
+    padding:18px;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24,44,68,.62),
+            rgba(10,22,36,.58)
+        );
+
+    backdrop-filter:blur(18px);
+
+    -webkit-backdrop-filter:blur(18px);
+}
+
+.storageDetailsHead{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    margin-bottom:12px;
+}
+
+.storageDetailsTitle{
+
+    margin:0;
+
+    font-size:14px;
+
+    font-weight:900;
+}
+
+.storageDetailsSub{
+
+    margin:4px 0 0;
+
+    color:#8193a9;
+
+    font-size:11px;
+}
+
+.storageDetailsRefresh{
+
+    border:1px solid var(--line);
+
+    background:rgba(255,255,255,.045);
+
+    color:#dbe5f2;
+
+    border-radius:11px;
+
+    padding:8px 11px;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+    font-weight:800;
+}
+
+.storageProviderGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,minmax(0,1fr));
+
+    gap:10px;
+}
+
+.storageProvider{
+
+    min-width:0;
+
+    padding:13px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.028);
+}
+
+.storageProviderTop{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:8px;
+}
+
+.storageProviderName{
+
+    font-size:12px;
+
+    font-weight:900;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+}
+
+.storageProviderPercent{
+
+    font-size:11px;
+
+    font-weight:900;
+
+    color:var(--blue);
+}
+
+.storageProviderBar{
+
+    height:6px;
+
+    margin-top:10px;
+
+    overflow:hidden;
+
+    border-radius:99px;
+
+    background:rgba(255,255,255,.07);
+}
+
+.storageProviderFill{
+
+    width:0%;
+
+    height:100%;
+
+    border-radius:99px;
+
+    background:linear-gradient(90deg,#75c4ff,#a9a0ff,#9eeaff);
+
+    transition:width .35s ease;
+}
+
+.storageProviderMeta{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:8px;
+
+    margin-top:8px;
+
+    color:#8295ac;
+
+    font-size:10px;
+}
+
+.storageProviderStatus{
+
+    margin-top:7px;
+
+    color:#7ee7b2;
+
+    font-size:10px;
+}
+
+.storageProviderStatus.offline{
+    color:#ff9eb8;
+}
+
+.storageProviderStatus.unconfigured{
+    color:#ffd978;
+}
+
+@media(max-width:760px){
+
+    .storageProviderGrid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-width:470px){
+
+    .storageProviderGrid{
+        grid-template-columns:1fr;
+    }
+}
+
+
+/* =========================================================
    TOOLBAR
 ========================================================= */
 
@@ -1829,6 +2035,15 @@ input[type="password"]::placeholder{
     gap:10px;
 
     margin-top:16px;
+}
+
+.queueRemaining{
+
+    margin-top:5px;
+
+    color:#8295ac;
+
+    font-size:10px;
 }
 
 .queueItem{
@@ -2756,6 +2971,22 @@ input[type="password"]::placeholder{
 
 @media(max-width:450px){
 
+    .topbar{
+        align-items:flex-start;
+    }
+
+    .topActions{
+        flex-wrap:wrap;
+        justify-content:flex-end;
+        max-width:180px;
+    }
+
+    .iconButton,
+    .logout{
+        min-width:40px;
+        min-height:40px;
+    }
+
     .loginCard{
 
         width:92%;
@@ -2863,248 +3094,174 @@ input[type="password"]::placeholder{
 
 
 /* =========================================================
-   CLOUD ZEN VISUAL UPGRADE — DARK LUXURY GLASS THEME
-   Keeps the existing application/API structure intact.
+   CLOUD ZEN — SCREENSHOT-MATCHED PREMIUM UI OVERRIDES
 ========================================================= */
 :root{
-    --bg:#07080d;
-    --bg2:#0b0c14;
-    --panel:rgba(18,18,25,.64);
-    --panel-strong:rgba(13,13,20,.84);
-    --text:#f7f4f7;
-    --muted:#a9a5b2;
-    --peach:#f3b4cf;
-    --peach2:#f6c2ae;
-    --gold:#ffe28a;
-    --lav:#c5b8ff;
-    --blue:#b9c9ff;
-    --line:rgba(255,255,255,.12);
-    --line2:rgba(243,180,207,.34);
-    --shadow:0 28px 90px rgba(0,0,0,.52);
-    --radius:28px;
+  --bg:#07080d;
+  --bg2:#0b0d15;
+  --panel:rgba(15,15,22,.72);
+  --panel-strong:rgba(19,18,26,.88);
+  --text:#f8f5f7;
+  --muted:#96939f;
+  --peach:#f3b4cf;
+  --peach2:#f6c2ae;
+  --gold:#ffe28a;
+  --blue:#b9c9ff;
+  --line:rgba(255,255,255,.12);
+  --shadow:0 24px 70px rgba(0,0,0,.48);
 }
 
+html,body{background:#07080d!important;}
 body{
-    background:
-        radial-gradient(circle at 12% 8%,rgba(243,180,207,.13),transparent 27%),
-        radial-gradient(circle at 87% 28%,rgba(185,201,255,.12),transparent 31%),
-        radial-gradient(circle at 50% 100%,rgba(255,226,138,.08),transparent 34%),
-        linear-gradient(145deg,#07080d 0%,#0a0b12 46%,#07080d 100%);
+  background:
+    radial-gradient(circle at 12% 8%,rgba(245,173,207,.12),transparent 27%),
+    radial-gradient(circle at 88% 35%,rgba(155,175,255,.10),transparent 28%),
+    radial-gradient(circle at 60% 90%,rgba(255,210,122,.08),transparent 28%),
+    #07080d!important;
 }
+#space-canvas{z-index:0!important;opacity:.98;}
+.cloudScene{z-index:1!important;opacity:.42;}
+.cloud{filter:blur(55px)!important;opacity:.10!important;}
+#app{z-index:2!important;max-width:none;padding:0 20px 42px;}
 
-#space-canvas{opacity:.96;}
-
-.cloudScene{opacity:.52;}
-.cloud{opacity:.075;filter:blur(42px);}
-
+/* Intro — same proportions/feel as supplied reference */
 #introScreen{
-    background:
-        radial-gradient(circle at 50% 42%,rgba(22,23,34,.18),transparent 38%),
-        linear-gradient(180deg,rgba(4,5,10,.48),rgba(4,5,10,.78));
-    backdrop-filter:blur(1px);
-    -webkit-backdrop-filter:blur(1px);
+  z-index:1000!important;
+  background:
+    radial-gradient(circle at 18% 20%,rgba(243,180,207,.13),transparent 30%),
+    radial-gradient(circle at 80% 48%,rgba(185,201,255,.10),transparent 32%),
+    radial-gradient(circle at 62% 88%,rgba(255,226,138,.10),transparent 28%),
+    rgba(5,6,11,.97)!important;
 }
-
-.introContent{width:min(560px,90vw);}
-
-.introLogo,
-.loginIcon,
-.brandLogo{
-    position:relative;
-    overflow:visible;
-}
-
+.introContent{width:min(650px,92vw)!important;}
 .introLogo{
-    width:118px;
-    height:118px;
-    margin:0 auto 34px;
-    border-radius:34px;
-    background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
-    border:1px solid rgba(255,255,255,.22);
-    box-shadow:
-        inset 0 0 42px rgba(255,255,255,.035),
-        0 0 70px rgba(243,180,207,.10),
-        0 25px 70px rgba(0,0,0,.38);
+  width:174px!important;height:174px!important;margin:0 auto 88px!important;
+  border-radius:52px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:inset 0 0 38px rgba(255,255,255,.035),0 0 45px rgba(243,180,207,.07)!important;
 }
-
-.introLogo::after,
-.loginIcon::after,
-.brandLogo::after{
-    content:"";
-    position:absolute;
-    left:50%;top:50%;
-    width:42px;height:42px;
-    transform:translate(-50%,-50%) rotate(45deg);
-    background:linear-gradient(135deg,#fff 0%,#fff 42%,#ffe7cf 100%);
-    clip-path:polygon(50% 0%,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0% 50%,38% 38%);
-    border-radius:6px;
-    filter:drop-shadow(0 0 13px rgba(255,255,255,.55));
-    animation:zenStarPulse 2.6s ease-in-out infinite;
-}
-
-.introLogo::before{
-    inset:-15px;
-    border-radius:43px;
-    border:1px solid rgba(243,180,207,.22);
-}
-
-@keyframes zenStarPulse{
-    0%,100%{opacity:.88;filter:drop-shadow(0 0 8px rgba(255,255,255,.38));transform:translate(-50%,-50%) rotate(45deg) scale(.96)}
-    50%{opacity:1;filter:drop-shadow(0 0 18px rgba(255,224,177,.82));transform:translate(-50%,-50%) rotate(45deg) scale(1.10)}
-}
-
+.introLogo::before{inset:-18px!important;border-radius:62px!important;border-color:rgba(255,255,255,.10)!important;}
+.zenStar{display:inline-block;color:#fff;font-size:72px;line-height:1;text-shadow:0 0 22px rgba(255,255,255,.28);}
+.introLogo .zenStar{font-size:66px;animation:zenStarPulse 2.2s ease-in-out infinite;}
+@keyframes zenStarPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.25)}}
 .introWelcome{
-    background:linear-gradient(90deg,#e9a9bf 0%,#f2b5c9 34%,#f6c2ae 67%,#ffe28a 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 0 24px rgba(243,180,207,.18));
-    font-size:clamp(52px,13vw,82px);
-    letter-spacing:-.07em;
+  font-size:clamp(58px,11vw,82px)!important;
+  color:#efad9d!important;-webkit-text-fill-color:#efad9d!important;
+  background:none!important;filter:drop-shadow(0 0 24px rgba(243,180,207,.16))!important;
+  letter-spacing:-.055em!important;
 }
-
 .introSub{
-    color:#f2eef3;
-    font-size:18px;
-    font-weight:600;
-    letter-spacing:.42em;
-    text-transform:lowercase;
-    text-shadow:0 0 18px rgba(255,255,255,.12);
+  margin:58px 0 74px!important;color:#f3eff4!important;
+  font-size:clamp(22px,4.3vw,30px)!important;letter-spacing:.42em!important;
+  text-transform:lowercase!important;
 }
+.introSub::first-letter{}
+.loadingLine{width:min(552px,80vw)!important;height:5px!important;background:rgba(255,255,255,.08)!important;box-shadow:0 0 22px rgba(243,180,207,.12)!important;}
+.loadingLine::before{width:55%!important;background:linear-gradient(90deg,transparent,#f3b4cf,#f6c2ae,#ffe28a,transparent)!important;box-shadow:0 0 18px rgba(255,215,154,.8)!important;}
 
-.loadingLine{
-    width:min(390px,78vw);
-    height:4px;
-    background:rgba(255,255,255,.10);
-    box-shadow:0 0 24px rgba(243,180,207,.10);
-}
-
-.loadingLine::before{
-    background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a,#f3b4cf);
-    box-shadow:0 0 18px rgba(243,180,207,.72),0 0 28px rgba(255,226,138,.30);
-    animation:loadingSweep 1.18s cubic-bezier(.22,.61,.36,1) infinite;
-}
-
-.loadingLine::after{
-    content:"✦";
-    position:absolute;
-    top:50%;left:-12px;
-    z-index:2;
-    width:20px;height:20px;
-    display:grid;place-items:center;
-    color:#fff;
-    font-size:13px;
-    text-shadow:0 0 8px #fff,0 0 18px #ffd9b5;
-    transform:translateY(-50%);
-    animation:loadingStar 1.18s cubic-bezier(.22,.61,.36,1) infinite;
-}
-
-@keyframes loadingStar{
-    0%{left:-12px;opacity:0;transform:translateY(-50%) scale(.45) rotate(0)}
-    10%{opacity:1}
-    78%{opacity:1}
-    92%{opacity:0;transform:translateY(-50%) scale(1.28) rotate(35deg)}
-    100%{left:calc(100% - 8px);opacity:0;transform:translateY(-50%) scale(.5) rotate(60deg)}
-}
-
-/* Private Access — screenshot-style dark glass card */
+/* Login — screenshot-sized compact premium card */
 .loginWrap{
-    background:
-        radial-gradient(circle at 18% 25%,rgba(243,180,207,.10),transparent 27%),
-        radial-gradient(circle at 82% 65%,rgba(185,201,255,.09),transparent 28%),
-        linear-gradient(180deg,rgba(5,6,11,.74),rgba(5,6,11,.88));
+  z-index:900!important;padding:30px 20px!important;
+  background:
+    radial-gradient(circle at 20% 12%,rgba(243,180,207,.12),transparent 28%),
+    radial-gradient(circle at 84% 54%,rgba(185,201,255,.10),transparent 30%),
+    radial-gradient(circle at 62% 90%,rgba(255,226,138,.09),transparent 27%),
+    rgba(7,8,13,.90)!important;
 }
-.loginWrap::before,.loginWrap::after{display:none;}
+.loginWrap::before,.loginWrap::after{display:none!important;}
 .loginCard{
-    width:min(614px,calc(100vw - 38px));
-    max-width:614px;
-    padding:48px 48px 44px;
-    text-align:left;
-    border-radius:34px;
-    border:1px solid rgba(255,255,255,.15);
-    background:linear-gradient(145deg,rgba(24,23,31,.72),rgba(10,10,16,.78));
-    backdrop-filter:blur(26px) saturate(120%);
-    -webkit-backdrop-filter:blur(26px) saturate(120%);
-    box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06),0 0 80px rgba(243,180,207,.035);
+  width:min(614px,89vw)!important;max-width:none!important;padding:48px 48px 54px!important;
+  border-radius:32px!important;border:1px solid rgba(255,255,255,.16)!important;
+  background:linear-gradient(145deg,rgba(22,21,28,.76),rgba(10,10,15,.78))!important;
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.05)!important;
+  backdrop-filter:blur(24px)!important;-webkit-backdrop-filter:blur(24px)!important;
+  text-align:left!important;
 }
+.loginCard::before{display:none!important;}
 .loginIcon{
-    width:142px;height:142px;
-    margin:0 0 42px;
-    border-radius:40px;
-    background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(243,180,207,.055));
-    border:1px solid rgba(255,224,138,.30);
-    box-shadow:inset 0 0 40px rgba(255,224,138,.035),0 0 42px rgba(243,180,207,.06);
+  width:142px!important;height:142px!important;margin:0 0 50px!important;border-radius:38px!important;
+  background:linear-gradient(145deg,rgba(243,180,207,.10),rgba(255,226,138,.04))!important;
+  border:1px solid rgba(255,226,138,.32)!important;
+  box-shadow:inset 0 0 28px rgba(255,226,138,.04),0 0 35px rgba(243,180,207,.06)!important;
 }
-.loginIcon::after{width:48px;height:48px;}
-.loginTitle{
-    font-size:clamp(40px,9vw,62px);
-    letter-spacing:-.055em;
-    font-weight:950;
-    background:linear-gradient(90deg,#fff 0%,#fff 27%,#f3b4cf 55%,#ffe28a 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    margin-bottom:20px;
-}
-.loginText{color:#aaa6b1;font-size:20px;line-height:1.65;margin-bottom:34px;}
-input[type="password"]{
-    min-height:74px;
-    padding:18px 22px;
-    border-radius:24px;
-    background:rgba(3,3,8,.72);
-    border:1px solid rgba(243,180,207,.34);
-    color:#fff;font-size:20px;
-}
-input[type="password"]::placeholder{color:#85818d;}
-input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0 4px rgba(243,180,207,.07),0 0 30px rgba(243,180,207,.08);}
-.primary{
-    min-height:74px;
-    margin-top:20px;
-    border-radius:24px;
-    font-size:20px;
-    font-weight:950;
-    background:linear-gradient(100deg,#f3b4cf 0%,#f6c2ae 46%,#ffe28a 100%);
-    box-shadow:0 16px 42px rgba(243,180,207,.16);
-}
-.errorText{font-size:14px;color:#ff9eb8;}
+.loginIcon::before{display:none!important;}
+.loginIcon .zenStar{font-size:54px!important;color:#fff!important;}
+.loginTitle{font-size:clamp(38px,6vw,50px)!important;line-height:1!important;margin:0 0 30px!important;background:linear-gradient(100deg,#fff,#f3b4cf,#ffe0b1)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;}
+.loginText{font-size:22px!important;line-height:1.65!important;color:#aaa6b0!important;margin:0 0 42px!important;max-width:510px!important;}
+input[type=password]{height:104px!important;padding:0 34px!important;border-radius:30px!important;background:rgba(3,3,8,.58)!important;border:2px solid rgba(243,180,207,.36)!important;font-size:28px!important;color:#fff!important;}
+input[type=password]::placeholder{color:#85818d!important;}
+input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shadow:0 0 26px rgba(243,180,207,.10)!important;}
+.primary{height:102px!important;margin-top:26px!important;border-radius:28px!important;font-size:27px!important;font-weight:900!important;background:linear-gradient(100deg,#f3b4cf,#f6c2ae 48%,#ffe28a)!important;box-shadow:0 12px 34px rgba(243,180,207,.17)!important;}
+.errorText{font-size:16px!important;}
 
-/* Dashboard glass */
-.dashboard{max-width:1220px;}
-.brandLogo{
-    width:54px;height:54px;border-radius:18px;
-    background:linear-gradient(145deg,rgba(243,180,207,.13),rgba(255,226,138,.08));
-    border:1px solid rgba(255,255,255,.15);
-}
-.brandLogo::after{width:24px;height:24px;}
-.brandTitle{
-    background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.storageCard,.fileCard,.empty,.qrBox,.viewerBox,.uploadCard{
-    background:linear-gradient(145deg,rgba(24,23,31,.68),rgba(9,9,15,.76));
-    border-color:rgba(255,255,255,.12);
-    backdrop-filter:blur(22px);
-    -webkit-backdrop-filter:blur(22px);
-    box-shadow:0 22px 70px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.035);
-}
-.storageCard::after{background:radial-gradient(circle,rgba(243,180,207,.15),transparent 68%);}
-.progressBar,.queueProgress>div{background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a);box-shadow:0 0 18px rgba(243,180,207,.30);}
-.cloudTab.active,.viewBtn.active{background:linear-gradient(100deg,rgba(243,180,207,.25),rgba(255,226,138,.16));color:#fff;}
-.uploadButton{background:linear-gradient(100deg,#f3b4cf,#f6c2ae,#ffe28a);box-shadow:0 12px 32px rgba(243,180,207,.13);}
-.fileCard:hover{border-color:rgba(243,180,207,.28);box-shadow:0 25px 70px rgba(0,0,0,.35);}
-.fileAction:hover,.iconButton:hover,.logout:hover,.refresh:hover{border-color:rgba(243,180,207,.30);background:rgba(243,180,207,.08);}
+/* Dashboard reference width and spacing */
+.dashboard{width:min(650px,100%)!important;max-width:650px!important;margin:0 auto!important;padding-top:18px!important;}
+.topbar{display:block!important;text-align:center!important;padding:24px 10px 30px!important;border:0!important;background:transparent!important;}
+.brand{display:block!important;}
+.brandLogo{display:none!important;}
+.brandTitle{font-size:clamp(31px,6vw,42px)!important;font-weight:950!important;letter-spacing:-.04em!important;background:linear-gradient(100deg,#f3b4cf,#f6c2ae,#ffe28a)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;}
+.brandStatus{font-size:0!important;color:#9b97a2!important;margin-top:13px!important;}
+.brandStatus::after{content:'4K Video • Photos • Audio • Documents • Files • Folders';font-size:18px!important;line-height:1.55;display:block;color:#9c98a3;}
+.topActions{position:absolute;right:12px;top:18px;opacity:.01;pointer-events:none;}
 
-@media (max-width:640px){
-    #app{padding-left:14px;padding-right:14px;}
-    .loginCard{padding:38px 28px 30px;border-radius:30px;}
-    .loginIcon{width:112px;height:112px;border-radius:32px;margin-bottom:30px;}
-    .loginTitle{font-size:42px;}
-    .loginText{font-size:17px;margin-bottom:28px;}
-    input[type="password"],.primary{min-height:68px;font-size:18px;border-radius:21px;}
-    .introLogo{width:108px;height:108px;border-radius:32px;margin-bottom:28px;}
-    .introSub{font-size:14px;letter-spacing:.34em;}
-    .topbar{align-items:flex-start;}
+.storageCard,.storageDetailsCard,.uploadCard,.zenInfoCard,.zenQRCard,.filesHeader,#fileList{border-color:rgba(255,255,255,.11)!important;}
+.storageCard{
+  padding:24px!important;border-radius:30px!important;background:linear-gradient(145deg,rgba(18,18,25,.74),rgba(9,9,14,.76))!important;box-shadow:var(--shadow)!important;
 }
+.storageLabel{color:#aaa5b0!important;font-size:16px!important;letter-spacing:.14em!important;}
+.storageNumber{font-size:30px!important;}
+.storagePercent{font-size:24px!important;color:#f3b4cf!important;}
+.progress{height:12px!important;margin-top:18px!important;background:rgba(255,255,255,.08)!important;}
+.progressBar{background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a)!important;box-shadow:0 0 18px rgba(255,213,157,.38)!important;}
+.storageBottom{font-size:14px!important;color:#88838e!important;}
+.storageDetailsCard{display:none!important;}
 
-@media (prefers-reduced-motion:reduce){
-    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;}
+.cloudToolbar{position:relative!important;height:0!important;margin:0!important;padding:0!important;display:block!important;}
+.searchBox,.selectControl{display:none!important;}
+.viewButtons{position:absolute!important;right:0!important;top:-64px!important;padding:4px!important;border-radius:20px!important;background:rgba(255,255,255,.035)!important;}
+.viewBtn{width:76px!important;height:54px!important;border-radius:16px!important;font-size:18px!important;font-weight:900!important;}
+.viewBtn.active{color:#161318!important;background:linear-gradient(100deg,#f3b4cf,#ffe28a)!important;box-shadow:0 5px 18px rgba(243,180,207,.12)!important;}
+.cloudTabs{display:none!important;}
+
+.uploadCard{
+  margin-top:18px!important;padding:34px 34px 30px!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:30px!important;
+  background:linear-gradient(145deg,rgba(20,19,26,.74),rgba(8,8,13,.78))!important;box-shadow:var(--shadow)!important;
 }
+.uploadIcon{display:none!important;}
+.uploadButton,.startUploadButton{
+  width:100%!important;height:92px!important;margin:0 0 18px!important;border:0!important;border-radius:27px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;font-size:25px!important;font-weight:900!important;color:#17141a!important;
+  background:linear-gradient(100deg,#f3b4cf,#f6c2ae)!important;box-shadow:none!important;
+}
+.folderButton{background:linear-gradient(100deg,#b9c9ff,#cdd7ff)!important;}
+#fileInput,#folderInput{display:none!important;}
+.selectedFilesText{font-size:21px!important;color:#9c98a4!important;margin:10px 0 38px!important;}
+.startUploadButton{background:linear-gradient(100deg,#f3b4cf,#f6c2ae,#ffe28a)!important;margin-bottom:28px!important;cursor:pointer;}
+.overallProgress{height:16px;border-radius:100px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid rgba(255,255,255,.08);margin:0 0 6px;}
+#overallProgressBar{height:100%;width:0;background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a);border-radius:inherit;box-shadow:0 0 20px rgba(255,210,150,.5);transition:width .25s ease;}
+#uploadQueue{margin-top:18px!important;}
+
+.filesHeader{margin-top:28px!important;margin-bottom:14px!important;padding:28px 28px 18px!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:30px 30px 0 0!important;background:linear-gradient(145deg,rgba(17,16,22,.72),rgba(8,8,13,.76))!important;}
+.filesTitle{font-size:31px!important;}
+.filesCount{font-size:14px!important;color:#8f8a95!important;}
+.refresh{display:none!important;}
+#fileList{margin-top:0!important;padding:0 28px 28px!important;border:1px solid rgba(255,255,255,.10)!important;border-top:0!important;border-radius:0 0 30px 30px!important;background:linear-gradient(145deg,rgba(17,16,22,.72),rgba(8,8,13,.76))!important;}
+.empty{min-height:230px!important;display:grid!important;place-items:center!important;font-size:23px!important;color:#77727f!important;background:transparent!important;border:0!important;}
+.fileCard{border-color:rgba(255,255,255,.10)!important;background:linear-gradient(145deg,rgba(20,19,27,.75),rgba(8,8,13,.82))!important;}
+
+.zenInfoCard{margin-top:22px;padding:32px 28px;border-radius:30px;background:linear-gradient(145deg,rgba(20,19,26,.72),rgba(8,8,13,.76));box-shadow:var(--shadow);}
+.zenInfoCard h2{margin:0 0 12px;font-size:23px;}.zenInfoCard p{margin:0 0 22px;color:#96919d;font-size:20px;line-height:1.8;}.zenInfoCard p:last-child{margin-bottom:0;}.zenInfoCard strong{color:#e2dde4;}
+.zenQRCard{margin-top:22px;padding:34px 20px 30px;text-align:center;border-radius:30px;background:linear-gradient(145deg,rgba(20,19,26,.76),rgba(8,8,13,.80));box-shadow:var(--shadow);}
+.zenQRCard h2{font-size:29px;margin:0 0 10px;}.zenQRCard p{font-size:18px;color:#96919d;margin:0 0 26px;}.zenQRCode{width:230px;height:230px;margin:0 auto 18px;padding:0;background:#fff;border-radius:24px;display:grid;place-items:center;overflow:hidden;}.zenQRCode img{width:100%!important;height:100%!important;display:block!important;}.zenQRUrl{color:#77727f;font-size:14px;word-break:break-all;}
+
+@media(max-width:560px){
+  #app{padding:0 14px 32px!important}.dashboard{padding-top:6px!important}.topbar{padding-top:22px!important}.brandTitle{font-size:30px!important}.brandStatus::after{font-size:16px!important}
+  .loginCard{width:92vw!important;padding:34px 28px 40px!important;border-radius:28px!important}.loginIcon{width:112px!important;height:112px!important;margin-bottom:34px!important}.loginTitle{font-size:36px!important}.loginText{font-size:18px!important;margin-bottom:30px!important}input[type=password]{height:82px!important;font-size:22px!important;padding:0 24px!important;border-radius:24px!important}.primary{height:82px!important;font-size:22px!important;border-radius:24px!important}
+  .introLogo{width:142px!important;height:142px!important;border-radius:42px!important;margin-bottom:58px!important}.introLogo .zenStar{font-size:54px!important}.introWelcome{font-size:62px!important}.introSub{font-size:19px!important;letter-spacing:.31em!important;margin:42px 0 58px!important}.loadingLine{width:80vw!important}
+  .uploadCard{padding:26px 20px 24px!important}.uploadButton,.startUploadButton{height:72px!important;font-size:20px!important;border-radius:22px!important}.selectedFilesText{font-size:18px!important;margin-bottom:28px!important}.filesHeader{padding:22px 20px 16px!important}.filesTitle{font-size:26px!important}.viewButtons{top:-54px!important}.viewBtn{width:62px!important;height:46px!important}.zenInfoCard{padding:26px 20px}.zenInfoCard p{font-size:17px!important}.zenQRCode{width:210px;height:210px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 </style>
 
@@ -3149,14 +3306,16 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
 
     <div class="introContent">
 
-        <div class="introLogo" aria-label="Cloud Zen logo"></div>
+        <div class="introLogo" aria-label="Cloud Zen logo">
+            <span class="zenStar">✦</span>
+        </div>
 
         <h1 class="introWelcome">
             Welcome
         </h1>
 
         <p class="introSub">
-            Cloud Zen
+            c l o u d - z e n
         </p>
 
         <div class="loadingLine"></div>
@@ -3184,7 +3343,9 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
 
         <div class="loginCard">
 
-            <div class="loginIcon" aria-label="Cloud Zen logo"></div>
+            <div class="loginIcon" aria-label="Cloud Zen logo">
+                <span class="zenStar">✦</span>
+            </div>
 
 
             <h1 class="loginTitle">
@@ -3246,7 +3407,9 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
 
             <div class="brand">
 
-                <div class="brandLogo" aria-label="Cloud Zen logo"></div>
+                <div class="brandLogo">
+                    ☁
+                </div>
 
                 <div>
 
@@ -3280,6 +3443,15 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
                     title="Refresh"
                 >
                     ↻
+                </button>
+
+
+                <button
+                    id="downloadAllButton"
+                    class="iconButton qrButton"
+                    title="Download all files from all connected storages as one ZIP"
+                >
+                    ↓ All
                 </button>
 
 
@@ -3349,6 +3521,44 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
         </section>
 
 
+        <section
+            id="storageDetailsCard"
+            class="storageDetailsCard"
+        >
+
+            <div class="storageDetailsHead">
+
+                <div>
+
+                    <h2 class="storageDetailsTitle">
+                        Storage Locations
+                    </h2>
+
+                    <p class="storageDetailsSub">
+                        See used space and free space for every connected cloud.
+                    </p>
+
+                </div>
+
+                <button
+                    id="storageDetailsRefresh"
+                    class="storageDetailsRefresh"
+                    type="button"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <div
+                id="storageProviderGrid"
+                class="storageProviderGrid"
+            ></div>
+
+        </section>
+
+
         <div class="cloudToolbar">
 
             <div class="searchBox">
@@ -3358,7 +3568,7 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
                 <input
                     id="searchInput"
                     type="search"
-                    placeholder="Search your Cloud Zen..."
+                    placeholder="Search your personal cloud..."
                     autocomplete="off"
                 >
 
@@ -3490,10 +3700,10 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
             </div>
 
             <label
-                class="uploadButton"
+                class="uploadButton uploadFilesButton"
                 for="fileInput"
             >
-                + Select Files
+                Select Multiple Files
             </label>
 
             <input
@@ -3502,9 +3712,32 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
                 multiple
             >
 
-            <p class="uploadHint">
-                Large files • 4K videos • Documents • Images • Audio
+            <label
+                class="uploadButton folderButton"
+                for="folderInput"
+            >
+                Select Complete Folder
+            </label>
+
+            <input
+                id="folderInput"
+                type="file"
+                webkitdirectory
+                directory
+                multiple
+            >
+
+            <p id="selectedFilesText" class="uploadHint selectedFilesText">
+                No files selected
             </p>
+
+            <button id="startUploadButton" class="startUploadButton" type="button">
+                Start Upload
+            </button>
+
+            <div class="overallProgress" aria-hidden="true">
+                <div id="overallProgressBar"></div>
+            </div>
 
             <div id="uploadQueue"></div>
 
@@ -3515,7 +3748,7 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
 
             <h2 class="filesTitle">
 
-                Your Files
+                Stored Files
 
                 <span
                     id="filesCount"
@@ -3538,6 +3771,20 @@ input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0
 
         <section id="fileList"></section>
 
+        <section class="zenInfoCard">
+            <h2>4K Large File Upload</h2>
+            <p>Files are uploaded in <strong>5 MB chunks</strong> for better reliability on mobile and slow connections.</p>
+            <p><strong>Automatic Retry:</strong> 5 attempts per chunk</p>
+            <p><strong>Maximum per file:</strong> 20 GB</p>
+            <p><strong>Supported:</strong> 4K Video • Photos • Screenshots • Audio • PDF • ZIP • Documents • Other Files</p>
+        </section>
+
+        <section class="zenQRCard">
+            <h2>Open Cloud Vault</h2>
+            <p>Scan this QR code to open this Cloud Vault website</p>
+            <div id="zenQRCode" class="zenQRCode"></div>
+            <div class="zenQRUrl" id="zenQRUrl"></div>
+        </section>
 
     </section>
 
@@ -3674,10 +3921,10 @@ for(
 
         radius:
             Math.random() *
-            1.55 + .18,
+            1.5,
 
         alpha:
-            Math.random() * .75 + .20,
+            Math.random(),
 
         speed:
             Math.random() *
@@ -3687,11 +3934,12 @@ for(
         color:
             [
                 "#ffffff",
-                "#ffe2cf",
-                "#ffd7e8",
-                "#dbe3ff",
-                "#fff0b5"
-            ][Math.floor(Math.random() * 5)]
+                "#f3b4cf",
+                "#f6c2ae",
+                "#ffe28a",
+                "#b9c9ff",
+                "#d7c7ff"
+            ][Math.floor(Math.random() * 6)]
     });
 }
 
@@ -3717,13 +3965,13 @@ function addShootingStar(){
 
         length:
             Math.random() *
-            95 +
-            55,
+            80 +
+            40,
 
         speed:
             Math.random() *
             6 +
-            5,
+            4,
 
         angle:
             Math.PI / 4,
@@ -3795,16 +4043,11 @@ function animateStars(){
 
 
             ctx.fillStyle = star.color || "#ffffff";
-
-            if(star.radius > 1.0){
-                ctx.shadowBlur = 7;
-                ctx.shadowColor = star.color || "#ffffff";
-            }
-
             ctx.globalAlpha = Math.abs(star.alpha);
+
+
             ctx.fill();
             ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
         }
     );
 
@@ -3912,7 +4155,7 @@ function animateStars(){
 
             for(
                 let p = 0;
-                p < 34;
+                p < 25;
                 p++
             ){
 
@@ -4113,6 +4356,21 @@ const storageRemaining =
         "storageRemaining"
     );
 
+const storageProviderGrid =
+    document.getElementById(
+        "storageProviderGrid"
+    );
+
+const storageDetailsRefresh =
+    document.getElementById(
+        "storageDetailsRefresh"
+    );
+
+const downloadAllButton =
+    document.getElementById(
+        "downloadAllButton"
+    );
+
 const searchInput =
     document.getElementById(
         "searchInput"
@@ -4177,13 +4435,13 @@ let toastTimer = null;
 ========================================================= */
 
 const STAR_KEY =
-    "personal-cloud-starred";
+    "cloud-zen-starred";
 
 const RECENT_KEY =
-    "personal-cloud-recent";
+    "cloud-zen-recent";
 
 const VIEW_KEY =
-    "personal-cloud-view";
+    "cloud-zen-view";
 
 
 function readJSON(
@@ -4843,7 +5101,236 @@ async function loadStorage(){
 
     storageRemaining.textContent =
         `Free: ${data.remainingText}`;
+
+
+    renderStorageProviders(data);
 }
+
+
+function renderStorageProviders(data){
+
+    if(!storageProviderGrid){
+        return;
+    }
+
+
+    const providers = [
+
+        {
+            key:"b2",
+            name:"Backblaze B2",
+            data:data.b2 || {}
+        },
+
+        {
+            key:"mega",
+            name:"MEGA",
+            data:data.mega || {}
+        },
+
+        {
+            key:"idriveE2",
+            name:"IDrive E2",
+            data:data.idriveE2 || {}
+        },
+
+        {
+            key:"cloudinary",
+            name:"Cloudinary",
+            data:data.cloudinary || {}
+        },
+
+        {
+            key:"filebase",
+            name:"Filebase",
+            data:data.filebase || {}
+        },
+
+        {
+            key:"koofr",
+            name:"Koofr",
+            data:data.koofr || {}
+        }
+    ];
+
+
+    storageProviderGrid.innerHTML = "";
+
+
+    providers.forEach(provider => {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "storageProvider";
+
+
+        const configured =
+            provider.data.configured !== false;
+
+        const connected =
+            provider.data.connected !== false;
+
+        const used =
+            Number(
+                provider.data.usedBytes ??
+                provider.data.totalBytes ??
+                0
+            );
+
+        const capacity =
+            Number(
+                provider.data.capacityBytes ??
+                provider.data.limitBytes ??
+                0
+            );
+
+        const remaining =
+            Number(
+                provider.data.remainingBytes ??
+                Math.max(0, capacity - used)
+            );
+
+        const percent =
+            capacity > 0
+                ? Math.min(
+                    100,
+                    (used / capacity) * 100
+                )
+                : 0;
+
+        const safePercent =
+            Number(percent.toFixed(2));
+
+        let statusText = "Connected";
+        let statusClass = "";
+
+        if(!configured){
+            statusText = "Not configured";
+            statusClass = "unconfigured";
+        }else if(!connected){
+            statusText = "Not connected";
+            statusClass = "offline";
+        }else if(safePercent >= 99.5){
+            statusText = "Near storage limit";
+            statusClass = "offline";
+        }
+
+
+        item.innerHTML = `
+            <div class="storageProviderTop">
+                <div class="storageProviderName">
+                    ${escapeHtml(provider.name)}
+                </div>
+                <div class="storageProviderPercent">
+                    ${configured ? safePercent : 0}%
+                </div>
+            </div>
+
+            <div class="storageProviderBar">
+                <div
+                    class="storageProviderFill"
+                    style="width:${configured ? safePercent : 0}%"
+                ></div>
+            </div>
+
+            <div class="storageProviderMeta">
+                <span>Used: ${escapeHtml(
+                    provider.data.usedText ||
+                    formatClientBytes(used)
+                )}</span>
+                <span>Free: ${escapeHtml(
+                    provider.data.remainingText ||
+                    formatClientBytes(remaining)
+                )}</span>
+            </div>
+
+            <div class="storageProviderStatus ${statusClass}">
+                ${escapeHtml(statusText)}
+            </div>
+        `;
+
+        storageProviderGrid.appendChild(item);
+    });
+}
+
+
+function formatClientBytes(bytes){
+
+    const value = Number(bytes) || 0;
+
+    if(value <= 0){
+        return "0 B";
+    }
+
+    const units = ["B","KB","MB","GB","TB"];
+
+    const index = Math.min(
+        units.length - 1,
+        Math.floor(
+            Math.log(value) /
+            Math.log(1024)
+        )
+    );
+
+    return `${(
+        value /
+        Math.pow(1024,index)
+    ).toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
+}
+
+
+
+storageDetailsRefresh?.addEventListener(
+    "click",
+    async () => {
+        try{
+            storageDetailsRefresh.disabled = true;
+            storageDetailsRefresh.textContent = "Loading...";
+            await loadStorage();
+        }catch(error){
+            console.error(error);
+            showToast(
+                error.message ||
+                "Could not refresh storage"
+            );
+        }finally{
+            storageDetailsRefresh.disabled = false;
+            storageDetailsRefresh.textContent = "Refresh";
+        }
+    }
+);
+
+
+downloadAllButton?.addEventListener(
+    "click",
+    () => {
+
+        const confirmed =
+            window.confirm(
+                "Download all files from every connected storage as one ZIP? Large clouds may take a long time and the ZIP can be very large."
+            );
+
+        if(!confirmed){
+            return;
+        }
+
+        const a =
+            document.createElement("a");
+
+        a.href =
+            "/api/download-all";
+
+        a.download =
+            "cloud-zen-all-storage.zip";
+
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+);
+
 
 
 /* =========================================================
@@ -6393,31 +6880,12 @@ async function deleteFile(
 
 fileInput.addEventListener(
     "change",
-    async event => {
-
-        const files =
-            Array.from(
-                event.target.files
-            );
-
-
-        if(
-            !files.length
-        ){
-            return;
+    event => {
+        const files = Array.from(event.target.files || []);
+        if(files.length){
+            const text = document.getElementById("selectedFilesText");
+            if(text) text.textContent = `${files.length} file${files.length === 1 ? "" : "s"} selected`;
         }
-
-
-        await uploadFiles(
-            files
-        );
-
-
-        fileInput.value =
-            "";
-
-
-        await loadEverything();
     }
 );
 
@@ -6614,65 +7082,31 @@ async function uploadFile(
             });
 
 
-        const response =
-            await fetch(
-                "/api/upload-chunk?" +
-                params.toString(),
-                {
+        await uploadChunkWithProgress(
+            "/api/upload-chunk?" +
+            params.toString(),
+            blob,
+            (loaded) => {
 
-                    method:"POST",
+                const currentUploaded =
+                    uploaded + loaded;
 
-                    credentials:
-                        "same-origin",
+                const percent =
+                    file.size
+                        ? currentUploaded /
+                            file.size *
+                            100
+                        : 100;
 
-                    headers:{
-                        "Content-Type":
-                            "application/octet-stream",
-
-                        "Content-Length":
-                            String(
-                                blob.size
-                            )
-                    },
-
-                    body:blob
-                }
-            );
-
-
-        let data = null;
-
-
-        try{
-
-            data =
-                await response.json();
-
-        }catch(_){}
-
-
-        if(
-            response.status ===
-            401
-        ){
-
-            showLogin();
-
-            throw new Error(
-                "Session expired"
-            );
-        }
-
-
-        if(
-            !response.ok
-        ){
-
-            throw new Error(
-                data?.error ||
-                "Upload failed"
-            );
-        }
+                updateQueue(
+                    queue,
+                    percent,
+                    false,
+                    currentUploaded,
+                    file.size
+                );
+            }
+        );
 
 
         uploaded +=
@@ -6681,12 +7115,14 @@ async function uploadFile(
 
         updateQueue(
             queue,
-
             file.size
                 ? uploaded /
                     file.size *
                     100
-                : 100
+                : 100,
+            false,
+            uploaded,
+            file.size
         );
     }
 
@@ -6694,7 +7130,9 @@ async function uploadFile(
     updateQueue(
         queue,
         100,
-        true
+        true,
+        file.size,
+        file.size
     );
 
 
@@ -6703,10 +7141,139 @@ async function uploadFile(
     );
 
 
+    try{
+        await loadStorage();
+    }catch(error){
+        console.error(
+            "STORAGE REFRESH AFTER UPLOAD ERROR:",
+            error
+        );
+    }
+
+
     showToast(
         `${file.name} uploaded`
     );
 }
+
+
+function uploadChunkWithProgress(
+    url,
+    blob,
+    onProgress
+){
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const xhr =
+                new XMLHttpRequest();
+
+            xhr.open(
+                "POST",
+                url,
+                true
+            );
+
+            xhr.withCredentials =
+                true;
+
+            xhr.setRequestHeader(
+                "Content-Type",
+                "application/octet-stream"
+            );
+
+            xhr.setRequestHeader(
+                "Content-Length",
+                String(blob.size)
+            );
+
+            xhr.upload.onprogress =
+                event => {
+
+                    if(
+                        event.lengthComputable
+                    ){
+
+                        onProgress(
+                            event.loaded
+                        );
+                    }
+                };
+
+            xhr.onerror =
+                () => {
+                    reject(
+                        new Error(
+                            "Network error during upload"
+                        )
+                    );
+                };
+
+            xhr.onabort =
+                () => {
+                    reject(
+                        new Error(
+                            "Upload cancelled"
+                        )
+                    );
+                };
+
+            xhr.onload =
+                async () => {
+
+                    let data = null;
+
+                    try{
+                        data =
+                            JSON.parse(
+                                xhr.responseText ||
+                                "null"
+                            );
+                    }catch(_){ }
+
+                    if(
+                        xhr.status === 401
+                    ){
+
+                        showLogin();
+
+                        reject(
+                            new Error(
+                                "Session expired"
+                            )
+                        );
+
+                        return;
+                    }
+
+                    if(
+                        xhr.status < 200 ||
+                        xhr.status >= 300
+                    ){
+
+                        reject(
+                            new Error(
+                                data?.error ||
+                                "Upload failed"
+                            )
+                        );
+
+                        return;
+                    }
+
+                    onProgress(
+                        blob.size
+                    );
+
+                    resolve(data);
+                };
+
+            xhr.send(blob);
+        }
+    );
+}
+
 
 
 /* =========================================================
@@ -6765,6 +7332,18 @@ function createQueueItem(
     );
 
 
+    const remaining =
+        document.createElement(
+            "div"
+        );
+
+    remaining.className =
+        "queueRemaining";
+
+    remaining.textContent =
+        `${formatClientBytes(0)} uploaded • ${formatClientBytes(file.size)} left`;
+
+
     const track =
         document.createElement(
             "div"
@@ -6787,6 +7366,7 @@ function createQueueItem(
 
     item.append(
         top,
+        remaining,
         track
     );
 
@@ -6799,6 +7379,7 @@ function createQueueItem(
     return {
         item,
         percent,
+        remaining,
         bar
     };
 }
@@ -6807,14 +7388,19 @@ function createQueueItem(
 function updateQueue(
     queue,
     value,
-    done = false
+    done = false,
+    uploadedBytes = 0,
+    totalBytes = 0
 ){
 
     const rounded =
         Math.min(
             100,
-            Math.round(
-                value
+            Math.max(
+                0,
+                Math.round(
+                    value
+                )
             )
         );
 
@@ -6829,6 +7415,22 @@ function updateQueue(
         `${rounded}%`;
 
 
+    if(queue.remaining){
+
+        const remainingBytes =
+            Math.max(
+                0,
+                Number(totalBytes || 0) -
+                Number(uploadedBytes || 0)
+            );
+
+        queue.remaining.textContent =
+            done
+                ? "Complete"
+                : `${formatClientBytes(uploadedBytes)} uploaded • ${formatClientBytes(remainingBytes)} left`;
+    }
+
+
     if(done){
 
         setTimeout(
@@ -6841,6 +7443,7 @@ function updateQueue(
         );
     }
 }
+
 
 
 /* =========================================================
@@ -7026,358 +7629,5 @@ async function refreshAll(){
 
     const buttons = [
 
-        document.getElementById(
-            "refreshButton"
-        ),
-
-        document.getElementById(
-            "topRefresh"
-        )
-    ];
-
-
-    buttons.forEach(
-        button =>
-            button.classList.add(
-                "spinning"
-            )
-    );
-
-
-    try{
-
-        await loadEverything();
-
-    }finally{
-
-        setTimeout(
-            () => {
-
-                buttons.forEach(
-                    button =>
-                        button.classList.remove(
-                            "spinning"
-                        )
-                );
-
-            },
-            650
-        );
-    }
-}
-
-
-document
-    .getElementById(
-        "refreshButton"
-    )
-    .addEventListener(
-        "click",
-        refreshAll
-    );
-
-
-document
-    .getElementById(
-        "topRefresh"
-    )
-    .addEventListener(
-        "click",
-        refreshAll
-    );
-
-
-/* =========================================================
-   QR
-========================================================= */
-
-function openQRCode(){
-
-    qrCode.innerHTML =
-        "";
-
-
-    if(
-        typeof QRCode ===
-        "undefined"
-    ){
-
-        qrCode.textContent =
-            "QR unavailable";
-
-
-        showToast(
-            "QR code library unavailable"
-        );
-
-
-        qrModal.classList.add(
-            "show"
-        );
-
-
-        return;
-    }
-
-
-    const websiteURL =
-        window.location.href;
-
-
-    new QRCode(
-        qrCode,
-        {
-
-            text:
-                websiteURL,
-
-            width:
-                164,
-
-            height:
-                164,
-
-            colorDark:
-                "#07111f",
-
-            colorLight:
-                "#ffffff",
-
-            correctLevel:
-                QRCode.CorrectLevel.M
-        }
-    );
-
-
-    qrModal.classList.add(
-        "show"
-    );
-}
-
-
-function closeQRCode(){
-
-    qrModal.classList.remove(
-        "show"
-    );
-
-    qrCode.innerHTML =
-        "";
-}
-
-
-qrButton.addEventListener(
-    "click",
-    openQRCode
-);
-
-
-qrClose.addEventListener(
-    "click",
-    closeQRCode
-);
-
-
-qrModal.addEventListener(
-    "click",
-    event => {
-
-        if(
-            event.target ===
-            qrModal
-        ){
-
-            closeQRCode();
-        }
-    }
-);
-
-
-/* =========================================================
-   LOAD EVERYTHING
-========================================================= */
-
-async function loadEverything(){
-
-    try{
-
-        await Promise.all([
-            loadStorage(),
-            loadFiles()
-        ]);
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   FORMAT BYTES
-========================================================= */
-
-function formatBytes(
-    bytes
-){
-
-    const value =
-        Number(bytes);
-
-
-    if(
-        !Number.isFinite(value) ||
-        value <= 0
-    ){
-
-        return "0 B";
-    }
-
-
-    const units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB"
-    ];
-
-
-    const index =
-        Math.min(
-            Math.floor(
-                Math.log(value) /
-                Math.log(1024)
-            ),
-            units.length - 1
-        );
-
-
-    return (
-        value /
-        Math.pow(
-            1024,
-            index
-        )
-    )
-        .toFixed(
-            index === 0
-                ? 0
-                : 1
-        ) +
-        " " +
-        units[index];
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHtml(
-    value
-){
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.key ===
-            "Escape"
-        ){
-
-            closeViewer();
-
-            closeQRCode();
-        }
-
-
-        if(
-            event.key === "/" &&
-
-            document.activeElement !==
-                searchInput &&
-
-            document.activeElement !==
-                password
-        ){
-
-            event.preventDefault();
-
-            searchInput.focus();
-        }
-    }
-);
-
-
-/* =========================================================
-   WELCOME / START
-========================================================= */
-
-window.addEventListener(
-    "load",
-    () => {
-
-        setTimeout(
-            welcomeVoice,
-            450
-        );
-
-
-        setTimeout(
-            () => {
-
-                intro.classList.add(
-                    "hide"
-                );
-
-
-                checkAuthentication();
-
-            },
-            2500
-        );
-    }
-);
-
-</script>
-
-</body>
-    </html>
-    
+        document.get
+Preview truncated for large file
