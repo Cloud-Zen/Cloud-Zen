@@ -510,6 +510,9 @@ INTRO SCREEN
     background:
         transparent;
 
+    overflow:
+        hidden;
+
     transition:
 
         opacity
@@ -3719,6 +3722,256 @@ MOBILE
 }
 
 
+
+/* =========================================================
+INTRO STAR / CRASH EFFECTS
+========================================================= */
+
+.intro-effects{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:1;
+}
+
+.intro-content{
+    z-index:4;
+}
+
+.intro-line-wrap{
+    position:relative;
+    width:min(345px,78vw);
+}
+
+.intro-line-wrap .intro-line{
+    width:100%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.intro-line-star{
+    position:absolute;
+    left:0;
+    top:50%;
+    width:25px;
+    height:25px;
+    margin:-12.5px 0 0 -12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:24px;
+    line-height:1;
+    text-shadow:
+        0 0 5px rgba(255,255,255,.95),
+        0 0 14px rgba(243,180,207,.85),
+        0 0 26px rgba(255,226,138,.55);
+    filter:drop-shadow(0 0 5px rgba(255,255,255,.8));
+    animation:introLineStar 2.15s cubic-bezier(.18,.72,.25,1) forwards;
+    z-index:2;
+}
+
+.intro-line-star::after{
+    content:"";
+    position:absolute;
+    right:14px;
+    top:50%;
+    width:54px;
+    height:2px;
+    transform:translateY(-50%);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),rgba(243,180,207,.35));
+    filter:blur(.4px);
+    opacity:.9;
+}
+
+@keyframes introLineStar{
+    0%{
+        left:0;
+        opacity:0;
+        transform:scale(.55) rotate(0deg);
+    }
+    8%{
+        opacity:1;
+    }
+    50%{
+        transform:scale(1.05) rotate(90deg);
+    }
+    86%{
+        opacity:1;
+    }
+    100%{
+        left:100%;
+        opacity:0;
+        transform:scale(.75) rotate(180deg);
+    }
+}
+
+.intro-meteor{
+    position:absolute;
+    left:-10%;
+    top:4%;
+    width:17px;
+    height:17px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:18px;
+    line-height:1;
+    opacity:0;
+    text-shadow:
+        0 0 7px #fff,
+        0 0 18px rgba(243,180,207,.95),
+        0 0 32px rgba(255,226,138,.8);
+    filter:drop-shadow(0 0 7px rgba(255,255,255,.9));
+    animation:introMeteor 1.95s cubic-bezier(.2,.72,.2,1) forwards;
+}
+
+.intro-meteor::after{
+    content:"";
+    position:absolute;
+    right:9px;
+    top:50%;
+    width:145px;
+    height:4px;
+    transform:translateY(-50%);
+    transform-origin:right center;
+    background:linear-gradient(90deg,transparent,rgba(243,180,207,.08),rgba(255,255,255,.65));
+    filter:blur(2px);
+    opacity:.85;
+}
+
+@keyframes introMeteor{
+    0%{
+        left:-12%;
+        top:5%;
+        opacity:0;
+        transform:rotate(0deg) scale(.55);
+    }
+    10%{
+        opacity:1;
+    }
+    70%{
+        opacity:1;
+        transform:rotate(0deg) scale(1);
+    }
+    88%{
+        left:51%;
+        top:41%;
+        opacity:1;
+        transform:rotate(0deg) scale(1.08);
+    }
+    100%{
+        left:53%;
+        top:43%;
+        opacity:0;
+        transform:scale(.15);
+    }
+}
+
+.intro-crash{
+    position:absolute;
+    left:53%;
+    top:43%;
+    width:8px;
+    height:8px;
+    margin:-4px 0 0 -4px;
+    border-radius:50%;
+    opacity:0;
+    z-index:2;
+    animation:introCrash .62s ease-out 1.72s forwards;
+}
+
+.intro-crash::before,
+.intro-crash::after{
+    content:"";
+    position:absolute;
+    inset:-10px;
+    border:1px solid rgba(255,255,255,.72);
+    border-radius:50%;
+    box-shadow:
+        0 0 18px rgba(243,180,207,.9),
+        0 0 36px rgba(255,226,138,.55);
+}
+
+.intro-crash::before{
+    animation:introRing 1.05s ease-out 1.72s forwards;
+}
+
+.intro-crash::after{
+    inset:-4px;
+    background:radial-gradient(circle,rgba(255,255,255,1) 0%,rgba(255,226,138,.9) 18%,rgba(243,180,207,.42) 42%,transparent 72%);
+    border:0;
+    box-shadow:none;
+    animation:introFlash .48s ease-out 1.72s forwards;
+}
+
+@keyframes introCrash{
+    0%{opacity:0;transform:scale(.3)}
+    18%{opacity:1;transform:scale(2.1)}
+    45%{opacity:.9;transform:scale(1.2)}
+    100%{opacity:0;transform:scale(.1)}
+}
+
+@keyframes introRing{
+    0%{opacity:0;transform:scale(.25)}
+    12%{opacity:.9}
+    100%{opacity:0;transform:scale(15)}
+}
+
+@keyframes introFlash{
+    0%{opacity:0;transform:scale(.3)}
+    20%{opacity:1;transform:scale(2.8)}
+    100%{opacity:0;transform:scale(8)}
+}
+
+.intro-spark{
+    position:absolute;
+    left:53%;
+    top:43%;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:
+        0 0 8px #fff,
+        0 0 18px rgba(243,180,207,.9);
+    opacity:0;
+    animation:introSpark .9s ease-out 1.76s forwards;
+}
+
+.intro-spark:nth-child(2){ --dx:78px; --dy:-46px; }
+.intro-spark:nth-child(3){ --dx:-74px; --dy:-34px; }
+.intro-spark:nth-child(4){ --dx:58px; --dy:56px; }
+.intro-spark:nth-child(5){ --dx:-62px; --dy:64px; }
+.intro-spark:nth-child(6){ --dx:108px; --dy:8px; }
+.intro-spark:nth-child(7){ --dx:-105px; --dy:15px; }
+.intro-spark:nth-child(8){ --dx:22px; --dy:-82px; }
+.intro-spark:nth-child(9){ --dx:-18px; --dy:91px; }
+
+@keyframes introSpark{
+    0%{
+        opacity:0;
+        transform:translate(0,0) scale(.4);
+    }
+    18%{opacity:1}
+    100%{
+        opacity:0;
+        transform:translate(var(--dx),var(--dy)) scale(.05);
+    }
+}
+
+@media(max-width:480px){
+    .intro-line-wrap{
+        width:345px;
+        max-width:80vw;
+    }
+    .intro-meteor::after{
+        width:105px;
+    }
+}
+
 /* =========================================================
 REDUCE MOTION
 ========================================================= */
@@ -3731,6 +3984,12 @@ REDUCE MOTION
     #ambientGlow,
     .intro-logo,
     .intro-welcome,
+    .intro-line-star,
+    .intro-meteor,
+    .intro-crash,
+    .intro-crash::before,
+    .intro-crash::after,
+    .intro-spark,
     .progress::after{
 
         animation:
@@ -3789,6 +4048,19 @@ INTRO
 
 <div id="introScreen">
 
+    <div class="intro-effects" aria-hidden="true">
+        <div class="intro-meteor">✦</div>
+        <div class="intro-crash"></div>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+        <span class="intro-spark"></span>
+    </div>
+
     <div class="intro-content">
 
         <div class="intro-logo">
@@ -3803,7 +4075,10 @@ INTRO
             my-personal-cloud
         </div>
 
-        <div class="intro-line"></div>
+        <div class="intro-line-wrap">
+            <div class="intro-line"></div>
+            <div class="intro-line-star" aria-hidden="true">✦</div>
+        </div>
 
         <div class="intro-subtitle">
             Preparing Your Private Space
@@ -4318,15 +4593,15 @@ let shootingStars =
 
 
 const desktopStars =
-    230;
+    300;
 
 
 const tabletStars =
-    165;
+    220;
 
 
 const mobileStars =
-    115;
+    150;
 
 
 const starColors = [
@@ -4794,7 +5069,7 @@ function drawStars(
 
         const alpha =
             Math.max(
-                .08,
+                .11,
                 star.baseAlpha *
                 (
                     .58 +
@@ -5430,7 +5705,7 @@ window.addEventListener(
                 );
 
             },
-            6000
+            2350
         );
 
     }
@@ -6024,3 +6299,4 @@ if(
 </body>
 
     </html>
+    
