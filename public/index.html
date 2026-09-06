@@ -3131,7 +3131,7 @@ body{
     radial-gradient(circle at 18% 20%,rgba(243,180,207,.10),transparent 30%),
     radial-gradient(circle at 80% 48%,rgba(185,201,255,.07),transparent 32%),
     radial-gradient(circle at 62% 88%,rgba(255,226,138,.06),transparent 28%),
-    rgba(5,6,11,.28)!important;
+    rgba(5,6,11,.18)!important;
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
 }
@@ -3160,7 +3160,7 @@ body{
 }
 .introSub::first-letter{}
 .loadingLine{width:min(552px,80vw)!important;height:4px!important;background:rgba(255,255,255,.09)!important;box-shadow:0 0 22px rgba(243,180,207,.16)!important;overflow:hidden!important;}
-.loadingLine::before{width:34%!important;background:linear-gradient(90deg,transparent,#f3b4cf,#f6c2ae,#ffe28a,transparent)!important;box-shadow:0 0 18px rgba(255,215,154,.9)!important;animation:zenLoading 3.2s cubic-bezier(.2,.7,.2,1) forwards!important;}
+.loadingLine::before{width:34%!important;background:linear-gradient(90deg,transparent,#f3b4cf,#f6c2ae,#ffe28a,transparent)!important;box-shadow:0 0 18px rgba(255,215,154,.9)!important;animation:zenLoading 2.7s cubic-bezier(.2,.7,.2,1) forwards!important;}
 @keyframes zenLoading{from{transform:translateX(-135%)}to{transform:translateX(360%)}}
 
 /* Login — screenshot-sized compact premium card */
@@ -3332,6 +3332,23 @@ input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shad
     </div>
 
 </section>
+
+<!-- =======================================================
+     NON-BLOCKING WELCOME SAFETY TIMER
+======================================================= -->
+<script>
+(function(){
+    // Start immediately and never wait for window.load, CDN, QR or API.
+    setTimeout(function(){
+        try {
+            var introEl = document.getElementById("introScreen");
+            var loginEl = document.getElementById("loginWrap");
+            if (introEl) introEl.classList.add("hide");
+            if (loginEl) loginEl.classList.add("show");
+        } catch (_) {}
+    }, 2900);
+})();
+</script>
 
 
 <!-- =======================================================
@@ -3909,7 +3926,7 @@ window.addEventListener(
 
 const stars = [];
 
-const numStars = 190;
+const numStars = 260;
 
 
 for(
@@ -3996,11 +4013,11 @@ setInterval(
     () => {
         // A steady stream of visible shooting stars gives the intro the
         // requested live, realistic cosmic feel without overwhelming it.
-        if(Math.random() > .18){
+        if(Math.random() > .08){
             addShootingStar();
         }
     },
-    900
+    650
 );
 
 
@@ -4153,7 +4170,7 @@ function animateStars(){
             blastFlashes.push({x:ss.x,y:ss.y,r:6,alpha:.9});
             for(
                 let p = 0;
-                p < 58;
+                p < 82;
                 p++
             ){
 
@@ -7513,38 +7530,5 @@ function cryptoRandomId(){
 }
 
 
-/* =========================================================
-   SEARCH
-========================================================= */
-
-searchInput.addEventListener(
-    "input",
-    renderFiles
-);
-
-
-sortSelect.addEventListener(
-    "change",
-    renderFiles
-);
-
-
-/* =========================================================
-   TABS
-========================================================= */
-
-document
-    .querySelectorAll(
-        ".cloudTab"
-    )
-    .forEach(
-        tab => {
-
-            tab.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(
-    
+/* ===============================================
 Preview truncated for large file
