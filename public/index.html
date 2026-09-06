@@ -109,132 +109,390 @@ button,input{font:inherit}button{cursor:pointer}
 <div class="toast" id="toast"></div>
 
 <script>
+
 const $=s=>document.querySelector(s);
 const filesEl=$('#files');
 let files=[], sortAsc=true, currentSection='drive', uploadBusy=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const bytes=n=>{n=Number(n)||0;if(n<1024)return n+' B';const u=['KB','MB','GB','TB'];let i=-1;do{n/=1024;i++}while(n>=1024&&i<u.length-1);return n.toFixed(n>=100?0:n>=10?1:2)+' '+u[i]};
-const toast=(m)=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),2600)};
-async function api(url,opt={}){const r=await fetch(url,{credentials:'same-origin',...opt});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||`Request failed (${r.status})`);return d}
-function modal(content){$('#modalBox').innerHTML=content;$('#modal').classList.add('show')}
-function closeModal(){$('#modal').classList.remove('show');$('#modalBox').innerHTML=''}
+const bytes=n=>{
+  n=Number(n)||0;
+  if(n<1024)return n+' B';
+  const u=['KB','MB','GB','TB','PB']; let i=-1;
+  do{n/=1024;i++}while(n>=1024&&i<u.length-1);
+  return n.toFixed(n>=100?0:n>=10?1:2)+' '+u[i];
+};
+const toast=(m)=>{
+  const t=$('#toast'); if(!t)return;
+  t.textContent=m;
+  t.classList.add('show');
+  clearTimeout(window.__toast);
+  window.__toast=setTimeout(()=>t.classList.remove('show'),2600);
+};
+
+async function api(url,opt={}){
+  const r=await fetch(url,{credentials:'same-origin',...opt});
+  let d={};
+  try{d=await r.json()}catch{}
+  if(r.status===401){
+    showLogin();
+    throw Error('Authentication required');
+  }
+  if(!r.ok)throw Error(d.error||`Request failed (${r.status})`);
+  return d;
+}
+
+function modal(content){
+  $('#modalBox').innerHTML=content;
+  $('#modal').classList.add('show');
+}
+function closeModal(){
+  $('#modal').classList.remove('show');
+  $('#modalBox').innerHTML='';
+}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 
+/* AUTH */
+function showLogin(){
+  $('#login').classList.add('show');
+  setTimeout(()=>$('#loginPw').focus(),100);
+}
+function showApp(){
+  $('#login').classList.remove('show');
+  loadAll();
+}
 async function checkAuth(){
-  try{const d=await api('/api/auth/me');if(d.authenticated) showApp();else showLogin()}catch{showLogin()}
+  try{
+    const d=await api('/api/auth/me');
+    if(d?.authenticated) showApp();
+    else showLogin();
+  }catch(_){showLogin()}
 }
-function showLogin(){$('#login').classList.add('show')}
-function showApp(){$('#login').classList.remove('show');loadAll()}
 async function login(){
-  const pw=$('#loginPw').value;$('#loginErr').textContent='';
-  $('#loginBtn').disabled=true;$('#loginBtn').textContent='Unlocking…';
-  try{await api('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});$('#loginPw').value='';showApp();toast('Cloud unlocked')}catch(e){$('#loginErr').textContent=e.message}
-  finally{$('#loginBtn').disabled=false;$('#loginBtn').textContent='Unlock Cloud'}
+  const pw=$('#loginPw').value;
+  $('#loginErr').textContent='';
+  if(!pw){$('#loginErr').textContent='Please enter your password.';return}
+  $('#loginBtn').disabled=true;
+  $('#loginBtn').textContent='Unlocking…';
+  try{
+    await api('/api/auth/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:pw})
+    });
+    $('#loginPw').value='';
+    showApp();
+    toast('Cloud unlocked');
+  }catch(e){
+    $('#loginErr').textContent=e.message;
+  }finally{
+    $('#loginBtn').disabled=false;
+    $('#loginBtn').textContent='Unlock Cloud';
+  }
 }
-$('#loginBtn').onclick=login;$('#loginPw').onkeydown=e=>{if(e.key==='Enter')login()};
+$('#loginBtn').onclick=login;
+$('#loginPw').onkeydown=e=>{if(e.key==='Enter')login()};
 
+/* STATUS / STORAGE */
 async function health(){
- try{const d=await api('/api/health');$('#statusText').textContent=d.telegram?.connected?'Storage online':'Storage degraded';}
- catch{$('#statusText').textContent='Storage unavailable'}
+  try{
+    const d=await api('/api/health');
+    $('#statusText').textContent=d.telegram?.connected?'Storage online':'Storage degraded';
+  }catch{
+    $('#statusText').textContent='Storage unavailable';
+  }
 }
 async function loadStorage(){
- try{const d=await api('/api/storage');$('#used').textContent=d.usedText||'0 B';$('#provider').textContent=d.provider?.connected?'Connected':'Unavailable';$('#meter').style.width=(d.usedPercent||0)+'%'}catch(e){$('#provider').textContent='Unavailable'}
+  try{
+    const d=await api('/api/storage');
+    $('#used').textContent=d.usedText||'0 B';
+    $('#provider').textContent=d.provider?.connected?'Connected':'Unavailable';
+    $('#meter').style.width=Math.min(100,Number(d.usedPercent)||0)+'%';
+  }catch{
+    $('#provider').textContent='Unavailable';
+    $('#meter').style.width='0%';
+  }
 }
+
+/* FILES */
 async function loadFiles(){
- try{files=await api('/api/files');render();$('#fileCount').textContent=files.length}catch(e){files=[];render(e.message)}
+  try{
+    const data=await api('/api/files');
+    files=Array.isArray(data)?data:[];
+    render();
+    $('#fileCount').textContent=files.length;
+  }catch(e){
+    files=[];
+    $('#fileCount').textContent='0';
+    render(e.message);
+  }
 }
-async function loadAll(){await Promise.all([health(),loadStorage(),loadFiles()])}
+async function loadAll(){
+  await Promise.all([health(),loadStorage(),loadFiles()]);
+}
 function filtered(){
- let q=$('#search').value.trim().toLowerCase();
- let a=files.filter(f=>!q||f.name.toLowerCase().includes(q));
- if(currentSection==='recent')a=a.slice().sort((x,y)=>String(y.modified||'').localeCompare(String(x.modified||'')));
- else a=a.slice().sort((x,y)=>sortAsc?x.name.localeCompare(y.name):y.name.localeCompare(x.name));
- return a
+  const q=$('#search').value.trim().toLowerCase();
+  let a=files.filter(f=>!q||String(f.name||'').toLowerCase().includes(q));
+  if(currentSection==='recent'){
+    a=a.slice().sort((x,y)=>String(y.modified||'').localeCompare(String(x.modified||'')));
+  }else if(currentSection==='shared'){
+    // Shared is a client-side view; actual secure share links are generated per file.
+    a=a.slice();
+  }else if(currentSection==='trash'){
+    // Security tab is intentionally a security/tools view, not a fake trash bin.
+    a=a.slice();
+  }else{
+    a=a.slice().sort((x,y)=>sortAsc?String(x.name||'').localeCompare(String(y.name||'')):String(y.name||'').localeCompare(String(x.name||'')));
+  }
+  return a;
 }
 function icon(type){
- if(type?.startsWith('image/'))return '▧';if(type?.startsWith('video/'))return '▶';if(type?.startsWith('audio/'))return '♫';if(type==='application/pdf')return 'PDF';return '▤'
+  if(type?.startsWith('image/'))return '▧';
+  if(type?.startsWith('video/'))return '▶';
+  if(type?.startsWith('audio/'))return '♫';
+  if(type==='application/pdf')return 'PDF';
+  return '▤';
 }
 function render(err){
- const a=filtered();
- if(err){filesEl.innerHTML=`<div class="empty">${esc(err)}</div>`;return}
- if(!a.length){filesEl.innerHTML=`<div class="empty">No files here yet.<br><br><button class="btn primary" onclick="document.getElementById('filePicker').click()">Upload your first file</button></div>`;return}
- filesEl.innerHTML=a.map((f,i)=>`<article class="file" style="animation-delay:${Math.min(i*25,300)}ms">
-   <div class="filetop"><div class="fileicon">${esc(icon(f.type))}</div><button class="more" onclick="renameFile(${JSON.stringify(f.name)})">⋯</button></div>
-   <div class="fname" title="${esc(f.name)}">${esc(f.name)}</div><div class="meta">${esc(f.sizeText||bytes(f.size))} · ${f.chunks||1} part${f.chunks==1?'':'s'}</div>
-   <div class="fileactions"><button onclick="previewFile(${JSON.stringify(f.name)})">Open</button><button onclick="downloadFile(${JSON.stringify(f.name)})">Download</button><button onclick="shareFile(${JSON.stringify(f.name)})">Share</button><button class="danger" onclick="deleteFile(${JSON.stringify(f.name)})">Delete</button></div>
- </article>`).join('')
+  const a=filtered();
+  if(err){
+    filesEl.innerHTML=`<div class="empty">${esc(err)}</div>`;
+    return;
+  }
+  if(!a.length){
+    filesEl.innerHTML=`<div class="empty">No files here yet.<br><br><button class="btn primary" onclick="document.getElementById('filePicker').click()">Upload your first file</button></div>`;
+    return;
+  }
+  filesEl.innerHTML=a.map((f,i)=>`<article class="file" style="animation-delay:${Math.min(i*25,300)}ms">
+    <div class="filetop"><div class="fileicon">${esc(icon(f.type))}</div><button class="more" onclick="renameFile(${JSON.stringify(f.name)})">⋯</button></div>
+    <div class="fname" title="${esc(f.name)}">${esc(f.name)}</div>
+    <div class="meta">${esc(f.sizeText||bytes(f.size))} · ${f.chunks||1} part${f.chunks==1?'':'s'}</div>
+    <div class="fileactions">
+      <button onclick="previewFile(${JSON.stringify(f.name)})">Open</button>
+      <button onclick="downloadFile(${JSON.stringify(f.name)})">Download</button>
+      <button onclick="shareFile(${JSON.stringify(f.name)})">Share</button>
+      <button class="danger" onclick="deleteFile(${JSON.stringify(f.name)})">Delete</button>
+    </div>
+  </article>`).join('');
 }
-window.previewFile=name=>{window.open('/api/stream/'+encodeURIComponent(name),'_blank','noopener')};
-window.downloadFile=name=>{window.location.href='/api/download/'+encodeURIComponent(name)};
-window.renameFile=name=>modal(`<h2>Rename file</h2><p>Change the display name. The stored Telegram metadata will be updated.</p><div class="field"><label>NEW NAME</label><input id="newName" value="${esc(name)}"></div><div class="error" id="mErr"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="renameGo">Save name</button></div>`)||($('#renameGo').onclick=async()=>{});
+
+/* FILE ACTIONS */
+window.previewFile=name=>{
+  window.open('/api/stream/'+name.split('/').map(encodeURIComponent).join('/'),'_blank','noopener');
+};
+window.downloadFile=name=>{
+  const a=document.createElement('a');
+  a.href='/api/download/'+name.split('/').map(encodeURIComponent).join('/');
+  a.download=name.split('/').pop()||name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
 async function doRename(oldName){
- const n=$('#newName').value.trim();if(!n)return;
- try{await api('/api/files',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:oldName,newName:n})});closeModal();toast('File renamed');await loadAll()}catch(e){$('#mErr').textContent=e.message}
+  const n=$('#newName').value.trim();
+  if(!n)return;
+  try{
+    await api('/api/files',{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:oldName,newName:n})
+    });
+    closeModal();
+    toast('File renamed');
+    await loadAll();
+  }catch(e){
+    $('#mErr').textContent=e.message;
+  }
 }
-document.addEventListener('click',e=>{if(e.target.id==='renameGo'){const old=JSON.parse($('#modalBox h2').nextElementSibling.dataset?.x||'null')}});
-function renameFile2(name){renameFile(name)}
-// Replace the simple rename modal with a closure-safe version.
-window.renameFile=name=>{modal(`<h2>Rename file</h2><p>Update the file name in your cloud index.</p><div class="field"><label>NEW NAME</label><input id="newName" value="${esc(name)}"></div><div class="error" id="mErr"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="renameGo">Save name</button></div>`);$('#renameGo').onclick=()=>doRename(name)};
+window.renameFile=name=>{
+  modal(`<h2>Rename file</h2><p>Update the file name in your cloud index.</p>
+    <div class="field"><label>NEW NAME</label><input id="newName" value="${esc(name)}"></div>
+    <div class="error" id="mErr"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="renameGo">Save name</button></div>`);
+  $('#renameGo').onclick=()=>doRename(name);
+};
 
 window.shareFile=async name=>{
- try{const d=await api('/api/share',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,ttlSeconds:86400})});
- modal(`<h2>Secure share link</h2><p>This link expires according to the server's share-token policy. The recipient must pass the Enter password to download.</p><div class="field"><input id="shareUrl" readonly value="${esc(d.url)}"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" id="copyShare">Copy link</button></div>`);
- $('#copyShare').onclick=async()=>{await navigator.clipboard.writeText(d.url);toast('Share link copied')};
- }catch(e){toast(e.message)}
+  try{
+    const d=await api('/api/share',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,ttlSeconds:86400})
+    });
+    modal(`<h2>Secure share link</h2><p>This link is protected by the server's share-token policy.</p>
+      <div class="field"><input id="shareUrl" readonly value="${esc(d.url)}"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" id="copyShare">Copy link</button></div>`);
+    $('#copyShare').onclick=async()=>{
+      try{
+        await navigator.clipboard.writeText(d.url);
+        toast('Share link copied');
+      }catch{
+        $('#shareUrl').select();
+        document.execCommand('copy');
+        toast('Share link copied');
+      }
+    };
+  }catch(e){toast(e.message)}
 };
-window.deleteFile=name=>{modal(`<h2>Delete permanently?</h2><p>This removes every stored chunk from Telegram. This action cannot be undone.</p><div class="field"><label>DELETE PASSWORD</label><input id="deletePw" type="password" autocomplete="off" placeholder="Security password"></div><div class="error" id="mErr"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" id="deleteGo">Delete permanently</button></div>`);$('#deleteGo').onclick=async()=>{const b=$('#deleteGo');b.disabled=true;b.textContent='Deleting…';try{await api('/api/files',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,deletePassword:$('#deletePw').value})});closeModal();toast('File permanently deleted');await loadAll()}catch(e){$('#mErr').textContent=e.message;b.disabled=false;b.textContent='Delete permanently'}}};
 
-let pendingUploadFiles=[];
-function uploadModal(presetFiles=[]){
- pendingUploadFiles=[...presetFiles];
- modal(`<h2>Upload to Cloud-Zen</h2><p>Files are sent in chunks to the backend and persisted in Telegram storage. Keep this tab open until the transfer finishes.</p><div class="drop"><b>Choose files</b><span>Large files are chunked automatically by the server configuration.</span></div><div class="field"><input id="uploadPicker" type="file" multiple></div><div id="upList"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" id="startUpload">Start upload</button></div>`);
- const picker=$('#uploadPicker');
- picker.onchange=e=>{pendingUploadFiles=[...e.target.files];};
- $('#startUpload').onclick=startUpload;
-}
-async function startUpload(){
- const list=$('#upList');if(!pendingUploadFiles.length)return toast('Choose at least one file');
- if(uploadBusy)return;uploadBusy=true;$('#startUpload').disabled=true;
- try{
-  for(const file of pendingUploadFiles)await uploadOne(file,list);
-  toast('Upload complete');await loadAll();closeModal();
- }catch(e){toast(e.message)}finally{uploadBusy=false}
+window.deleteFile=name=>{
+  modal(`<h2>Delete permanently?</h2>
+    <p>This removes every stored chunk from Telegram. This action cannot be undone.</p>
+    <div class="field"><label>DELETE PASSWORD</label><input id="deletePw" type="password" autocomplete="off" placeholder="Security password"></div>
+    <div class="error" id="mErr"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" id="deleteGo">Delete permanently</button></div>`);
+  $('#deleteGo').onclick=async()=>{
+    const btn=$('#deleteGo');
+    const pw=$('#deletePw').value;
+    if(!pw){$('#mErr').textContent='Enter the delete password.';return}
+    btn.disabled=true;
+    btn.textContent='Deleting…';
+    try{
+      await api('/api/files',{
+        method:'DELETE',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,deletePassword:pw})
+      });
+      closeModal();
+      toast('File permanently deleted');
+      await loadAll();
+    }catch(e){
+      $('#mErr').textContent=e.message;
+      btn.disabled=false;
+      btn.textContent='Delete permanently';
+    }
+  };
+};
+
+/* UPLOAD */
+const CHUNK_SIZE=64*1024*1024; // backend default
+function updateUploadRow(row,percent,text){
+  const bar=row.querySelector('.upbar');
+  const meta=row.querySelector('.upmeta');
+  if(bar)bar.style.width=Math.max(0,Math.min(100,percent))+'%';
+  if(meta)meta.textContent=text;
 }
 async function uploadOne(file,list){
- // Match the backend's default 64 MiB chunk size. If CHUNK_SIZE is changed server-side,
- // upload validation will reject a mismatched size; the UI can be adjusted here.
- const CHUNK=64*1024*1024,total=Math.max(1,Math.ceil(file.size/CHUNK)),id=crypto.randomUUID();
- const row=document.createElement('div');row.innerHTML=`<div style="font-size:12px;margin-top:12px">${esc(file.name)} · ${bytes(file.size)}</div><div class="progress"><i></i></div><div class="meta upmeta">Preparing…</div>`;list.appendChild(row);
- const bar=row.querySelector('i'),meta=row.querySelector('.upmeta');
- for(let i=0;i<total;i++){
-  const start=i*CHUNK,end=Math.min(file.size,start+CHUNK),blob=file.slice(start,end);
-  const url='/api/upload-chunk?id='+encodeURIComponent(id)+'&index='+i+'&total='+total+'&size='+encodeURIComponent(file.size)+'&name='+encodeURIComponent(file.name);
-  const r=await fetch(url,{method:'POST',body:blob,credentials:'same-origin'});
-  let d={};try{d=await r.json()}catch{}
-  if(!r.ok)throw Error(d.error||`Upload failed (${r.status})`);
-  bar.style.width=((i+1)/total*100)+'%';meta.textContent=`Uploaded part ${i+1} of ${total}`;
- }
+  const total=Math.max(1,Math.ceil(file.size/CHUNK_SIZE));
+  const id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));
+  const row=document.createElement('div');
+  row.innerHTML=`<div style="font-size:12px;margin-top:12px">${esc(file.name)} · ${bytes(file.size)}</div><div class="progress"><i class="upbar"></i></div><div class="meta upmeta">Preparing…</div>`;
+  list.appendChild(row);
+  let uploaded=0;
+  try{
+    for(let index=0;index<total;index++){
+      const start=index*CHUNK_SIZE;
+      const end=Math.min(file.size,start+CHUNK_SIZE);
+      const blob=file.slice(start,end);
+      const params=new URLSearchParams({
+        id,index:String(index),total:String(total),size:String(file.size),name:file.name,relativePath:file.name
+      });
+      await uploadChunkWithProgress('/api/upload-chunk?'+params.toString(),blob,(loaded)=>{
+        const current=uploaded+loaded;
+        updateUploadRow(row,file.size?current/file.size*100:100,`Uploading part ${index+1} of ${total} · ${Math.round(current/file.size*100)}%`);
+      });
+      uploaded+=blob.size;
+      updateUploadRow(row,file.size?uploaded/file.size*100:100,`Uploaded part ${index+1} of ${total}`);
+    }
+    updateUploadRow(row,100,'Upload complete');
+    toast(`${file.name} uploaded`);
+  }catch(e){
+    updateUploadRow(row,file.size?uploaded/file.size*100:0,`Upload failed: ${e.message}`);
+    throw e;
+  }
+}
+function uploadChunkWithProgress(url,blob,onProgress){
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST',url,true);
+    xhr.withCredentials=true;
+    xhr.setRequestHeader('Content-Type','application/octet-stream');
+    xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded)};
+    xhr.onerror=()=>reject(new Error('Network error during upload'));
+    xhr.onabort=()=>reject(new Error('Upload cancelled'));
+    xhr.onload=()=>{
+      let data=null;
+      try{data=JSON.parse(xhr.responseText||'null')}catch{}
+      if(xhr.status===401){showLogin();reject(new Error('Session expired'));return}
+      if(xhr.status<200||xhr.status>=300){reject(new Error(data?.error||`Upload failed (${xhr.status})`));return}
+      resolve(data);
+    };
+    xhr.send(blob);
+  });
+}
+async function uploadFiles(selected){
+  if(uploadBusy)return;
+  if(!selected?.length)return;
+  uploadBusy=true;
+  const list=document.createElement('div');
+  // Reuse the existing upload modal styling; visible dashboard UI remains unchanged.
+  modal(`<h2>Upload to Cloud-Zen</h2><p>Files are uploaded in server-compatible chunks and persisted in the connected cloud storage.</p>
+    <div id="upList"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>`);
+  const queue=$('#upList');
+  try{
+    for(const file of selected)await uploadOne(file,queue);
+    await loadAll();
+  }catch(e){
+    toast(e.message);
+  }finally{
+    uploadBusy=false;
+  }
 }
 $('#uploadBtn').onclick=()=>$('#filePicker').click();
-$('#filePicker').onchange=e=>{
-  if(e.target.files.length){
-    uploadModal([...e.target.files]);
-    e.target.value='';
-  }
+$('#filePicker').onchange=async e=>{
+  const selected=[...e.target.files];
+  e.target.value='';
+  if(selected.length)await uploadFiles(selected);
 };
-$('#downloadAllBtn').onclick=()=>window.location.href='/api/download-all';
-$('#refreshBtn').onclick=loadAll;
-$('#logoutBtn').onclick=async()=>{try{await api('/api/auth/logout',{method:'POST'});location.reload()}catch(e){toast(e.message)}};
-$('#search').oninput=render;
-$('#sortBtn').onclick=()=>{sortAsc=!sortAsc;$('#sortBtn').textContent=sortAsc?'A–Z':'Z–A';render()};
-document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-section]').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentSection=b.dataset.section;$('#sectionTitle').textContent={drive:'My Drive',recent:'Recent',shared:'Shared',trash:'Security'}[currentSection]||'My Drive';render()});
 
+const uploadCard=$('#uploadCard');
+['dragenter','dragover'].forEach(name=>uploadCard.addEventListener(name,e=>{
+  e.preventDefault();uploadCard.classList.add('dragging');
+}));
+['dragleave','drop'].forEach(name=>uploadCard.addEventListener(name,e=>{
+  e.preventDefault();uploadCard.classList.remove('dragging');
+}));
+uploadCard.addEventListener('drop',async e=>{
+  const selected=[...e.dataTransfer.files];
+  if(selected.length)await uploadFiles(selected);
+});
+
+/* GLOBAL CONTROLS */
+$('#downloadAllBtn').onclick=()=>{
+  const ok=confirm('Download all files as one ZIP? Large clouds may take a long time and the ZIP can be very large.');
+  if(!ok)return;
+  const a=document.createElement('a');
+  a.href='/api/download-all';
+  a.download='my-personal-cloud-all-storage.zip';
+  document.body.appendChild(a);a.click();a.remove();
+};
+$('#refreshBtn').onclick=loadAll;
+$('#logoutBtn').onclick=async()=>{
+  try{await api('/api/auth/logout',{method:'POST'});location.reload()}
+  catch(e){toast(e.message)}
+};
+$('#search').oninput=render;
+$('#sortBtn').onclick=()=>{
+  sortAsc=!sortAsc;
+  $('#sortBtn').textContent=sortAsc?'A–Z':'Z–A';
+  render();
+};
+document.querySelectorAll('[data-section]').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('[data-section]').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  currentSection=btn.dataset.section;
+  $('#sectionTitle').textContent={drive:'My Drive',recent:'Recent',shared:'Shared',trash:'Security'}[currentSection]||'My Drive';
+  render();
+});
+
+/* Fast welcome -> authentication */
 setTimeout(()=>{
   const splash=$('#splash');
   if(splash)splash.classList.add('hide');
   checkAuth();
 },2300);
+
 </script>
 </body>
-                                                             </html>
+    </html>
