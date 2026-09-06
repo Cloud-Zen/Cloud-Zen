@@ -842,142 +842,6 @@ INTRO SCREEN
 }
 
 
-
-/* =========================================================
-INTRO SHOOTING / CRASH / LOADING STAR
-========================================================= */
-
-.intro-line{
-    position:relative;
-}
-
-.intro-progress-star{
-    position:absolute;
-    top:50%;
-    left:-18px;
-    width:20px;
-    height:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transform:translateY(-50%);
-    color:#fff;
-    font-size:22px;
-    line-height:1;
-    text-shadow:0 0 6px rgba(255,255,255,.95),0 0 14px rgba(243,180,207,.95),0 0 24px rgba(255,226,138,.75);
-    filter:drop-shadow(0 0 5px rgba(255,255,255,.85));
-    animation:introProgressStar 2.35s cubic-bezier(.25,.7,.2,1) infinite;
-    z-index:4;
-}
-
-@keyframes introProgressStar{
-    0%{left:-18px;opacity:0;transform:translateY(-50%) scale(.55) rotate(0deg)}
-    7%{opacity:1}
-    45%{opacity:1}
-    92%{opacity:1}
-    100%{left:calc(100% - 2px);opacity:0;transform:translateY(-50%) scale(1.05) rotate(180deg)}
-}
-
-.intro-meteor{
-    position:absolute;
-    left:-12vw;
-    top:8vh;
-    z-index:1;
-    color:#fff;
-    font-size:26px;
-    line-height:1;
-    opacity:0;
-    text-shadow:0 0 5px #fff,0 0 14px rgba(243,180,207,.95),0 0 28px rgba(255,226,138,.85);
-    filter:drop-shadow(0 0 7px rgba(255,255,255,.9));
-    animation:introMeteorCrash 2.55s ease-in infinite;
-    pointer-events:none;
-}
-
-.intro-meteor::after{
-    content:"";
-    position:absolute;
-    width:105px;
-    height:3px;
-    right:17px;
-    top:13px;
-    border-radius:999px;
-    transform:rotate(-25deg);
-    transform-origin:right center;
-    background:linear-gradient(90deg,transparent,rgba(243,180,207,.15),rgba(255,255,255,.95));
-    box-shadow:0 0 12px rgba(243,180,207,.75);
-}
-
-@keyframes introMeteorCrash{
-    0%,8%{opacity:0;transform:translate(0,0) rotate(-8deg) scale(.65)}
-    12%{opacity:1}
-    68%{opacity:1}
-    78%{opacity:1;transform:translate(64vw,39vh) rotate(-8deg) scale(1.08)}
-    80%{opacity:0;transform:translate(66vw,40vh) rotate(-8deg) scale(1.5)}
-    100%{opacity:0;transform:translate(66vw,40vh) scale(1.5)}
-}
-
-.intro-crash{
-    position:absolute;
-    left:calc(54vw - 35px);
-    top:calc(48vh - 35px);
-    width:70px;
-    height:70px;
-    z-index:0;
-    border-radius:50%;
-    pointer-events:none;
-    opacity:0;
-    animation:introCrashFlash 2.55s ease-in infinite;
-}
-
-.intro-crash::before{
-    content:"";
-    position:absolute;
-    inset:18px;
-    border-radius:50%;
-    background:radial-gradient(circle,rgba(255,255,255,1) 0 5%,rgba(255,226,138,.92) 10%,rgba(243,180,207,.48) 28%,transparent 68%);
-    box-shadow:0 0 22px rgba(255,255,255,.9),0 0 55px rgba(243,180,207,.75),0 0 90px rgba(255,226,138,.42);
-}
-
-.intro-crash::after{
-    content:"";
-    position:absolute;
-    inset:-18px;
-    border:2px solid rgba(255,244,247,.7);
-    border-radius:50%;
-    animation:introCrashRing 2.55s ease-in infinite;
-}
-
-.intro-crash span{
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:3px;
-    height:32px;
-    border-radius:999px;
-    transform-origin:50% 0;
-    background:linear-gradient(180deg,#fff,rgba(243,180,207,.9),transparent);
-    box-shadow:0 0 8px rgba(255,255,255,.85);
-}
-
-.intro-crash span:nth-child(1){transform:rotate(20deg)}
-.intro-crash span:nth-child(2){transform:rotate(110deg)}
-.intro-crash span:nth-child(3){transform:rotate(200deg)}
-.intro-crash span:nth-child(4){transform:rotate(290deg)}
-
-@keyframes introCrashFlash{
-    0%,72%{opacity:0;transform:scale(.2)}
-    78%{opacity:1;transform:scale(.55)}
-    82%{opacity:.92;transform:scale(1.15)}
-    91%{opacity:.15;transform:scale(1.75)}
-    100%{opacity:0;transform:scale(2.1)}
-}
-
-@keyframes introCrashRing{
-    0%,76%{opacity:0;transform:scale(.35)}
-    80%{opacity:1;transform:scale(.65)}
-    100%{opacity:0;transform:scale(2.35)}
-}
-
 .intro-subtitle{
 
     max-width:
@@ -3867,9 +3731,6 @@ REDUCE MOTION
     #ambientGlow,
     .intro-logo,
     .intro-welcome,
-    .intro-progress-star,
-    .intro-meteor,
-    .intro-crash,
     .progress::after{
 
         animation:
@@ -3900,6 +3761,26 @@ SMOOTH STAR PERFORMANCE
 
 </style>
 
+
+<style>
+.cz-file-tools{margin:14px 0 0;display:grid;gap:10px}
+.cz-search-wrap{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.04)}
+.cz-search-wrap span{font-size:22px;opacity:.8}.cz-search-wrap input{width:100%;border:0;outline:0;background:transparent;color:inherit;font-size:14px}
+.cz-filter-row{display:flex;gap:7px;overflow:auto;padding-bottom:2px}
+.cz-filter-row button,.cz-bottom-actions button{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:inherit;border-radius:11px;padding:8px 11px;white-space:nowrap;cursor:pointer}
+.cz-filter-row button.active{background:rgba(255,255,255,.14);font-weight:700}
+.cz-bottom-actions{display:flex;gap:8px}.cz-bottom-actions button{flex:1}
+.file-list.list,.file-list.grid{display:grid;gap:10px;margin-top:14px}
+.cz-file-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:11px;border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(255,255,255,.035)}
+.cz-file-main{display:flex;align-items:center;gap:11px;min-width:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;padding:0}
+.cz-file-icon{font-size:25px;width:34px;text-align:center}.cz-file-info{display:grid;min-width:0}.cz-file-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cz-file-info small{opacity:.62;margin-top:3px}
+.cz-file-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.cz-file-actions button{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);color:inherit;border-radius:9px;padding:7px 8px;font-size:11px;cursor:pointer}.cz-file-actions .danger{border-color:rgba(255,100,120,.25)}.cz-file-actions .cz-star{font-size:17px;padding:4px 8px}.cz-file-actions .cz-star.on{font-weight:900}
+.file-list.grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.file-list.grid .cz-file-card{grid-template-columns:1fr}.file-list.grid .cz-file-actions{justify-content:flex-start}
+.cz-empty{min-height:150px;display:grid;place-items:center;text-align:center;gap:5px;padding:25px;opacity:.72}.cz-empty>div:first-child{font-size:30px}.cz-empty span{font-size:12px}.cz-empty button{border:0;border-radius:10px;padding:9px 14px;cursor:pointer}
+.cz-spinner{width:26px;height:26px;border:3px solid rgba(255,255,255,.18);border-top-color:currentColor;border-radius:50%;animation:czspin .8s linear infinite}@keyframes czspin{to{transform:rotate(360deg)}}
+.cz-no-preview{display:grid;place-items:center;text-align:center;gap:9px;padding:35px}.cz-no-preview>div{font-size:45px}.cz-no-preview button{padding:10px 15px;border:0;border-radius:10px;cursor:pointer}
+@media(max-width:620px){.cz-file-card{grid-template-columns:1fr}.cz-file-actions{justify-content:flex-start}.cz-file-actions button{font-size:10px}}
+</style>
 </head>
 
 
@@ -3942,14 +3823,7 @@ INTRO
             my-personal-cloud
         </div>
 
-        <div class="intro-line">
-            <span class="intro-progress-star" aria-hidden="true">✦</span>
-        </div>
-
-        <div class="intro-meteor" aria-hidden="true">✦</div>
-        <div class="intro-crash" aria-hidden="true">
-            <span></span><span></span><span></span><span></span>
-        </div>
+        <div class="intro-line"></div>
 
         <div class="intro-subtitle">
             Preparing Your Private Space
@@ -4374,14 +4248,18 @@ PREVIEW MODAL
 QR LIBRARY
 ========================================================= -->
 
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+></script>
+
+
 <script>
 
 /* =========================================================
 PASSWORD
 ========================================================= */
 
-const VAULT_PASSWORD =
-    "Manish.raju123321";
+/* APP_PASSWORD is verified securely by the Render backend. Never store it in this HTML. */
 
 
 /* =========================================================
@@ -4515,7 +4393,7 @@ function createShootingStar(){
 
     if(
         Math.random() >
-        .62
+        .35
     ){
 
         return;
@@ -5248,7 +5126,7 @@ function drawStars(
 
     if(
         Math.random() <
-        .010
+        .004
     ){
 
         createShootingStar();
@@ -5530,39 +5408,90 @@ function playClick(){
 
 
 /* =========================================================
-GUARANTEED 2.8 SECOND INTRO STARTUP
-The Welcome screen is intentionally independent of window.load
-or external libraries, so a slow CDN cannot keep it stuck.
-========================================================= */
+ INTRO — fixed, independent of window.load/backend/network
+ ========================================================= */
+(function initIntro(){
+    const showPassword = () => {
+        const intro = document.getElementById("introScreen");
+        const password = document.getElementById("passwordScreen");
+        if (intro) intro.classList.add("hide");
+        if (password) password.classList.add("show");
+    };
+    const start = () => setTimeout(showPassword, 2800);
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", start, { once: true });
+    } else {
+        start();
+    }
+})();
 
-(function startIntroScreen(){
+/* =========================================================
+ PASSWORD CHECK — Render APP_PASSWORD
+ ========================================================= */
+function checkPassword(){
+    playClick();
 
-    const intro =
-        document.getElementById("introScreen");
+    const input = document.getElementById("passwordInput");
+    const error = document.getElementById("passwordError");
+    const button = document.querySelector("#passwordScreen button");
+    const password = String(input?.value || "");
 
-    const passwordScreen =
-        document.getElementById("passwordScreen");
-
-    if(!intro || !passwordScreen){
+    if (!password) {
+        if (error) error.textContent = "Enter your password";
         return;
     }
 
-    window.setTimeout(function(){
+    if (button) {
+        button.disabled = true;
+        button.dataset.originalText = button.dataset.originalText || button.textContent;
+        button.textContent = "Checking...";
+    }
+    if (error) error.textContent = "";
 
-        intro.classList.add("hide");
+    fetch("/api/auth/login", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        credentials: "same-origin",
+        body: JSON.stringify({password})
+    })
+    .then(async r => {
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || "Incorrect password");
+        return d;
+    })
+    .then(() => {
+        const passwordScreen = document.getElementById("passwordScreen");
+        const main = document.getElementById("mainContainer");
+        if (error) error.textContent = "";
+        if (passwordScreen) passwordScreen.classList.add("hide");
+        if (main) {
+            main.style.display = "block";
+            requestAnimationFrame(() => requestAnimationFrame(() => main.classList.add("visible")));
+        }
+        const fab = document.getElementById("uploadFab");
+        if (fab) fab.style.display = "block";
+        setTimeout(() => { if (passwordScreen) passwordScreen.style.display = "none"; }, 900);
+        if (typeof initializeQRCode === "function") initializeQRCode();
+        loadFiles();
+        loadStorage();
+    })
+    .catch(err => {
+        if (error) error.textContent = err.message || "Incorrect password";
+        if (input) {
+            input.value = "";
+            input.focus();
+            try { input.animate([{transform:"translateX(0)"},{transform:"translateX(-5px)"},{transform:"translateX(5px)"},{transform:"translateX(0)"}], {duration:240}); } catch (_) {}
+        }
+    })
+    .finally(() => {
+        if (button) {
+            button.disabled = false;
+            button.textContent = button.dataset.originalText || "Enter Password";
+        }
+    });
+}
 
-        window.setTimeout(function(){
-            passwordScreen.classList.add("show");
-        }, 450);
 
-    }, 2800);
-
-})();
-
-
-/* =========================================================
-PASSWORD CHECK
-========================================================= */
 
 function checkPassword(){
 
@@ -6107,22 +6036,341 @@ async function startUpload(){
 }
 
 
+
 /* =========================================================
-YOUR ORIGINAL UPLOAD FUNCTION CONTINUES HERE
-========================================================= */
+ CLOUD-ZEN REAL FILE MANAGER
+ Telegram-backed upload/download/rename/share/delete + search/star
+ ========================================================= */
+(() => {
+    const state = {
+        files: [],
+        filter: "all",
+        query: "",
+        starred: new Set(JSON.parse(localStorage.getItem("cloudZenStarred") || "[]")),
+        config: { chunkSize: 5 * 1024 * 1024, maxFileSize: 20 * 1024 * 1024 * 1024 }
+    };
 
-/*
-    IMPORTANT:
+    const $ = id => document.getElementById(id);
+    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+    const fileKind = f => {
+        const t = String(f.type || "").toLowerCase();
+        if (t.startsWith("image/")) return "image";
+        if (t.startsWith("video/")) return "video";
+        if (t.startsWith("audio/")) return "audio";
+        if (t === "application/pdf" || t.includes("word") || t.includes("document") ||
+            t.includes("spreadsheet") || t.includes("presentation") || /\.(docx?|xlsx?|pptx?)$/i.test(f.name)) return "document";
+        return "other";
+    };
+    const icon = kind => ({image:"🖼️",video:"🎬",audio:"🎵",document:"📄",other:"📦"}[kind] || "📦");
+    const saveStars = () => localStorage.setItem("cloudZenStarred", JSON.stringify([...state.starred]));
 
-    आपके भेजे हुए original code में uploadFile()
-    function यहाँ से "con" पर अधूरा था।
+    async function api(url, options = {}) {
+        const r = await fetch(url, {credentials:"same-origin", ...options});
+        const d = await r.json().catch(() => ({}));
+        if (r.status === 401) {
+            logout(false);
+            throw new Error("Session expired. Please enter your password again.");
+        }
+        if (!r.ok) throw new Error(d.error || `Request failed (${r.status})`);
+        return d;
+    }
 
-    इसलिए आपके existing backend/upload logic को
-    इसी जगह से continue रखें।
+    async function loadConfig() {
+        try { state.config = await api("/api/config"); }
+        catch (_) {}
+    }
 
-    ऊपर का पूरा बदलाव केवल background/star system
-    के लिए किया गया है।
-*/
+    window.loadStorage = async function() {
+        try {
+            const d = await api("/api/storage");
+            const used = Number(d.usedBytes || 0);
+            const usedText = d.usedText || "0 B";
+            if ($("storageValue")) $("storageValue").textContent = `${usedText} / Cloud`;
+            if ($("storageUsedText")) $("storageUsedText").textContent = `${usedText} used`;
+            if ($("storageFill")) $("storageFill").style.width = `${Math.min(100, Number(d.usedPercent || 0))}%`;
+        } catch (e) {
+            if ($("storageUsedText")) $("storageUsedText").textContent = "Storage status unavailable";
+        }
+    };
+
+    function ensureFileTools() {
+        const list = $("fileList");
+        if (!list || document.getElementById("czFileTools")) return;
+        const toolbar = list.parentElement.querySelector(".file-toolbar");
+        if (!toolbar) return;
+        const tools = document.createElement("div");
+        tools.id = "czFileTools";
+        tools.className = "cz-file-tools";
+        tools.innerHTML = `
+          <div class="cz-search-wrap">
+            <span aria-hidden="true">⌕</span>
+            <input id="czSearch" type="search" placeholder="Search files..." autocomplete="off">
+          </div>
+          <div class="cz-filter-row">
+            <button type="button" data-filter="all">All</button>
+            <button type="button" data-filter="image">Images</button>
+            <button type="button" data-filter="video">Videos</button>
+            <button type="button" data-filter="audio">Audio</button>
+            <button type="button" data-filter="document">Documents</button>
+            <button type="button" data-filter="starred">★ Starred</button>
+          </div>
+          <div class="cz-bottom-actions">
+            <button type="button" id="czDownloadAll">Download All</button>
+            <button type="button" id="czLogout">Logout</button>
+          </div>`;
+        toolbar.insertAdjacentElement("afterend", tools);
+
+        $("czSearch").addEventListener("input", e => { state.query = e.target.value.trim().toLowerCase(); renderFiles(); });
+        tools.querySelectorAll("[data-filter]").forEach(btn => btn.addEventListener("click", () => {
+            state.filter = btn.dataset.filter;
+            tools.querySelectorAll("[data-filter]").forEach(x => x.classList.toggle("active", x === btn));
+            renderFiles();
+        }));
+        tools.querySelector('[data-filter="all"]').classList.add("active");
+        $("czDownloadAll").onclick = () => location.href = "/api/download-all";
+        $("czLogout").onclick = () => logout(true);
+    }
+
+    function visibleFiles() {
+        return state.files.filter(f => {
+            const kind = fileKind(f);
+            const matchFilter = state.filter === "all" || state.filter === "starred" ? true : kind === state.filter;
+            const matchStar = state.filter !== "starred" || state.starred.has(f.name);
+            const q = state.query;
+            return matchFilter && matchStar && (!q || String(f.name).toLowerCase().includes(q));
+        });
+    }
+
+    function renderFiles() {
+        const list = $("fileList");
+        if (!list) return;
+        ensureFileTools();
+        const files = visibleFiles();
+        if (!state.files.length) {
+            list.innerHTML = `<div class="cz-empty"><div>☁️</div><strong>No files yet</strong><span>Upload a file to see it here.</span></div>`;
+            return;
+        }
+        if (!files.length) {
+            list.innerHTML = `<div class="cz-empty"><div>⌕</div><strong>No matching files</strong><span>Try another search or category.</span></div>`;
+            return;
+        }
+        const grid = state.view === "grid";
+        list.className = `file-list ${grid ? "grid" : "list"}`;
+        list.innerHTML = files.map(f => {
+            const kind = fileKind(f);
+            const starred = state.starred.has(f.name);
+            const name = escapeHtml(f.name);
+            const encoded = encodeURIComponent(f.name);
+            return `
+            <article class="cz-file-card">
+              <button class="cz-file-main" type="button" data-open="${encoded}" title="Open ${name}">
+                <span class="cz-file-icon">${icon(kind)}</span>
+                <span class="cz-file-info"><strong>${name}</strong><small>${escapeHtml(f.sizeText || "")} · ${kind}</small></span>
+              </button>
+              <div class="cz-file-actions">
+                <button type="button" class="cz-star ${starred ? "on" : ""}" data-star="${encoded}" aria-label="${starred ? "Unstar" : "Star"}">${starred ? "★" : "☆"}</button>
+                <button type="button" data-share="${encoded}">Share</button>
+                <button type="button" data-rename="${encoded}">Rename</button>
+                <button type="button" data-download="${encoded}">Download</button>
+                <button type="button" data-delete="${encoded}" class="danger">Delete</button>
+              </div>
+            </article>`;
+        }).join("");
+
+        list.querySelectorAll("[data-open]").forEach(b => b.onclick = () => openPreview(decodeURIComponent(b.dataset.open)));
+        list.querySelectorAll("[data-star]").forEach(b => b.onclick = () => toggleStar(decodeURIComponent(b.dataset.star)));
+        list.querySelectorAll("[data-share]").forEach(b => b.onclick = () => shareFile(decodeURIComponent(b.dataset.share)));
+        list.querySelectorAll("[data-rename]").forEach(b => b.onclick = () => renameFile(decodeURIComponent(b.dataset.rename)));
+        list.querySelectorAll("[data-download]").forEach(b => b.onclick = () => downloadFile(decodeURIComponent(b.dataset.download)));
+        list.querySelectorAll("[data-delete]").forEach(b => b.onclick = () => deleteFile(decodeURIComponent(b.dataset.delete)));
+    }
+
+    window.initializeFileView = function() {
+        state.view = localStorage.getItem("cloudFileView") || "list";
+        const l = $("listViewButton"), g = $("gridViewButton");
+        if (l) l.classList.toggle("active", state.view === "list");
+        if (g) g.classList.toggle("active", state.view === "grid");
+        ensureFileTools();
+    };
+    window.setFileView = function(view) {
+        state.view = view === "grid" ? "grid" : "list";
+        localStorage.setItem("cloudFileView", state.view);
+        $("listViewButton")?.classList.toggle("active", state.view === "list");
+        $("gridViewButton")?.classList.toggle("active", state.view === "grid");
+        renderFiles();
+    };
+
+    window.loadFiles = async function() {
+        const list = $("fileList");
+        if (list && !state.files.length) list.innerHTML = `<div class="cz-empty"><div class="cz-spinner"></div><span>Loading files...</span></div>`;
+        try {
+            await loadConfig();
+            const files = await api("/api/files");
+            state.files = Array.isArray(files) ? files : [];
+            // Remove stars for files that no longer exist.
+            const names = new Set(state.files.map(f => f.name));
+            state.starred = new Set([...state.starred].filter(n => names.has(n)));
+            saveStars();
+            renderFiles();
+            loadStorage();
+        } catch (e) {
+            if (list) list.innerHTML = `<div class="cz-empty"><div>⚠️</div><strong>Could not load files</strong><span>${escapeHtml(e.message)}</span><button type="button" id="czRetry">Retry</button></div>`;
+            $("czRetry")?.addEventListener("click", loadFiles);
+        }
+    };
+
+    function toggleStar(name) {
+        if (state.starred.has(name)) state.starred.delete(name); else state.starred.add(name);
+        saveStars();
+        renderFiles();
+    }
+
+    async function renameFile(name) {
+        const old = state.files.find(f => f.name === name);
+        const suggestion = name;
+        const next = prompt("Rename file", suggestion);
+        if (next === null) return;
+        const newName = next.trim();
+        if (!newName || newName === name) return;
+        try {
+            const d = await api("/api/files", {
+                method:"PATCH",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({name, newName})
+            });
+            if (state.starred.has(name)) { state.starred.delete(name); state.starred.add(d.file.name); saveStars(); }
+            await loadFiles();
+        } catch(e) { alert(e.message); }
+    }
+
+    async function deleteFile(name) {
+        if (!confirm(`Delete "${name}" permanently?`)) return;
+        try {
+            await api("/api/files", {
+                method:"DELETE",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({name})
+            });
+            state.starred.delete(name); saveStars();
+            await loadFiles();
+        } catch(e) { alert(e.message); }
+    }
+
+    function downloadFile(name) {
+        const a = document.createElement("a");
+        a.href = `/api/download/${encodeURIComponent(name)}`;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
+    async function shareFile(name) {
+        try {
+            const d = await api("/api/share", {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({name, ttlSeconds:86400})
+            });
+            const text = `Cloud-Zen file: ${name}`;
+            if (navigator.share) {
+                try {
+                    await navigator.share({title:name, text, url:d.url});
+                    return;
+                } catch (e) {
+                    if (e?.name === "AbortError") return;
+                }
+            }
+            try {
+                await navigator.clipboard.writeText(d.url);
+                alert("Share link copied. You can paste it into WhatsApp, Telegram, X/Twitter, email, etc.");
+            } catch (_) {
+                prompt("Copy this share link:", d.url);
+            }
+        } catch(e) { alert(e.message); }
+    }
+
+    window.openPreview = async function(name) {
+        const file = state.files.find(f => f.name === name);
+        if (!file) return;
+        const modal = $("previewModal"), title = $("previewModalTitle"), content = $("previewModalContent");
+        if (!modal || !content) return;
+        title.textContent = file.name;
+        const url = `/api/stream/${encodeURIComponent(file.name)}`;
+        const kind = fileKind(file);
+        if (kind === "image") content.innerHTML = `<img src="${url}" alt="">`;
+        else if (kind === "video") content.innerHTML = `<video src="${url}" controls playsinline preload="metadata"></video>`;
+        else if (kind === "audio") content.innerHTML = `<audio src="${url}" controls preload="metadata"></audio>`;
+        else if (file.type === "application/pdf") content.innerHTML = `<iframe src="${url}" style="width:100%;height:72vh;border:0"></iframe>`;
+        else if (String(file.type || "").startsWith("text/")) content.innerHTML = `<iframe src="${url}" style="width:100%;height:72vh;border:0"></iframe>`;
+        else content.innerHTML = `<div class="cz-no-preview"><div>${icon(kind)}</div><strong>Preview not available</strong><span>You can download this file.</span><button type="button" id="czPreviewDownload">Download</button></div>`;
+        modal.classList.add("show");
+        $("czPreviewDownload")?.addEventListener("click", () => downloadFile(name));
+    };
+    window.closePreview = function() {
+        const modal = $("previewModal"), content = $("previewModalContent");
+        if (content) content.innerHTML = "";
+        modal?.classList.remove("show");
+    };
+
+    async function logout(showMessage) {
+        try { await fetch("/api/auth/logout", {method:"POST", credentials:"same-origin"}); } catch (_) {}
+        state.files = [];
+        const main = $("mainContainer"), password = $("passwordScreen"), intro = $("introScreen"), fab = $("uploadFab");
+        if (fab) fab.style.display = "none";
+        if (main) { main.classList.remove("visible"); main.style.display = "none"; }
+        if (password) { password.style.display = ""; password.classList.remove("hide"); password.classList.add("show"); }
+        if (intro) intro.classList.remove("hide");
+        const input = $("passwordInput"); if (input) { input.value = ""; input.focus(); }
+        if (showMessage && $("passwordError")) $("passwordError").textContent = "Logged out. Enter password again.";
+    }
+    window.logout = logout;
+
+    // Close preview by tapping outside the card.
+    $("previewModal")?.addEventListener("click", e => { if (e.target.id === "previewModal") closePreview(); });
+
+    // Upload using the server's actual CHUNK_SIZE, with retries.
+    window.uploadFile = async function(file, fileIndex = 0, fileCount = 1) {
+        const chunkSize = Number(state.config.chunkSize) || 5 * 1024 * 1024;
+        const total = Math.ceil(file.size / chunkSize);
+        if (total > Number(state.config.maxChunks || 100000)) throw new Error("This file has too many chunks.");
+        const id = crypto.randomUUID();
+        const maxRetries = 4;
+        const status = $("status"), progress = $("progress");
+
+        for (let i = 0; i < total; i++) {
+            const start = i * chunkSize, end = Math.min(file.size, start + chunkSize);
+            const blob = file.slice(start, end);
+            let lastError;
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const r = await fetch(`/api/upload-chunk?id=${encodeURIComponent(id)}&index=${i}&total=${total}&size=${file.size}&name=${encodeURIComponent(file.name)}`, {
+                        method:"POST",
+                        headers:{"Content-Type":"application/octet-stream"},
+                        credentials:"same-origin",
+                        body:blob
+                    });
+                    const d = await r.json().catch(() => ({}));
+                    if (!r.ok) throw new Error(d.error || `Chunk ${i+1} failed`);
+                    lastError = null;
+                    break;
+                } catch (e) {
+                    lastError = e;
+                    if (attempt < maxRetries) await new Promise(r => setTimeout(r, Math.min(1500 * attempt, 5000)));
+                }
+            }
+            if (lastError) throw lastError;
+            const percent = Math.round(((i + 1) / total) * 100);
+            if (progress) progress.style.width = `${percent}%`;
+            if (status) status.textContent = `Uploading ${fileIndex + 1}/${fileCount}: ${file.name} — ${percent}%`;
+        }
+    };
+
+    // Escape key closes preview.
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closePreview(); });
+})();
 
 
 /* =========================================================
@@ -6142,13 +6390,6 @@ if(
 }
 
 </script>
-
-
-<!-- QR library is intentionally loaded after the main app script so it
-     cannot delay the 2.8-second Welcome screen. -->
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-></script>
 
 
 </body>
