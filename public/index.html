@@ -15,7 +15,7 @@
     content="#030308"
 >
 
-<title>My Personal Cloud - Private Access</title>
+<title>Cloud Zen - Private Access</title>
 
 <style>
 
@@ -1514,212 +1514,6 @@ input[type="password"]::placeholder{
 
 
 /* =========================================================
-   MULTI-STORAGE DETAILS — ADDED WITHOUT REMOVING ORIGINAL UI
-========================================================= */
-
-.storageDetailsCard{
-
-    margin-top:14px;
-
-    padding:18px;
-
-    border:
-        1px solid
-        var(--line);
-
-    border-radius:22px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(24,44,68,.62),
-            rgba(10,22,36,.58)
-        );
-
-    backdrop-filter:blur(18px);
-
-    -webkit-backdrop-filter:blur(18px);
-}
-
-.storageDetailsHead{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-    margin-bottom:12px;
-}
-
-.storageDetailsTitle{
-
-    margin:0;
-
-    font-size:14px;
-
-    font-weight:900;
-}
-
-.storageDetailsSub{
-
-    margin:4px 0 0;
-
-    color:#8193a9;
-
-    font-size:11px;
-}
-
-.storageDetailsRefresh{
-
-    border:1px solid var(--line);
-
-    background:rgba(255,255,255,.045);
-
-    color:#dbe5f2;
-
-    border-radius:11px;
-
-    padding:8px 11px;
-
-    cursor:pointer;
-
-    font-size:11px;
-
-    font-weight:800;
-}
-
-.storageProviderGrid{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,minmax(0,1fr));
-
-    gap:10px;
-}
-
-.storageProvider{
-
-    min-width:0;
-
-    padding:13px;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    border-radius:16px;
-
-    background:rgba(255,255,255,.028);
-}
-
-.storageProviderTop{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:8px;
-}
-
-.storageProviderName{
-
-    font-size:12px;
-
-    font-weight:900;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-}
-
-.storageProviderPercent{
-
-    font-size:11px;
-
-    font-weight:900;
-
-    color:var(--blue);
-}
-
-.storageProviderBar{
-
-    height:6px;
-
-    margin-top:10px;
-
-    overflow:hidden;
-
-    border-radius:99px;
-
-    background:rgba(255,255,255,.07);
-}
-
-.storageProviderFill{
-
-    width:0%;
-
-    height:100%;
-
-    border-radius:99px;
-
-    background:linear-gradient(90deg,#75c4ff,#a9a0ff,#9eeaff);
-
-    transition:width .35s ease;
-}
-
-.storageProviderMeta{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    gap:8px;
-
-    margin-top:8px;
-
-    color:#8295ac;
-
-    font-size:10px;
-}
-
-.storageProviderStatus{
-
-    margin-top:7px;
-
-    color:#7ee7b2;
-
-    font-size:10px;
-}
-
-.storageProviderStatus.offline{
-    color:#ff9eb8;
-}
-
-.storageProviderStatus.unconfigured{
-    color:#ffd978;
-}
-
-@media(max-width:760px){
-
-    .storageProviderGrid{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-    }
-}
-
-@media(max-width:470px){
-
-    .storageProviderGrid{
-        grid-template-columns:1fr;
-    }
-}
-
-
-/* =========================================================
    TOOLBAR
 ========================================================= */
 
@@ -2035,15 +1829,6 @@ input[type="password"]::placeholder{
     gap:10px;
 
     margin-top:16px;
-}
-
-.queueRemaining{
-
-    margin-top:5px;
-
-    color:#8295ac;
-
-    font-size:10px;
 }
 
 .queueItem{
@@ -2971,22 +2756,6 @@ input[type="password"]::placeholder{
 
 @media(max-width:450px){
 
-    .topbar{
-        align-items:flex-start;
-    }
-
-    .topActions{
-        flex-wrap:wrap;
-        justify-content:flex-end;
-        max-width:180px;
-    }
-
-    .iconButton,
-    .logout{
-        min-width:40px;
-        min-height:40px;
-    }
-
     .loginCard{
 
         width:92%;
@@ -3094,24 +2863,249 @@ input[type="password"]::placeholder{
 
 
 /* =========================================================
-   UI UPGRADE — STORAGE ACCORDION + QUICK ACTION MENU
-   Added only; original styles and elements remain intact.
+   CLOUD ZEN VISUAL UPGRADE — DARK LUXURY GLASS THEME
+   Keeps the existing application/API structure intact.
 ========================================================= */
-.storageDetailsCard.storageCompact .storageProviderGrid{display:none;}
-.storageDetailsCard.storageCompact .storageDetailsHead{margin-bottom:0;}
-.storageAccordionButton{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:#dbe5f2;border-radius:11px;padding:8px 11px;cursor:pointer;font-size:11px;font-weight:850;white-space:nowrap;transition:transform .18s ease,background .18s ease;}
-.storageAccordionButton:hover{background:rgba(255,255,255,.08);transform:translateY(-1px);}
-.storageAccordionButton .accordionChevron{display:inline-block;transition:transform .22s ease;}
-.fileActions{position:relative;}
-.fileActions .fileMoreButton{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);color:#dbe5f2;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;line-height:1;letter-spacing:2px;transition:background .18s ease,transform .18s ease;}
-.fileActions .fileMoreButton:hover{background:rgba(255,255,255,.09);transform:translateY(-1px);}
-.fileActions .fileAction{display:none;}
-.fileCard.quickActionsOpen .fileActions .fileAction{display:block;}
-.fileCard.quickActionsOpen .fileActions .fileMoreButton{display:none;}
-.fileCard:not(.quickActionsOpen) .deleteRow{display:none !important;}
-.fileCard.quickActionsOpen .deleteRow{display:flex !important;}
-@media(max-width:760px){.storageProviderGrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(220px,82%);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.storageProvider{scroll-snap-align:start;}}
-@media(max-width:470px){.storageAccordionButton{padding:8px 9px;}}
+:root{
+    --bg:#07080d;
+    --bg2:#0b0c14;
+    --panel:rgba(18,18,25,.64);
+    --panel-strong:rgba(13,13,20,.84);
+    --text:#f7f4f7;
+    --muted:#a9a5b2;
+    --peach:#f3b4cf;
+    --peach2:#f6c2ae;
+    --gold:#ffe28a;
+    --lav:#c5b8ff;
+    --blue:#b9c9ff;
+    --line:rgba(255,255,255,.12);
+    --line2:rgba(243,180,207,.34);
+    --shadow:0 28px 90px rgba(0,0,0,.52);
+    --radius:28px;
+}
+
+body{
+    background:
+        radial-gradient(circle at 12% 8%,rgba(243,180,207,.13),transparent 27%),
+        radial-gradient(circle at 87% 28%,rgba(185,201,255,.12),transparent 31%),
+        radial-gradient(circle at 50% 100%,rgba(255,226,138,.08),transparent 34%),
+        linear-gradient(145deg,#07080d 0%,#0a0b12 46%,#07080d 100%);
+}
+
+#space-canvas{opacity:.96;}
+
+.cloudScene{opacity:.52;}
+.cloud{opacity:.075;filter:blur(42px);}
+
+#introScreen{
+    background:
+        radial-gradient(circle at 50% 42%,rgba(22,23,34,.18),transparent 38%),
+        linear-gradient(180deg,rgba(4,5,10,.48),rgba(4,5,10,.78));
+    backdrop-filter:blur(1px);
+    -webkit-backdrop-filter:blur(1px);
+}
+
+.introContent{width:min(560px,90vw);}
+
+.introLogo,
+.loginIcon,
+.brandLogo{
+    position:relative;
+    overflow:visible;
+}
+
+.introLogo{
+    width:118px;
+    height:118px;
+    margin:0 auto 34px;
+    border-radius:34px;
+    background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:
+        inset 0 0 42px rgba(255,255,255,.035),
+        0 0 70px rgba(243,180,207,.10),
+        0 25px 70px rgba(0,0,0,.38);
+}
+
+.introLogo::after,
+.loginIcon::after,
+.brandLogo::after{
+    content:"";
+    position:absolute;
+    left:50%;top:50%;
+    width:42px;height:42px;
+    transform:translate(-50%,-50%) rotate(45deg);
+    background:linear-gradient(135deg,#fff 0%,#fff 42%,#ffe7cf 100%);
+    clip-path:polygon(50% 0%,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0% 50%,38% 38%);
+    border-radius:6px;
+    filter:drop-shadow(0 0 13px rgba(255,255,255,.55));
+    animation:zenStarPulse 2.6s ease-in-out infinite;
+}
+
+.introLogo::before{
+    inset:-15px;
+    border-radius:43px;
+    border:1px solid rgba(243,180,207,.22);
+}
+
+@keyframes zenStarPulse{
+    0%,100%{opacity:.88;filter:drop-shadow(0 0 8px rgba(255,255,255,.38));transform:translate(-50%,-50%) rotate(45deg) scale(.96)}
+    50%{opacity:1;filter:drop-shadow(0 0 18px rgba(255,224,177,.82));transform:translate(-50%,-50%) rotate(45deg) scale(1.10)}
+}
+
+.introWelcome{
+    background:linear-gradient(90deg,#e9a9bf 0%,#f2b5c9 34%,#f6c2ae 67%,#ffe28a 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 24px rgba(243,180,207,.18));
+    font-size:clamp(52px,13vw,82px);
+    letter-spacing:-.07em;
+}
+
+.introSub{
+    color:#f2eef3;
+    font-size:18px;
+    font-weight:600;
+    letter-spacing:.42em;
+    text-transform:lowercase;
+    text-shadow:0 0 18px rgba(255,255,255,.12);
+}
+
+.loadingLine{
+    width:min(390px,78vw);
+    height:4px;
+    background:rgba(255,255,255,.10);
+    box-shadow:0 0 24px rgba(243,180,207,.10);
+}
+
+.loadingLine::before{
+    background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a,#f3b4cf);
+    box-shadow:0 0 18px rgba(243,180,207,.72),0 0 28px rgba(255,226,138,.30);
+    animation:loadingSweep 1.18s cubic-bezier(.22,.61,.36,1) infinite;
+}
+
+.loadingLine::after{
+    content:"✦";
+    position:absolute;
+    top:50%;left:-12px;
+    z-index:2;
+    width:20px;height:20px;
+    display:grid;place-items:center;
+    color:#fff;
+    font-size:13px;
+    text-shadow:0 0 8px #fff,0 0 18px #ffd9b5;
+    transform:translateY(-50%);
+    animation:loadingStar 1.18s cubic-bezier(.22,.61,.36,1) infinite;
+}
+
+@keyframes loadingStar{
+    0%{left:-12px;opacity:0;transform:translateY(-50%) scale(.45) rotate(0)}
+    10%{opacity:1}
+    78%{opacity:1}
+    92%{opacity:0;transform:translateY(-50%) scale(1.28) rotate(35deg)}
+    100%{left:calc(100% - 8px);opacity:0;transform:translateY(-50%) scale(.5) rotate(60deg)}
+}
+
+/* Private Access — screenshot-style dark glass card */
+.loginWrap{
+    background:
+        radial-gradient(circle at 18% 25%,rgba(243,180,207,.10),transparent 27%),
+        radial-gradient(circle at 82% 65%,rgba(185,201,255,.09),transparent 28%),
+        linear-gradient(180deg,rgba(5,6,11,.74),rgba(5,6,11,.88));
+}
+.loginWrap::before,.loginWrap::after{display:none;}
+.loginCard{
+    width:min(614px,calc(100vw - 38px));
+    max-width:614px;
+    padding:48px 48px 44px;
+    text-align:left;
+    border-radius:34px;
+    border:1px solid rgba(255,255,255,.15);
+    background:linear-gradient(145deg,rgba(24,23,31,.72),rgba(10,10,16,.78));
+    backdrop-filter:blur(26px) saturate(120%);
+    -webkit-backdrop-filter:blur(26px) saturate(120%);
+    box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06),0 0 80px rgba(243,180,207,.035);
+}
+.loginIcon{
+    width:142px;height:142px;
+    margin:0 0 42px;
+    border-radius:40px;
+    background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(243,180,207,.055));
+    border:1px solid rgba(255,224,138,.30);
+    box-shadow:inset 0 0 40px rgba(255,224,138,.035),0 0 42px rgba(243,180,207,.06);
+}
+.loginIcon::after{width:48px;height:48px;}
+.loginTitle{
+    font-size:clamp(40px,9vw,62px);
+    letter-spacing:-.055em;
+    font-weight:950;
+    background:linear-gradient(90deg,#fff 0%,#fff 27%,#f3b4cf 55%,#ffe28a 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-bottom:20px;
+}
+.loginText{color:#aaa6b1;font-size:20px;line-height:1.65;margin-bottom:34px;}
+input[type="password"]{
+    min-height:74px;
+    padding:18px 22px;
+    border-radius:24px;
+    background:rgba(3,3,8,.72);
+    border:1px solid rgba(243,180,207,.34);
+    color:#fff;font-size:20px;
+}
+input[type="password"]::placeholder{color:#85818d;}
+input[type="password"]:focus{border-color:rgba(243,180,207,.72);box-shadow:0 0 0 4px rgba(243,180,207,.07),0 0 30px rgba(243,180,207,.08);}
+.primary{
+    min-height:74px;
+    margin-top:20px;
+    border-radius:24px;
+    font-size:20px;
+    font-weight:950;
+    background:linear-gradient(100deg,#f3b4cf 0%,#f6c2ae 46%,#ffe28a 100%);
+    box-shadow:0 16px 42px rgba(243,180,207,.16);
+}
+.errorText{font-size:14px;color:#ff9eb8;}
+
+/* Dashboard glass */
+.dashboard{max-width:1220px;}
+.brandLogo{
+    width:54px;height:54px;border-radius:18px;
+    background:linear-gradient(145deg,rgba(243,180,207,.13),rgba(255,226,138,.08));
+    border:1px solid rgba(255,255,255,.15);
+}
+.brandLogo::after{width:24px;height:24px;}
+.brandTitle{
+    background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.storageCard,.fileCard,.empty,.qrBox,.viewerBox,.uploadCard{
+    background:linear-gradient(145deg,rgba(24,23,31,.68),rgba(9,9,15,.76));
+    border-color:rgba(255,255,255,.12);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+    box-shadow:0 22px 70px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.035);
+}
+.storageCard::after{background:radial-gradient(circle,rgba(243,180,207,.15),transparent 68%);}
+.progressBar,.queueProgress>div{background:linear-gradient(90deg,#f3b4cf,#f6c2ae,#ffe28a);box-shadow:0 0 18px rgba(243,180,207,.30);}
+.cloudTab.active,.viewBtn.active{background:linear-gradient(100deg,rgba(243,180,207,.25),rgba(255,226,138,.16));color:#fff;}
+.uploadButton{background:linear-gradient(100deg,#f3b4cf,#f6c2ae,#ffe28a);box-shadow:0 12px 32px rgba(243,180,207,.13);}
+.fileCard:hover{border-color:rgba(243,180,207,.28);box-shadow:0 25px 70px rgba(0,0,0,.35);}
+.fileAction:hover,.iconButton:hover,.logout:hover,.refresh:hover{border-color:rgba(243,180,207,.30);background:rgba(243,180,207,.08);}
+
+@media (max-width:640px){
+    #app{padding-left:14px;padding-right:14px;}
+    .loginCard{padding:38px 28px 30px;border-radius:30px;}
+    .loginIcon{width:112px;height:112px;border-radius:32px;margin-bottom:30px;}
+    .loginTitle{font-size:42px;}
+    .loginText{font-size:17px;margin-bottom:28px;}
+    input[type="password"],.primary{min-height:68px;font-size:18px;border-radius:21px;}
+    .introLogo{width:108px;height:108px;border-radius:32px;margin-bottom:28px;}
+    .introSub{font-size:14px;letter-spacing:.34em;}
+    .topbar{align-items:flex-start;}
+}
+
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;}
+}
+
 </style>
 
 
@@ -3155,16 +3149,14 @@ input[type="password"]::placeholder{
 
     <div class="introContent">
 
-        <div class="introLogo">
-            ☁
-        </div>
+        <div class="introLogo" aria-label="Cloud Zen logo"></div>
 
         <h1 class="introWelcome">
             Welcome
         </h1>
 
         <p class="introSub">
-            My Personal Cloud
+            Cloud Zen
         </p>
 
         <div class="loadingLine"></div>
@@ -3192,9 +3184,7 @@ input[type="password"]::placeholder{
 
         <div class="loginCard">
 
-            <div class="loginIcon">
-                PRIVATE
-            </div>
+            <div class="loginIcon" aria-label="Cloud Zen logo"></div>
 
 
             <h1 class="loginTitle">
@@ -3256,14 +3246,12 @@ input[type="password"]::placeholder{
 
             <div class="brand">
 
-                <div class="brandLogo">
-                    ☁
-                </div>
+                <div class="brandLogo" aria-label="Cloud Zen logo"></div>
 
                 <div>
 
                     <h1 class="brandTitle">
-                        My Personal Cloud
+                        Cloud Zen
                     </h1>
 
                     <p class="brandStatus">
@@ -3292,15 +3280,6 @@ input[type="password"]::placeholder{
                     title="Refresh"
                 >
                     ↻
-                </button>
-
-
-                <button
-                    id="downloadAllButton"
-                    class="iconButton qrButton"
-                    title="Download all files from all connected storages as one ZIP"
-                >
-                    ↓ All
                 </button>
 
 
@@ -3370,44 +3349,6 @@ input[type="password"]::placeholder{
         </section>
 
 
-        <section
-            id="storageDetailsCard"
-            class="storageDetailsCard"
-        >
-
-            <div class="storageDetailsHead">
-
-                <div>
-
-                    <h2 class="storageDetailsTitle">
-                        Storage Locations
-                    </h2>
-
-                    <p class="storageDetailsSub">
-                        See used space and free space for every connected cloud.
-                    </p>
-
-                </div>
-
-                <button
-                    id="storageDetailsRefresh"
-                    class="storageDetailsRefresh"
-                    type="button"
-                >
-                    Refresh
-                </button>
-
-            </div>
-
-
-            <div
-                id="storageProviderGrid"
-                class="storageProviderGrid"
-            ></div>
-
-        </section>
-
-
         <div class="cloudToolbar">
 
             <div class="searchBox">
@@ -3417,7 +3358,7 @@ input[type="password"]::placeholder{
                 <input
                     id="searchInput"
                     type="search"
-                    placeholder="Search your personal cloud..."
+                    placeholder="Search your Cloud Zen..."
                     autocomplete="off"
                 >
 
@@ -3647,7 +3588,7 @@ input[type="password"]::placeholder{
         </h3>
 
         <p class="qrText">
-            Scan to open My Personal Cloud
+            Scan to open Cloud Zen
         </p>
 
         <div id="qrCode"></div>
@@ -3733,15 +3674,24 @@ for(
 
         radius:
             Math.random() *
-            1.5,
+            1.55 + .18,
 
         alpha:
-            Math.random(),
+            Math.random() * .75 + .20,
 
         speed:
             Math.random() *
             .02 +
-            .005
+            .005,
+
+        color:
+            [
+                "#ffffff",
+                "#ffe2cf",
+                "#ffd7e8",
+                "#dbe3ff",
+                "#fff0b5"
+            ][Math.floor(Math.random() * 5)]
     });
 }
 
@@ -3767,13 +3717,13 @@ function addShootingStar(){
 
         length:
             Math.random() *
-            80 +
-            40,
+            95 +
+            55,
 
         speed:
             Math.random() *
             6 +
-            4,
+            5,
 
         angle:
             Math.PI / 4,
@@ -3844,18 +3794,17 @@ function animateStars(){
             );
 
 
-            ctx.fillStyle =
-                `rgba(
-                    255,
-                    255,
-                    255,
-                    ${Math.abs(
-                        star.alpha
-                    )}
-                )`;
+            ctx.fillStyle = star.color || "#ffffff";
 
+            if(star.radius > 1.0){
+                ctx.shadowBlur = 7;
+                ctx.shadowColor = star.color || "#ffffff";
+            }
 
+            ctx.globalAlpha = Math.abs(star.alpha);
             ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
         }
     );
 
@@ -3963,7 +3912,7 @@ function animateStars(){
 
             for(
                 let p = 0;
-                p < 25;
+                p < 34;
                 p++
             ){
 
@@ -4162,21 +4111,6 @@ const storageUsed =
 const storageRemaining =
     document.getElementById(
         "storageRemaining"
-    );
-
-const storageProviderGrid =
-    document.getElementById(
-        "storageProviderGrid"
-    );
-
-const storageDetailsRefresh =
-    document.getElementById(
-        "storageDetailsRefresh"
-    );
-
-const downloadAllButton =
-    document.getElementById(
-        "downloadAllButton"
     );
 
 const searchInput =
@@ -4447,7 +4381,7 @@ function welcomeVoice(){
 
         const utterance =
             new SpeechSynthesisUtterance(
-                "Welcome to My Personal Cloud"
+                "Welcome to Cloud Zen"
             );
 
         utterance.rate =
@@ -4909,260 +4843,7 @@ async function loadStorage(){
 
     storageRemaining.textContent =
         `Free: ${data.remainingText}`;
-
-
-    renderStorageProviders(data);
 }
-
-
-function renderStorageProviders(data){
-
-    if(!storageProviderGrid){
-        return;
-    }
-
-
-    const providers = [
-
-        {
-            key:"b2",
-            name:"Backblaze B2",
-            data:data.b2 || {}
-        },
-
-        {
-            key:"mega",
-            name:"MEGA",
-            data:data.mega || {}
-        },
-
-        {
-            key:"idriveE2",
-            name:"IDrive E2",
-            data:data.idriveE2 || {}
-        },
-
-        {
-            key:"cloudinary",
-            name:"Cloudinary",
-            data:data.cloudinary || {}
-        },
-
-        {
-            key:"filebase",
-            name:"Filebase",
-            data:data.filebase || {}
-        },
-
-        {
-            key:"koofr",
-            name:"Koofr",
-            data:data.koofr || {}
-        }
-    ];
-
-
-    storageProviderGrid.innerHTML = "";
-
-
-    providers.forEach(provider => {
-
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "storageProvider";
-
-
-        const configured =
-            provider.data.configured !== false;
-
-        const connected =
-            provider.data.connected !== false;
-
-        const used =
-            Number(
-                provider.data.usedBytes ??
-                provider.data.totalBytes ??
-                0
-            );
-
-        const capacity =
-            Number(
-                provider.data.capacityBytes ??
-                provider.data.limitBytes ??
-                0
-            );
-
-        const remaining =
-            Number(
-                provider.data.remainingBytes ??
-                Math.max(0, capacity - used)
-            );
-
-        const percent =
-            capacity > 0
-                ? Math.min(
-                    100,
-                    (used / capacity) * 100
-                )
-                : 0;
-
-        const safePercent =
-            Number(percent.toFixed(2));
-
-        let statusText = "Connected";
-        let statusClass = "";
-
-        if(!configured){
-            statusText = "Not configured";
-            statusClass = "unconfigured";
-        }else if(!connected){
-            statusText = "Not connected";
-            statusClass = "offline";
-        }else if(safePercent >= 99.5){
-            statusText = "Near storage limit";
-            statusClass = "offline";
-        }
-
-
-        item.innerHTML = `
-            <div class="storageProviderTop">
-                <div class="storageProviderName">
-                    ${escapeHtml(provider.name)}
-                </div>
-                <div class="storageProviderPercent">
-                    ${configured ? safePercent : 0}%
-                </div>
-            </div>
-
-            <div class="storageProviderBar">
-                <div
-                    class="storageProviderFill"
-                    style="width:${configured ? safePercent : 0}%"
-                ></div>
-            </div>
-
-            <div class="storageProviderMeta">
-                <span>Used: ${escapeHtml(
-                    provider.data.usedText ||
-                    formatClientBytes(used)
-                )}</span>
-                <span>Free: ${escapeHtml(
-                    provider.data.remainingText ||
-                    formatClientBytes(remaining)
-                )}</span>
-            </div>
-
-            <div class="storageProviderStatus ${statusClass}">
-                ${escapeHtml(statusText)}
-            </div>
-        `;
-
-        storageProviderGrid.appendChild(item);
-    });
-}
-
-
-function formatClientBytes(bytes){
-
-    const value = Number(bytes) || 0;
-
-    if(value <= 0){
-        return "0 B";
-    }
-
-    const units = ["B","KB","MB","GB","TB"];
-
-    const index = Math.min(
-        units.length - 1,
-        Math.floor(
-            Math.log(value) /
-            Math.log(1024)
-        )
-    );
-
-    return `${(
-        value /
-        Math.pow(1024,index)
-    ).toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
-}
-
-
-
-/* =========================================================
-   STORAGE ACCORDION — COLLAPSE LONG PROVIDER LIST
-========================================================= */
-(function initStorageAccordion(){
-    const detailsCard = document.getElementById("storageDetailsCard");
-    const head = detailsCard?.querySelector(".storageDetailsHead");
-    if(!detailsCard || !head) return;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "storageAccordionButton";
-    button.innerHTML = `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`;
-
-    button.addEventListener("click", () => {
-        const collapsed = detailsCard.classList.toggle("storageCompact");
-        button.innerHTML = collapsed
-            ? `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`
-            : `Hide <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌃</span>`;
-    });
-
-    head.appendChild(button);
-    detailsCard.classList.add("storageCompact");
-})();
-
-storageDetailsRefresh?.addEventListener(
-    "click",
-    async () => {
-        try{
-            storageDetailsRefresh.disabled = true;
-            storageDetailsRefresh.textContent = "Loading...";
-            await loadStorage();
-        }catch(error){
-            console.error(error);
-            showToast(
-                error.message ||
-                "Could not refresh storage"
-            );
-        }finally{
-            storageDetailsRefresh.disabled = false;
-            storageDetailsRefresh.textContent = "Refresh";
-        }
-    }
-);
-
-
-downloadAllButton?.addEventListener(
-    "click",
-    () => {
-
-        const confirmed =
-            window.confirm(
-                "Download all files from every connected storage as one ZIP? Large clouds may take a long time and the ZIP can be very large."
-            );
-
-        if(!confirmed){
-            return;
-        }
-
-        const a =
-            document.createElement("a");
-
-        a.href =
-            "/api/download-all";
-
-        a.download =
-            "my-personal-cloud-all-storage.zip";
-
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-    }
-);
-
 
 
 /* =========================================================
@@ -6007,43 +5688,10 @@ function createFileCard(
     );
 
 
-    const more =
-        document.createElement(
-            "button"
-        );
-
-    more.className =
-        "fileMoreButton";
-
-    more.type =
-        "button";
-
-    more.title =
-        "More actions";
-
-    more.setAttribute(
-        "aria-label",
-        "More actions"
-    );
-
-    more.textContent =
-        "•••";
-
-    more.addEventListener(
-        "click",
-        event => {
-            event.stopPropagation();
-            card.classList.toggle(
-                "quickActionsOpen"
-            );
-        }
-    );
-
     actions.append(
         open,
         download,
-        share,
-        more
+        share
     );
 
 
@@ -6081,26 +5729,6 @@ function createFileCard(
         info
     );
 
-
-    let longPressTimer = null;
-
-    const startLongPress = event => {
-        if(event.pointerType === "mouse") return;
-        clearTimeout(longPressTimer);
-        longPressTimer = setTimeout(() => {
-            card.classList.add("quickActionsOpen");
-        }, 520);
-    };
-
-    const cancelLongPress = () => {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-    };
-
-    card.addEventListener("pointerdown", startLongPress, {passive:true});
-    card.addEventListener("pointerup", cancelLongPress);
-    card.addEventListener("pointercancel", cancelLongPress);
-    card.addEventListener("pointerleave", cancelLongPress);
 
     return card;
 }
@@ -6211,7 +5839,7 @@ async function shareFile(
                     file.name,
 
                 text:
-                    `Shared from My Personal Cloud: ${file.name}`,
+                    `Shared from Cloud Zen: ${file.name}`,
 
                 url
             });
@@ -6986,31 +6614,65 @@ async function uploadFile(
             });
 
 
-        await uploadChunkWithProgress(
-            "/api/upload-chunk?" +
-            params.toString(),
-            blob,
-            (loaded) => {
+        const response =
+            await fetch(
+                "/api/upload-chunk?" +
+                params.toString(),
+                {
 
-                const currentUploaded =
-                    uploaded + loaded;
+                    method:"POST",
 
-                const percent =
-                    file.size
-                        ? currentUploaded /
-                            file.size *
-                            100
-                        : 100;
+                    credentials:
+                        "same-origin",
 
-                updateQueue(
-                    queue,
-                    percent,
-                    false,
-                    currentUploaded,
-                    file.size
-                );
-            }
-        );
+                    headers:{
+                        "Content-Type":
+                            "application/octet-stream",
+
+                        "Content-Length":
+                            String(
+                                blob.size
+                            )
+                    },
+
+                    body:blob
+                }
+            );
+
+
+        let data = null;
+
+
+        try{
+
+            data =
+                await response.json();
+
+        }catch(_){}
+
+
+        if(
+            response.status ===
+            401
+        ){
+
+            showLogin();
+
+            throw new Error(
+                "Session expired"
+            );
+        }
+
+
+        if(
+            !response.ok
+        ){
+
+            throw new Error(
+                data?.error ||
+                "Upload failed"
+            );
+        }
 
 
         uploaded +=
@@ -7019,14 +6681,12 @@ async function uploadFile(
 
         updateQueue(
             queue,
+
             file.size
                 ? uploaded /
                     file.size *
                     100
-                : 100,
-            false,
-            uploaded,
-            file.size
+                : 100
         );
     }
 
@@ -7034,9 +6694,7 @@ async function uploadFile(
     updateQueue(
         queue,
         100,
-        true,
-        file.size,
-        file.size
+        true
     );
 
 
@@ -7045,139 +6703,10 @@ async function uploadFile(
     );
 
 
-    try{
-        await loadStorage();
-    }catch(error){
-        console.error(
-            "STORAGE REFRESH AFTER UPLOAD ERROR:",
-            error
-        );
-    }
-
-
     showToast(
         `${file.name} uploaded`
     );
 }
-
-
-function uploadChunkWithProgress(
-    url,
-    blob,
-    onProgress
-){
-
-    return new Promise(
-        (resolve, reject) => {
-
-            const xhr =
-                new XMLHttpRequest();
-
-            xhr.open(
-                "POST",
-                url,
-                true
-            );
-
-            xhr.withCredentials =
-                true;
-
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/octet-stream"
-            );
-
-            xhr.setRequestHeader(
-                "Content-Length",
-                String(blob.size)
-            );
-
-            xhr.upload.onprogress =
-                event => {
-
-                    if(
-                        event.lengthComputable
-                    ){
-
-                        onProgress(
-                            event.loaded
-                        );
-                    }
-                };
-
-            xhr.onerror =
-                () => {
-                    reject(
-                        new Error(
-                            "Network error during upload"
-                        )
-                    );
-                };
-
-            xhr.onabort =
-                () => {
-                    reject(
-                        new Error(
-                            "Upload cancelled"
-                        )
-                    );
-                };
-
-            xhr.onload =
-                async () => {
-
-                    let data = null;
-
-                    try{
-                        data =
-                            JSON.parse(
-                                xhr.responseText ||
-                                "null"
-                            );
-                    }catch(_){ }
-
-                    if(
-                        xhr.status === 401
-                    ){
-
-                        showLogin();
-
-                        reject(
-                            new Error(
-                                "Session expired"
-                            )
-                        );
-
-                        return;
-                    }
-
-                    if(
-                        xhr.status < 200 ||
-                        xhr.status >= 300
-                    ){
-
-                        reject(
-                            new Error(
-                                data?.error ||
-                                "Upload failed"
-                            )
-                        );
-
-                        return;
-                    }
-
-                    onProgress(
-                        blob.size
-                    );
-
-                    resolve(data);
-                };
-
-            xhr.send(blob);
-        }
-    );
-}
-
 
 
 /* =========================================================
@@ -7236,18 +6765,6 @@ function createQueueItem(
     );
 
 
-    const remaining =
-        document.createElement(
-            "div"
-        );
-
-    remaining.className =
-        "queueRemaining";
-
-    remaining.textContent =
-        `${formatClientBytes(0)} uploaded • ${formatClientBytes(file.size)} left`;
-
-
     const track =
         document.createElement(
             "div"
@@ -7270,7 +6787,6 @@ function createQueueItem(
 
     item.append(
         top,
-        remaining,
         track
     );
 
@@ -7283,7 +6799,6 @@ function createQueueItem(
     return {
         item,
         percent,
-        remaining,
         bar
     };
 }
@@ -7292,19 +6807,14 @@ function createQueueItem(
 function updateQueue(
     queue,
     value,
-    done = false,
-    uploadedBytes = 0,
-    totalBytes = 0
+    done = false
 ){
 
     const rounded =
         Math.min(
             100,
-            Math.max(
-                0,
-                Math.round(
-                    value
-                )
+            Math.round(
+                value
             )
         );
 
@@ -7319,22 +6829,6 @@ function updateQueue(
         `${rounded}%`;
 
 
-    if(queue.remaining){
-
-        const remainingBytes =
-            Math.max(
-                0,
-                Number(totalBytes || 0) -
-                Number(uploadedBytes || 0)
-            );
-
-        queue.remaining.textContent =
-            done
-                ? "Complete"
-                : `${formatClientBytes(uploadedBytes)} uploaded • ${formatClientBytes(remainingBytes)} left`;
-    }
-
-
     if(done){
 
         setTimeout(
@@ -7347,7 +6841,6 @@ function updateQueue(
         );
     }
 }
-
 
 
 /* =========================================================
@@ -7887,7 +7380,4 @@ window.addEventListener(
 
 </body>
     </html>
-
-
-
     
