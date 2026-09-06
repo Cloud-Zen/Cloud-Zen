@@ -15,7 +15,7 @@
     content="#030308"
 >
 
-<title>My Personal Cloud - Private Access</title>
+<title>Cloud-Zen — Private Cloud Storage</title>
 
 <style>
 
@@ -3112,6 +3112,100 @@ input[type="password"]::placeholder{
 .fileCard.quickActionsOpen .deleteRow{display:flex !important;}
 @media(max-width:760px){.storageProviderGrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(220px,82%);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.storageProvider{scroll-snap-align:start;}}
 @media(max-width:470px){.storageAccordionButton{padding:8px 9px;}}
+
+/* =========================================================
+   CLOUD-ZEN PREMIUM MOBILE UI / UX OVERRIDES
+   Functional controls remain the existing application controls.
+========================================================= */
+:root{
+    --bg:#09090b;
+    --bg2:#121214;
+    --panel:rgba(24,24,27,.78);
+    --panel-strong:rgba(18,18,20,.94);
+    --text:#fafafa;
+    --muted:#a1a1aa;
+    --blue:#818cf8;
+    --blue2:#6366f1;
+    --cyan:#22d3ee;
+    --purple:#a78bfa;
+    --green:#34d399;
+    --red:#fb7185;
+    --yellow:#fbbf24;
+    --line:rgba(255,255,255,.10);
+    --line2:rgba(99,102,241,.30);
+    --shadow:0 24px 90px rgba(0,0,0,.48);
+    --radius:26px;
+}
+body{
+    background:
+      radial-gradient(circle at 12% 0%,rgba(99,102,241,.18),transparent 28%),
+      radial-gradient(circle at 90% 12%,rgba(139,92,246,.13),transparent 25%),
+      radial-gradient(circle at 50% 100%,rgba(34,211,238,.08),transparent 30%),
+      #09090b;
+}
+#app{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));}
+.topbar,.storageCard,.cloudToolbar,.uploadCard,.filesHeader,#fileList > *, .loginCard,.viewerBox{
+    border-color:rgba(255,255,255,.10)!important;
+    box-shadow:0 18px 60px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+.topbar{
+    background:rgba(12,12,14,.76)!important;
+    backdrop-filter:blur(24px) saturate(145%);
+    -webkit-backdrop-filter:blur(24px) saturate(145%);
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:24px!important;
+}
+.brandLogo,.loginIcon,.uploadIcon{
+    background:linear-gradient(135deg,#6366f1,#8b5cf6 55%,#22d3ee)!important;
+    box-shadow:0 0 34px rgba(99,102,241,.25)!important;
+}
+.brandTitle{letter-spacing:-.035em!important;font-weight:850!important;}
+.brandStatus{color:#a1a1aa!important;}
+.storageCard,.uploadCard,.loginCard{
+    background:linear-gradient(145deg,rgba(24,24,27,.92),rgba(18,18,20,.78))!important;
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+}
+.storageNumber{letter-spacing:-.045em!important;}
+.progressBar,.queueProgress > *, .progressBar{background:linear-gradient(90deg,#6366f1,#8b5cf6,#22d3ee)!important;}
+.searchBox,.selectControl,.loginCard input{
+    background:rgba(9,9,11,.82)!important;
+    border:1px solid rgba(255,255,255,.09)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+.cloudTab.active,.viewBtn.active{
+    background:linear-gradient(135deg,rgba(99,102,241,.28),rgba(139,92,246,.20))!important;
+    border-color:rgba(129,140,248,.38)!important;
+    box-shadow:0 8px 30px rgba(99,102,241,.15)!important;
+}
+.primary,.uploadButton,.refresh,.iconButton{
+    background:linear-gradient(135deg,#6366f1,#8b5cf6)!important;
+    border-color:rgba(255,255,255,.12)!important;
+    box-shadow:0 10px 30px rgba(99,102,241,.20)!important;
+}
+.uploadButton{font-weight:800!important;}
+.fileAction{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.08)!important;}
+.fileAction.delete{color:#fda4af!important;}
+.fileMoreButton{background:rgba(255,255,255,.045)!important;}
+#fileList{gap:14px!important;}
+#uploadQueue{margin-top:16px;}
+.queueItem{background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:20px!important;}
+#viewer{background:rgba(0,0,0,.72)!important;backdrop-filter:blur(18px);}
+.viewerBox{background:#101012!important;border:1px solid rgba(255,255,255,.10)!important;}
+.storageProviderGrid{display:none!important;}
+@media(max-width:760px){
+    #app{padding-top:10px;}
+    .topbar{position:sticky!important;top:8px;z-index:20;}
+    .topActions{gap:6px!important;}
+    .topActions .logout{display:none;}
+    .cloudToolbar{grid-template-columns:1fr!important;}
+    .viewButtons{justify-content:flex-end;}
+    .cloudTabs{gap:8px!important;overflow-x:auto!important;scrollbar-width:none;padding-bottom:4px;}
+    .cloudTabs::-webkit-scrollbar{display:none;}
+    .cloudTab{white-space:nowrap!important;}
+    .uploadCard{border-radius:28px!important;padding:26px 16px!important;}
+    .filesTitle{font-size:25px!important;}
+}
 </style>
 
 
@@ -7876,288 +7970,5 @@ async function refreshAll(){
 
 
 document
-    .getElementById(
-        "refreshButton"
-    )
-    .addEventListener(
-        "click",
-        refreshAll
-    );
-
-
-document
-    .getElementById(
-        "topRefresh"
-    )
-    .addEventListener(
-        "click",
-        refreshAll
-    );
-
-
-/* =========================================================
-   QR
-========================================================= */
-
-function openQRCode(){
-
-    qrCode.innerHTML =
-        "";
-
-
-    if(
-        typeof QRCode ===
-        "undefined"
-    ){
-
-        qrCode.textContent =
-            "QR unavailable";
-
-
-        showToast(
-            "QR code library unavailable"
-        );
-
-
-        qrModal.classList.add(
-            "show"
-        );
-
-
-        return;
-    }
-
-
-    const websiteURL =
-        window.location.href;
-
-
-    new QRCode(
-        qrCode,
-        {
-
-            text:
-                websiteURL,
-
-            width:
-                164,
-
-            height:
-                164,
-
-            colorDark:
-                "#07111f",
-
-            colorLight:
-                "#ffffff",
-
-            correctLevel:
-                QRCode.CorrectLevel.M
-        }
-    );
-
-
-    qrModal.classList.add(
-        "show"
-    );
-}
-
-
-function closeQRCode(){
-
-    qrModal.classList.remove(
-        "show"
-    );
-
-    qrCode.innerHTML =
-        "";
-}
-
-
-qrButton.addEventListener(
-    "click",
-    openQRCode
-);
-
-
-qrClose.addEventListener(
-    "click",
-    closeQRCode
-);
-
-
-qrModal.addEventListener(
-    "click",
-    event => {
-
-        if(
-            event.target ===
-            qrModal
-        ){
-
-            closeQRCode();
-        }
-    }
-);
-
-
-/* =========================================================
-   LOAD EVERYTHING
-========================================================= */
-
-async function loadEverything(){
-
-    try{
-
-        await Promise.all([
-            loadStorage(),
-            loadFiles()
-        ]);
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   FORMAT BYTES
-========================================================= */
-
-function formatBytes(
-    bytes
-){
-
-    const value =
-        Number(bytes);
-
-
-    if(
-        !Number.isFinite(value) ||
-        value <= 0
-    ){
-
-        return "0 B";
-    }
-
-
-    const units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB"
-    ];
-
-
-    const index =
-        Math.min(
-            Math.floor(
-                Math.log(value) /
-                Math.log(1024)
-            ),
-            units.length - 1
-        );
-
-
-    return (
-        value /
-        Math.pow(
-            1024,
-            index
-        )
-    )
-        .toFixed(
-            index === 0
-                ? 0
-                : 1
-        ) +
-        " " +
-        units[index];
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHtml(
-    value
-){
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.key ===
-            "Escape"
-        ){
-
-            closeViewer();
-
-            closeQRCode();
-        }
-
-
-        if(
-            event.key === "/" &&
-
-            document.activeElement !==
-                searchInput &&
-
-            document.activeElement !==
-                password
-        ){
-
-            event.preventDefault();
-
-            searchInput.focus();
-        }
-    }
-);
-
-
-/* =========================================================
-   WELCOME / START
-========================================================= */
-
-window.addEventListener(
-    "load
+   
 Preview truncated for large file
