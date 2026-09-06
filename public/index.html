@@ -3215,6 +3215,201 @@ body{
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
+
+<style id="cloudZenLuxuryUpgrade">
+/* =========================================================
+   CLOUD-ZEN LUXURY MOBILE UI/UX — VISUAL LAYER ONLY
+   Existing IDs/functions remain the source of truth.
+========================================================= */
+:root{
+  --lux-bg:#f6f4fb;
+  --lux-bg2:#ffffff;
+  --lux-ink:#111426;
+  --lux-muted:#73778c;
+  --lux-line:rgba(24,24,52,.09);
+  --lux-card:rgba(255,255,255,.78);
+  --lux-indigo:#6757e8;
+  --lux-violet:#8f62f6;
+  --lux-cyan:#39b9e9;
+  --lux-pink:#e96ac7;
+  --lux-shadow:0 18px 55px rgba(55,42,104,.12);
+}
+
+body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(112,91,255,.14),transparent 28%),
+    radial-gradient(circle at 100% 12%,rgba(74,207,241,.14),transparent 28%),
+    radial-gradient(circle at 70% 100%,rgba(237,112,204,.12),transparent 34%),
+    linear-gradient(145deg,#f7f6fb,#eef5fb 48%,#fbf1fa);
+  color:var(--lux-ink);
+}
+.cloudScene{opacity:.22;mix-blend-mode:multiply}
+#space-canvas{opacity:.06}
+
+#app{padding:calc(max(12px,env(safe-area-inset-top)) + 8px) 14px calc(max(90px,env(safe-area-inset-bottom)) + 24px);}
+.dashboard{max-width:980px;margin:0 auto;padding-bottom:34px;}
+
+.topbar{
+  position:sticky;top:8px;z-index:30;
+  padding:12px 13px;
+  border:1px solid rgba(255,255,255,.72)!important;
+  background:rgba(255,255,255,.68)!important;
+  backdrop-filter:blur(24px)!important;
+  -webkit-backdrop-filter:blur(24px)!important;
+  box-shadow:0 12px 38px rgba(46,42,82,.09)!important;
+  border-radius:22px!important;
+}
+.brandLogo{
+  width:46px!important;height:46px!important;border-radius:15px!important;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#5d8cff,#7b5de8 55%,#e36bc8)!important;
+  box-shadow:0 10px 26px rgba(101,82,232,.25)!important;
+}
+.brandTitle{color:#15182b!important;font-weight:900!important;letter-spacing:-.035em}
+.brandStatus{color:#6e7388!important}
+.iconButton,.logout{
+  background:rgba(255,255,255,.76)!important;color:#353950!important;
+  border:1px solid var(--lux-line)!important;box-shadow:0 7px 20px rgba(45,42,76,.06)!important;
+}
+.logout{color:#765de8!important}
+
+.storageCard{
+  margin-top:14px!important;padding:20px!important;border-radius:28px!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(239,237,255,.84))!important;
+  border:1px solid rgba(255,255,255,.9)!important;
+  box-shadow:var(--lux-shadow)!important;
+  color:var(--lux-ink)!important;
+}
+.storageLabel,.storageBottom{color:#777b90!important}
+.storageNumber{color:#171a30!important;font-weight:950!important;letter-spacing:-.04em}
+.storagePercent{color:#6c58e8!important;font-weight:900!important}
+.progress{background:rgba(95,84,185,.10)!important}
+.progressBar{background:linear-gradient(90deg,#5d8cff,#7a5ce9,#df6fc9)!important;box-shadow:0 0 18px rgba(118,89,236,.35)}
+
+.cloudToolbar{
+  margin-top:14px!important;padding:10px!important;border-radius:22px!important;
+  background:rgba(255,255,255,.64)!important;border:1px solid rgba(255,255,255,.85)!important;
+  box-shadow:0 10px 34px rgba(52,45,87,.07)!important;backdrop-filter:blur(20px)!important;
+}
+.searchBox,.selectControl,.viewButtons{
+  background:rgba(255,255,255,.76)!important;border-color:var(--lux-line)!important;color:#34384d!important;
+}
+.searchBox input{color:#171a2c!important}.searchBox input::placeholder{color:#9699aa!important}
+.viewBtn.active{background:linear-gradient(135deg,#6659e8,#9a68ed)!important;color:#fff!important;box-shadow:0 8px 18px rgba(105,88,231,.22)!important}
+
+.cloudTabs{
+  padding:7px!important;margin:12px 0!important;gap:8px!important;
+  scrollbar-width:none;
+}
+.cloudTabs::-webkit-scrollbar{display:none}
+.cloudTab{
+  background:rgba(255,255,255,.62)!important;color:#676b80!important;
+  border:1px solid rgba(255,255,255,.82)!important;border-radius:999px!important;
+  box-shadow:0 5px 15px rgba(52,45,87,.05)!important;
+}
+.cloudTab.active{background:#181a2c!important;color:#fff!important;border-color:#181a2c!important}
+
+.uploadCard{
+  position:relative!important;overflow:hidden!important;
+  padding:28px 20px!important;border-radius:30px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(245,241,255,.84))!important;
+  border:1px solid rgba(255,255,255,.95)!important;
+  box-shadow:var(--lux-shadow)!important;
+}
+.uploadCard::before{
+  content:"";position:absolute;inset:-45% auto auto -15%;width:240px;height:240px;border-radius:50%;
+  background:radial-gradient(circle,rgba(92,177,255,.22),transparent 68%);pointer-events:none;
+}
+.uploadIcon{
+  width:58px!important;height:58px!important;border-radius:20px!important;
+  background:linear-gradient(145deg,#5f91ff,#8061ec)!important;color:#fff!important;
+  box-shadow:0 12px 28px rgba(103,92,232,.25)!important;
+}
+.uploadButton{
+  background:linear-gradient(100deg,#55b9ef,#6959e8 54%,#d867c9)!important;
+  color:#fff!important;border-radius:17px!important;padding:14px 24px!important;
+  box-shadow:0 14px 28px rgba(103,91,232,.22)!important;
+}
+.uploadHint{color:#7b7e91!important}
+
+.filesHeader{margin-top:20px!important}
+.filesTitle{color:#17192c!important;font-weight:950!important}
+.filesCount{color:#85899a!important}
+.refresh{background:rgba(255,255,255,.78)!important;color:#4d5166!important;border:1px solid var(--lux-line)!important}
+
+.fileCard{
+  background:rgba(255,255,255,.78)!important;border:1px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 14px 36px rgba(49,44,82,.09)!important;border-radius:24px!important;
+  overflow:hidden!important;transition:transform .2s ease,box-shadow .2s ease!important;
+}
+.fileCard:active{transform:scale(.985)}
+.preview{background:linear-gradient(145deg,#f4f1ff,#eef7fb)!important}
+.fileTypeBadge{background:rgba(255,255,255,.84)!important;color:#6257a8!important;border:1px solid rgba(95,86,172,.08)}
+.fileName{color:#171a2c!important;font-weight:850!important}
+.fileMeta{color:#85899b!important}
+.fileAction,.fileMoreButton{background:rgba(245,244,251,.9)!important;color:#45495e!important;border-color:var(--lux-line)!important}
+.fileAction.delete{color:#d95672!important}
+.starButton{background:rgba(255,255,255,.82)!important;color:#7665df!important;border-color:var(--lux-line)!important}
+.empty{background:rgba(255,255,255,.7)!important;color:#777b8f!important;border:1px solid rgba(255,255,255,.88)!important;border-radius:24px!important}
+
+/* Premium injected controls */
+#czLuxuryHero{margin:14px 0;display:grid;gap:12px}
+.czHero{
+  position:relative;overflow:hidden;border-radius:30px;padding:22px;
+  background:
+    radial-gradient(circle at 90% 0%,rgba(100,91,255,.24),transparent 34%),
+    radial-gradient(circle at 0% 100%,rgba(55,191,236,.18),transparent 34%),
+    linear-gradient(135deg,rgba(255,255,255,.94),rgba(245,242,255,.88));
+  border:1px solid rgba(255,255,255,.95);box-shadow:var(--lux-shadow);
+}
+.czHero::after{content:"";position:absolute;width:150px;height:150px;right:-55px;bottom:-70px;border-radius:50%;background:radial-gradient(circle,rgba(229,103,201,.20),transparent 68%);}
+.czEyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#756be4;font-weight:950}
+.czHero h2{margin:7px 0 7px;font-size:clamp(28px,8vw,44px);line-height:.98;letter-spacing:-.06em;color:#171a2e;font-weight:950;max-width:600px}
+.czHero p{margin:0;color:#777b90;line-height:1.5;font-size:13px;max-width:590px}
+.czHeroRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px}
+.czQuickGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}
+.czQuick{
+  border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.72);border-radius:18px;
+  padding:12px 8px;text-align:center;color:#373b51;font-weight:800;font-size:11px;box-shadow:0 8px 22px rgba(48,42,84,.06);cursor:pointer;
+}
+.czQuick .ico{font-size:20px;display:block;margin-bottom:5px}
+.czPrimaryMini{border:0;border-radius:15px;padding:12px 16px;background:linear-gradient(100deg,#5a8fff,#765be9,#d969ca);color:#fff;font-weight:900;box-shadow:0 10px 24px rgba(105,88,231,.2);cursor:pointer}
+.czSecurityPill{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);color:#60647a;font-size:11px;font-weight:800}
+.czDot{width:7px;height:7px;border-radius:50%;background:#38c98c;box-shadow:0 0 0 5px rgba(56,201,140,.10)}
+
+#czBottomNav{
+  position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));z-index:80;
+  display:grid;grid-template-columns:1fr 1fr 1.15fr 1fr 1fr;gap:4px;padding:8px;
+  background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.94);border-radius:24px;
+  box-shadow:0 18px 55px rgba(44,38,79,.16);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+}
+.czNavBtn{border:0;background:transparent;border-radius:17px;padding:8px 4px;color:#85899b;font-size:10px;font-weight:850;cursor:pointer}
+.czNavBtn span{display:block;font-size:19px;line-height:20px;margin-bottom:3px}
+.czNavBtn.active{color:#5f55dc;background:rgba(111,91,231,.09)}
+.czNavUpload{background:linear-gradient(145deg,#5e91ff,#785be8);color:#fff!important;border-radius:18px!important;box-shadow:0 10px 22px rgba(105,88,231,.25)}
+
+@media(min-width:761px){
+  #czBottomNav{display:none}
+  #czLuxuryHero{grid-template-columns:1fr}
+  .czHero{padding:28px}
+}
+@media(max-width:760px){
+  .topbar{top:4px}
+  .topActions{gap:5px!important}
+  .topActions .qrButton{display:none}
+  .topActions .iconButton{min-width:40px!important}
+  .cloudToolbar{display:grid!important;grid-template-columns:1fr auto auto!important}
+  .cloudToolbar .searchBox{grid-column:1/-1}
+  .cloudTabs{overflow-x:auto!important;flex-wrap:nowrap!important}
+  .cloudTab{white-space:nowrap!important}
+  .storageCard{padding:17px!important}
+  .czQuickGrid{grid-template-columns:repeat(4,1fr)}
+  .czQuick{padding:10px 5px;font-size:10px}
+  .czHero h2{font-size:32px}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+
 </head>
 
 
@@ -7417,558 +7612,5 @@ async function uploadFile(
         100,
         true,
         file.size,
-        file.size
-    );
-
-
-    rememberRecent(
-        file.name
-    );
-
-
-    try{
-        await loadStorage();
-    }catch(error){
-        console.error(
-            "STORAGE REFRESH AFTER UPLOAD ERROR:",
-            error
-        );
-    }
-
-
-    showToast(
-        `${file.name} uploaded`
-    );
-}
-
-
-function uploadChunkWithProgress(
-    url,
-    blob,
-    onProgress
-){
-
-    return new Promise(
-        (resolve, reject) => {
-
-            const xhr =
-                new XMLHttpRequest();
-
-            xhr.open(
-                "POST",
-                url,
-                true
-            );
-
-            xhr.withCredentials =
-                true;
-
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/octet-stream"
-            );
-
-            xhr.setRequestHeader(
-                "Content-Length",
-                String(blob.size)
-            );
-
-            xhr.upload.onprogress =
-                event => {
-
-                    if(
-                        event.lengthComputable
-                    ){
-
-                        onProgress(
-                            event.loaded
-                        );
-                    }
-                };
-
-            xhr.onerror =
-                () => {
-                    reject(
-                        new Error(
-                            "Network error during upload"
-                        )
-                    );
-                };
-
-            xhr.onabort =
-                () => {
-                    reject(
-                        new Error(
-                            "Upload cancelled"
-                        )
-                    );
-                };
-
-            xhr.onload =
-                async () => {
-
-                    let data = null;
-
-                    try{
-                        data =
-                            JSON.parse(
-                                xhr.responseText ||
-                                "null"
-                            );
-                    }catch(_){ }
-
-                    if(
-                        xhr.status === 401
-                    ){
-
-                        showLogin();
-
-                        const authError =
-                            new Error(
-                                "Session expired"
-                            );
-
-                        authError.code = "AUTH";
-
-                        reject(authError);
-
-                        return;
-                    }
-
-                    if(
-                        xhr.status < 200 ||
-                        xhr.status >= 300
-                    ){
-
-                        const uploadError =
-                            new Error(
-                                data?.error ||
-                                "Upload failed"
-                            );
-
-                        if(
-                            xhr.status === 429
-                        ){
-                            uploadError.retryAfterMs =
-                                Number(
-                                    data?.retryAfterMs ||
-                                    1200
-                                );
-                        }
-
-                        reject(uploadError);
-
-                        return;
-                    }
-
-                    onProgress(
-                        blob.size
-                    );
-
-                    resolve(data);
-                };
-
-            xhr.send(blob);
-        }
-    );
-}
-
-
-
-/* =========================================================
-   QUEUE
-========================================================= */
-
-function createQueueItem(
-    file
-){
-
-    const item =
-        document.createElement(
-            "div"
-        );
-
-    item.className =
-        "queueItem";
-
-
-    const top =
-        document.createElement(
-            "div"
-        );
-
-    top.className =
-        "queueTop";
-
-
-    const name =
-        document.createElement(
-            "div"
-        );
-
-    name.className =
-        "queueName";
-
-    name.textContent =
-        file.name;
-
-
-    const percent =
-        document.createElement(
-            "div"
-        );
-
-    percent.className =
-        "queuePercent";
-
-    percent.textContent =
-        "0%";
-
-
-    top.append(
-        name,
-        percent
-    );
-
-
-    const remaining =
-        document.createElement(
-            "div"
-        );
-
-    remaining.className =
-        "queueRemaining";
-
-    remaining.textContent =
-        `${formatClientBytes(0)} uploaded • ${formatClientBytes(file.size)} left`;
-
-
-    const track =
-        document.createElement(
-            "div"
-        );
-
-    track.className =
-        "queueProgress";
-
-
-    const bar =
-        document.createElement(
-            "div"
-        );
-
-
-    track.appendChild(
-        bar
-    );
-
-
-    item.append(
-        top,
-        remaining,
-        track
-    );
-
-
-    uploadQueue.appendChild(
-        item
-    );
-
-
-    return {
-        item,
-        percent,
-        remaining,
-        bar
-    };
-}
-
-
-function updateQueue(
-    queue,
-    value,
-    done = false,
-    uploadedBytes = 0,
-    totalBytes = 0
-){
-
-    const rounded =
-        Math.min(
-            100,
-            Math.max(
-                0,
-                Math.round(
-                    value
-                )
-            )
-        );
-
-
-    queue.percent.textContent =
-        done
-            ? "✓"
-            : `${rounded}%`;
-
-
-    queue.bar.style.width =
-        `${rounded}%`;
-
-
-    if(queue.remaining){
-
-        const remainingBytes =
-            Math.max(
-                0,
-                Number(totalBytes || 0) -
-                Number(uploadedBytes || 0)
-            );
-
-        queue.remaining.textContent =
-            done
-                ? "Complete"
-                : `${formatClientBytes(uploadedBytes)} uploaded • ${formatClientBytes(remainingBytes)} left`;
-    }
-
-
-    if(done){
-
-        setTimeout(
-            () => {
-
-                queue.item.remove();
-
-            },
-            1600
-        );
-    }
-}
-
-
-
-/* =========================================================
-   RANDOM ID
-========================================================= */
-
-function cryptoRandomId(){
-
-    if(
-        window.crypto &&
-        crypto.randomUUID
-    ){
-
-        return crypto.randomUUID();
-    }
-
-
-    return (
-        Date.now()
-            .toString(36) +
-        "-" +
-        Math.random()
-            .toString(36)
-            .slice(2)
-    );
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-searchInput.addEventListener(
-    "input",
-    renderFiles
-);
-
-
-sortSelect.addEventListener(
-    "change",
-    renderFiles
-);
-
-
-/* =========================================================
-   TABS
-========================================================= */
-
-document
-    .querySelectorAll(
-        ".cloudTab"
-    )
-    .forEach(
-        tab => {
-
-            tab.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(
-                            ".cloudTab"
-                        )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    tab.classList.add(
-                        "active"
-                    );
-
-
-                    activeTab =
-                        tab.dataset.tab;
-
-
-                    renderFiles();
-                }
-            );
-        }
-    );
-
-
-/* =========================================================
-   VIEW SWITCH
-========================================================= */
-
-document
-    .getElementById(
-        "gridView"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            currentView =
-                "grid";
-
-
-            fileList.classList.remove(
-                "listView"
-            );
-
-
-            document
-                .getElementById(
-                    "gridView"
-                )
-                .classList.add(
-                    "active"
-                );
-
-
-            document
-                .getElementById(
-                    "listView"
-                )
-                .classList.remove(
-                    "active"
-                );
-
-
-            localStorage.setItem(
-                VIEW_KEY,
-                "grid"
-            );
-        }
-    );
-
-
-document
-    .getElementById(
-        "listView"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            currentView =
-                "list";
-
-
-            fileList.classList.add(
-                "listView"
-            );
-
-
-            document
-                .getElementById(
-                    "listView"
-                )
-                .classList.add(
-                    "active"
-                );
-
-
-            document
-                .getElementById(
-                    "gridView"
-                )
-                .classList.remove(
-                    "active"
-                );
-
-
-            localStorage.setItem(
-                VIEW_KEY,
-                "list"
-            );
-        }
-    );
-
-
-/* =========================================================
-   REFRESH
-========================================================= */
-
-async function refreshAll(){
-
-    const buttons = [
-
-        document.getElementById(
-            "refreshButton"
-        ),
-
-        document.getElementById(
-            "topRefresh"
-        )
-    ];
-
-
-    buttons.forEach(
-        button =>
-            button.classList.add(
-                "spinning"
-            )
-    );
-
-
-    try{
-
-        await loadEverything();
-
-    }finally{
-
-        setTimeout(
-            () => {
-
-                buttons.forEach(
-                    button =>
-                        button.classList.remove(
-                            "spinning"
-                        )
-                );
-
-            },
-            650
-        );
-    }
-}
-
-
-document
-   
+      
 Preview truncated for large file
