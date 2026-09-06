@@ -3091,6 +3091,27 @@ input[type="password"]::placeholder{
     }
 }
 
+
+
+/* =========================================================
+   UI UPGRADE — STORAGE ACCORDION + QUICK ACTION MENU
+   Added only; original styles and elements remain intact.
+========================================================= */
+.storageDetailsCard.storageCompact .storageProviderGrid{display:none;}
+.storageDetailsCard.storageCompact .storageDetailsHead{margin-bottom:0;}
+.storageAccordionButton{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:#dbe5f2;border-radius:11px;padding:8px 11px;cursor:pointer;font-size:11px;font-weight:850;white-space:nowrap;transition:transform .18s ease,background .18s ease;}
+.storageAccordionButton:hover{background:rgba(255,255,255,.08);transform:translateY(-1px);}
+.storageAccordionButton .accordionChevron{display:inline-block;transition:transform .22s ease;}
+.fileActions{position:relative;}
+.fileActions .fileMoreButton{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);color:#dbe5f2;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900;line-height:1;letter-spacing:2px;transition:background .18s ease,transform .18s ease;}
+.fileActions .fileMoreButton:hover{background:rgba(255,255,255,.09);transform:translateY(-1px);}
+.fileActions .fileAction{display:none;}
+.fileCard.quickActionsOpen .fileActions .fileAction{display:block;}
+.fileCard.quickActionsOpen .fileActions .fileMoreButton{display:none;}
+.fileCard:not(.quickActionsOpen) .deleteRow{display:none !important;}
+.fileCard.quickActionsOpen .deleteRow{display:flex !important;}
+@media(max-width:760px){.storageProviderGrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(220px,82%);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.storageProvider{scroll-snap-align:start;}}
+@media(max-width:470px){.storageAccordionButton{padding:8px 9px;}}
 </style>
 
 
@@ -5069,6 +5090,30 @@ function formatClientBytes(bytes){
 
 
 
+/* =========================================================
+   STORAGE ACCORDION — COLLAPSE LONG PROVIDER LIST
+========================================================= */
+(function initStorageAccordion(){
+    const detailsCard = document.getElementById("storageDetailsCard");
+    const head = detailsCard?.querySelector(".storageDetailsHead");
+    if(!detailsCard || !head) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "storageAccordionButton";
+    button.innerHTML = `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`;
+
+    button.addEventListener("click", () => {
+        const collapsed = detailsCard.classList.toggle("storageCompact");
+        button.innerHTML = collapsed
+            ? `Show <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌄</span>`
+            : `Hide <span class="accordionLabel">Clouds</span> <span class="accordionChevron">⌃</span>`;
+    });
+
+    head.appendChild(button);
+    detailsCard.classList.add("storageCompact");
+})();
+
 storageDetailsRefresh?.addEventListener(
     "click",
     async () => {
@@ -5962,10 +6007,43 @@ function createFileCard(
     );
 
 
+    const more =
+        document.createElement(
+            "button"
+        );
+
+    more.className =
+        "fileMoreButton";
+
+    more.type =
+        "button";
+
+    more.title =
+        "More actions";
+
+    more.setAttribute(
+        "aria-label",
+        "More actions"
+    );
+
+    more.textContent =
+        "•••";
+
+    more.addEventListener(
+        "click",
+        event => {
+            event.stopPropagation();
+            card.classList.toggle(
+                "quickActionsOpen"
+            );
+        }
+    );
+
     actions.append(
         open,
         download,
-        share
+        share,
+        more
     );
 
 
@@ -6003,6 +6081,26 @@ function createFileCard(
         info
     );
 
+
+    let longPressTimer = null;
+
+    const startLongPress = event => {
+        if(event.pointerType === "mouse") return;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+            card.classList.add("quickActionsOpen");
+        }, 520);
+    };
+
+    const cancelLongPress = () => {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    };
+
+    card.addEventListener("pointerdown", startLongPress, {passive:true});
+    card.addEventListener("pointerup", cancelLongPress);
+    card.addEventListener("pointercancel", cancelLongPress);
+    card.addEventListener("pointerleave", cancelLongPress);
 
     return card;
 }
@@ -7789,5 +7887,7 @@ window.addEventListener(
 
 </body>
     </html>
+
+
 
     
