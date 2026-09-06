@@ -24,9 +24,9 @@ button,input{font:inherit}button{cursor:pointer}
  radial-gradient(1px 1px at 40% 75%,#fff,transparent),radial-gradient(1px 1px at 85% 80%,#fff,transparent);
  background-size:280px 220px;opacity:.45;animation:drift 35s linear infinite}
 @keyframes drift{to{transform:translate3d(-80px,50px,0)}}
-.splash{position:fixed;inset:0;z-index:100;background:#070810;display:grid;place-items:center;transition:opacity .55s,visibility .55s}
+.splash{position:fixed;inset:0;z-index:100;background:#070810;display:grid;place-items:center;transition:opacity .55s,visibility .55s;animation:splashAutoHide 2.3s linear forwards;animation-delay:0s}.splash.hide{opacity:0;visibility:hidden;pointer-events:none}.splash-inner{text-align:center}
 .splash.hide{opacity:0;visibility:hidden}.splash-inner{text-align:center}.mark{width:78px;height:78px;border:1px solid rgba(216,180,255,.45);border-radius:26px;margin:auto;display:grid;place-items:center;background:linear-gradient(145deg,#ffffff14,#ffffff05);box-shadow:0 0 80px #a878ff25;animation:float 2s ease-in-out infinite}
-.mark svg{width:42px}.welcome{margin:24px 0 6px;font-size:clamp(25px,8vw,48px);letter-spacing:.28em;font-weight:500}.tag{color:var(--muted);letter-spacing:.12em;font-size:12px}.loadline{width:170px;height:2px;background:#ffffff12;margin:25px auto 0;overflow:hidden}.loadline i{display:block;width:45%;height:100%;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:load 1.3s ease-in-out infinite}@keyframes load{from{transform:translateX(-130%)}to{transform:translateX(320%)}}@keyframes float{50%{transform:translateY(-7px) rotate(1deg)}}
+.mark svg{width:42px}.welcome{margin:24px 0 6px;font-size:clamp(25px,8vw,48px);letter-spacing:.28em;font-weight:500}.tag{color:var(--muted);letter-spacing:.12em;font-size:12px}.loadline{width:170px;height:2px;background:#ffffff12;margin:25px auto 0;overflow:hidden}.loadline i{display:block;width:45%;height:100%;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:load 1.3s ease-in-out infinite}@keyframes load{from{transform:translateX(-130%)}to{transform:translateX(320%)}}@keyframes float{50%{transform:translateY(-7px) rotate(1deg)}}@keyframes splashAutoHide{0%,78%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden;pointer-events:none}}
 
 .app{width:min(1440px,100%);margin:auto;padding:18px}
 .top{height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
@@ -491,8 +491,8 @@ setTimeout(()=>{
   const splash=$('#splash');
   if(splash)splash.classList.add('hide');
   checkAuth();
-},2300);
+},2200);
 
 </script>
 </body>
-    </html>
+                            </html>
