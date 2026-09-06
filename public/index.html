@@ -273,8 +273,8 @@ button{
         );
 
     transition:
-        opacity .9s ease,
-        visibility .9s ease;
+        opacity .45s ease,
+        visibility .45s ease;
 }
 
 #introScreen.hide{
@@ -3128,39 +3128,40 @@ body{
 #introScreen{
   z-index:1000!important;
   background:
-    radial-gradient(circle at 18% 20%,rgba(243,180,207,.12),transparent 30%),
-    radial-gradient(circle at 80% 48%,rgba(185,201,255,.09),transparent 32%),
-    radial-gradient(circle at 62% 88%,rgba(255,226,138,.08),transparent 28%),
-    rgba(5,6,11,.58)!important;
-  backdrop-filter:blur(1.5px)!important;
-  -webkit-backdrop-filter:blur(1.5px)!important;
+    radial-gradient(circle at 18% 20%,rgba(243,180,207,.10),transparent 30%),
+    radial-gradient(circle at 80% 48%,rgba(185,201,255,.07),transparent 32%),
+    radial-gradient(circle at 62% 88%,rgba(255,226,138,.06),transparent 28%),
+    rgba(5,6,11,.28)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
 }
 .introContent{width:min(650px,92vw)!important;}
 .introLogo{
-  width:104px!important;height:104px!important;margin:0 auto 40px!important;
-  border-radius:31px!important;
+  width:78px!important;height:78px!important;margin:0 auto 30px!important;
+  border-radius:24px!important;
   background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025))!important;
   border:1px solid rgba(255,255,255,.20)!important;
   box-shadow:inset 0 0 28px rgba(255,255,255,.03),0 0 38px rgba(243,180,207,.10)!important;
 }
-.introLogo::before{inset:-10px!important;border-radius:38px!important;border-color:rgba(255,255,255,.09)!important;}
+.introLogo::before{inset:-8px!important;border-radius:30px!important;border-color:rgba(255,255,255,.10)!important;}
 .zenStar{display:inline-block;color:#fff;font-size:72px;line-height:1;text-shadow:0 0 22px rgba(255,255,255,.34);}
-.introLogo .zenStar{font-size:42px;animation:zenStarPulse 2.2s ease-in-out infinite;}
+.introLogo .zenStar{font-size:34px;animation:zenStarPulse 2.2s ease-in-out infinite;}
 @keyframes zenStarPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.25)}}
 .introWelcome{
-  font-size:clamp(54px,10vw,72px)!important;
+  font-size:clamp(52px,10vw,68px)!important;
   color:#efad9d!important;-webkit-text-fill-color:#efad9d!important;
   background:none!important;filter:drop-shadow(0 0 24px rgba(243,180,207,.16))!important;
   letter-spacing:-.055em!important;
 }
 .introSub{
-  margin:38px 0 48px!important;color:#f3eff4!important;
-  font-size:clamp(18px,3.8vw,26px)!important;letter-spacing:.38em!important;
+  margin:34px 0 42px!important;color:#f3eff4!important;
+  font-size:clamp(17px,3.8vw,24px)!important;letter-spacing:.34em!important;
   text-transform:lowercase!important;
 }
 .introSub::first-letter{}
-.loadingLine{width:min(552px,80vw)!important;height:4px!important;background:rgba(255,255,255,.08)!important;box-shadow:0 0 22px rgba(243,180,207,.12)!important;}
-.loadingLine::before{width:55%!important;background:linear-gradient(90deg,transparent,#f3b4cf,#f6c2ae,#ffe28a,transparent)!important;box-shadow:0 0 18px rgba(255,215,154,.8)!important;}
+.loadingLine{width:min(552px,80vw)!important;height:4px!important;background:rgba(255,255,255,.09)!important;box-shadow:0 0 22px rgba(243,180,207,.16)!important;overflow:hidden!important;}
+.loadingLine::before{width:34%!important;background:linear-gradient(90deg,transparent,#f3b4cf,#f6c2ae,#ffe28a,transparent)!important;box-shadow:0 0 18px rgba(255,215,154,.9)!important;animation:zenLoading 3.2s cubic-bezier(.2,.7,.2,1) forwards!important;}
+@keyframes zenLoading{from{transform:translateX(-135%)}to{transform:translateX(360%)}}
 
 /* Login — screenshot-sized compact premium card */
 .loginWrap{
@@ -3260,11 +3261,17 @@ input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shad
 @media(max-width:560px){
   #app{padding:0 14px 32px!important}.dashboard{padding-top:6px!important}.topbar{padding-top:22px!important}.brandTitle{font-size:30px!important}.brandStatus::after{font-size:16px!important}
   .loginCard{width:92vw!important;padding:34px 28px 40px!important;border-radius:28px!important}.loginIcon{width:88px!important;height:88px!important;margin-bottom:30px!important}.loginTitle{font-size:36px!important}.loginText{font-size:18px!important;margin-bottom:30px!important}input[type=password]{height:82px!important;font-size:22px!important;padding:0 24px!important;border-radius:24px!important}.primary{height:82px!important;font-size:22px!important;border-radius:24px!important}
-  .introLogo{width:92px!important;height:92px!important;border-radius:29px!important;margin-bottom:34px!important}.introLogo .zenStar{font-size:38px!important}.introWelcome{font-size:58px!important}.introSub{font-size:17px!important;letter-spacing:.29em!important;margin:34px 0 46px!important}.loadingLine{width:78vw!important}
+  .introLogo{width:78px!important;height:78px!important;border-radius:24px!important;margin-bottom:30px!important}.introLogo .zenStar{font-size:34px!important}.introWelcome{font-size:56px!important}.introSub{font-size:17px!important;letter-spacing:.29em!important;margin:32px 0 42px!important}.loadingLine{width:78vw!important}
   .uploadCard{padding:26px 20px 24px!important}.uploadButton,.startUploadButton{height:72px!important;font-size:20px!important;border-radius:22px!important}.selectedFilesText{font-size:18px!important;margin-bottom:28px!important}.filesHeader{padding:22px 20px 16px!important}.filesTitle{font-size:26px!important}.viewButtons{top:-54px!important}.viewBtn{width:62px!important;height:46px!important}.zenInfoCard{padding:26px 20px}.zenInfoCard p{font-size:17px!important}.zenQRCode{width:210px;height:210px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+
+/* Final Cloud Zen intro polish */
+@media (prefers-reduced-motion: reduce){
+  .introLogo,.introLogo .zenStar,.introWelcome{animation-duration:3.2s!important;}
+  .loadingLine::before{animation-duration:3.2s!important;}
+}
 </style>
 
 
@@ -3954,6 +3961,7 @@ let shootingStars = [];
 
 let particles = [];
 let blastRings = [];
+let blastFlashes = [];
 
 
 function addShootingStar(){
@@ -3995,7 +4003,7 @@ setInterval(
         }
 
     },
-    1500
+    1050
 );
 
 
@@ -4111,7 +4119,7 @@ function animateStars(){
         ctx.shadowColor = "rgba(255,190,170,.9)";
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(ss.x,ss.y,2.8,0,Math.PI*2);
+        ctx.arc(ss.x,ss.y,3.2,0,Math.PI*2);
         ctx.fillStyle = "#fff";
         ctx.shadowBlur = 18;
         ctx.shadowColor = "#ffd5c5";
@@ -4144,10 +4152,11 @@ function animateStars(){
                 canvas.width
         ){
 
-            blastRings.push({x:ss.x,y:ss.y,r:2,alpha:.9,life:1});
+            blastRings.push({x:ss.x,y:ss.y,r:2,alpha:1,life:1});
+            blastFlashes.push({x:ss.x,y:ss.y,r:6,alpha:.9});
             for(
                 let p = 0;
-                p < 34;
+                p < 58;
                 p++
             ){
 
@@ -4192,6 +4201,28 @@ function animateStars(){
                 1
             );
         }
+    }
+
+
+    /*
+       Bright crash flash / impact bloom
+    */
+    for(let i=blastFlashes.length-1;i>=0;i--){
+        const flash=blastFlashes[i];
+        flash.r += 8;
+        flash.alpha -= .055;
+        ctx.save();
+        ctx.globalAlpha=Math.max(0,flash.alpha);
+        const g=ctx.createRadialGradient(flash.x,flash.y,0,flash.x,flash.y,flash.r*5);
+        g.addColorStop(0,'rgba(255,255,255,.95)');
+        g.addColorStop(.18,'rgba(255,220,180,.72)');
+        g.addColorStop(1,'rgba(255,170,180,0)');
+        ctx.fillStyle=g;
+        ctx.beginPath();
+        ctx.arc(flash.x,flash.y,flash.r*5,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+        if(flash.alpha<=0) blastFlashes.splice(i,1);
     }
 
 
@@ -7523,67 +7554,5 @@ document
                         .forEach(
                             item =>
                                 item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    tab.classList.add(
-                        "active"
-                    );
-
-
-                    activeTab =
-                        tab.dataset.tab;
-
-
-                    renderFiles();
-                }
-            );
-        }
-    );
-
-
-/* =========================================================
-   VIEW SWITCH
-========================================================= */
-
-document
-    .getElementById(
-        "gridView"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            currentView =
-                "grid";
-
-
-            fileList.classList.remove(
-                "listView"
-            );
-
-
-            document
-                .getElementById(
-                    "gridView"
-                )
-                .classList.add(
-                    "active"
-                );
-
-
-            document
-                .getElementById(
-                    "listView"
-                )
-                .classList.remove(
-                    "active"
-                );
-
-
-            localStorage.setItem(
-                VIEW_KEY,
-                "gri
+                        
 Preview truncated for large file
