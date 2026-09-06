@@ -327,9 +327,9 @@ button{
 
     place-items:center;
 
-    border-radius:34px;
+    border-radius:25px;
 
-    font-size:42px;
+    font-size:31px;
 
     background:
         linear-gradient(
@@ -361,9 +361,9 @@ button{
 
     position:absolute;
 
-    inset:-14px;
+    inset:-10px;
 
-    border-radius:42px;
+    border-radius:32px;
 
     border:
         1px solid
@@ -3261,7 +3261,7 @@ input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shad
 @media(max-width:560px){
   #app{padding:0 14px 32px!important}.dashboard{padding-top:6px!important}.topbar{padding-top:22px!important}.brandTitle{font-size:30px!important}.brandStatus::after{font-size:16px!important}
   .loginCard{width:92vw!important;padding:34px 28px 40px!important;border-radius:28px!important}.loginIcon{width:88px!important;height:88px!important;margin-bottom:30px!important}.loginTitle{font-size:36px!important}.loginText{font-size:18px!important;margin-bottom:30px!important}input[type=password]{height:82px!important;font-size:22px!important;padding:0 24px!important;border-radius:24px!important}.primary{height:82px!important;font-size:22px!important;border-radius:24px!important}
-  .introLogo{width:78px!important;height:78px!important;border-radius:24px!important;margin-bottom:30px!important}.introLogo .zenStar{font-size:34px!important}.introWelcome{font-size:56px!important}.introSub{font-size:17px!important;letter-spacing:.29em!important;margin:32px 0 42px!important}.loadingLine{width:78vw!important}
+  .introLogo{width:78px!important;height:78px!important;border-radius:24px!important;margin-bottom:30px!important}.introLogo .zenStar{font-size:31px!important}.introWelcome{font-size:56px!important}.introSub{font-size:17px!important;letter-spacing:.29em!important;margin:32px 0 42px!important}.loadingLine{width:78vw!important}
   .uploadCard{padding:26px 20px 24px!important}.uploadButton,.startUploadButton{height:72px!important;font-size:20px!important;border-radius:22px!important}.selectedFilesText{font-size:18px!important;margin-bottom:28px!important}.filesHeader{padding:22px 20px 16px!important}.filesTitle{font-size:26px!important}.viewButtons{top:-54px!important}.viewBtn{width:62px!important;height:46px!important}.zenInfoCard{padding:26px 20px}.zenInfoCard p{font-size:17px!important}.zenQRCode{width:210px;height:210px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
@@ -3269,8 +3269,8 @@ input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shad
 
 /* Final Cloud Zen intro polish */
 @media (prefers-reduced-motion: reduce){
-  .introLogo,.introLogo .zenStar,.introWelcome{animation-duration:3.2s!important;}
-  .loadingLine::before{animation-duration:3.2s!important;}
+  .introLogo,.introLogo .zenStar,.introWelcome{animation-duration:.01ms!important;animation-iteration-count:1!important;}
+  .loadingLine::before{animation-duration:.01ms!important;animation-iteration-count:1!important;}
 }
 </style>
 
@@ -3279,7 +3279,7 @@ input[type=password]:focus{border-color:rgba(243,180,207,.65)!important;box-shad
      QR CODE LIBRARY
 ======================================================= -->
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" async defer></script>
 
 </head>
 
@@ -3994,16 +3994,13 @@ function addShootingStar(){
 
 setInterval(
     () => {
-
-        if(
-            Math.random() > .28
-        ){
-
+        // A steady stream of visible shooting stars gives the intro the
+        // requested live, realistic cosmic feel without overwhelming it.
+        if(Math.random() > .18){
             addShootingStar();
         }
-
     },
-    1050
+    900
 );
 
 
@@ -7549,10 +7546,5 @@ document
 
                     document
                         .querySelectorAll(
-                            ".cloudTab"
-                        )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                        
+    
 Preview truncated for large file
