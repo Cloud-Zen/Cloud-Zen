@@ -15,7 +15,7 @@
     content="#07080d"
 >
 
-<title>my-personal-cloud</title>
+<title>My Personal Cloud</title>
 
 <style>
 
@@ -25,41 +25,24 @@ ROOT
 
 :root{
 
-    --peach:
-        #f3b4cf;
+    --bg:#07080d;
+    --panel:rgba(15,17,28,.76);
+    --panel2:rgba(22,24,38,.72);
 
-    --peach-light:
-        #f6c2ae;
+    --text:#f7f4f7;
+    --muted:#96949f;
 
-    --blue:
-        #b9c9ff;
+    --peach:#f3b4cf;
+    --peach-light:#f6c2ae;
+    --blue:#b9c9ff;
+    --yellow:#ffe28a;
+    --cream:#fff2c7;
 
-    --yellow:
-        #ffe28a;
+    --line:rgba(255,255,255,.09);
 
-    --cream:
-        #fff2c7;
-
-    --bg:
-        #07080d;
-
-    --text:
-        #f7f4f7;
-
-    --muted:
-        #96949f;
-
-    --soft:
-        #777580;
-
-    --line:
-        rgba(
-            255,
-            255,
-            255,
-            .075
-        );
-
+    --shadow:
+        0 25px 80px
+        rgba(0,0,0,.45);
 }
 
 
@@ -68,41 +51,26 @@ RESET
 ========================================================= */
 
 *{
-
-    box-sizing:
-        border-box;
-
-    -webkit-tap-highlight-color:
-        transparent;
-
+    box-sizing:border-box;
 }
 
-html{
-
-    min-height:
-        100%;
-
-    background:
-        var(--bg);
-
+html,
+body{
+    margin:0;
+    min-height:100%;
 }
 
 body{
 
-    margin:
-        0;
-
-    min-height:
-        100vh;
-
-    padding:
-        16px;
-
     background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(110,120,255,.12),
+            transparent 45%
+        ),
         var(--bg);
 
-    color:
-        var(--text);
+    color:var(--text);
 
     font-family:
         Inter,
@@ -113,352 +81,26 @@ body{
         "Segoe UI",
         sans-serif;
 
-    overflow-x:
-        hidden;
-
+    overflow-x:hidden;
 }
 
 
 /* =========================================================
-UPGRADED REALISTIC STAR SKY
+STAR BACKGROUND
 ========================================================= */
 
-#starCanvas{
+#spaceCanvas{
 
-    position:
-        fixed;
+    position:fixed;
 
-    inset:
-        0;
+    inset:0;
 
-    width:
-        100%;
+    width:100%;
+    height:100%;
 
-    height:
-        100%;
+    pointer-events:none;
 
-    z-index:
-        0;
-
-    pointer-events:
-        none;
-
-    background:
-
-        radial-gradient(
-            ellipse at 50% 42%,
-            rgba(
-                105,
-                120,
-                170,
-                .035
-            ),
-            transparent 56%
-        ),
-
-        radial-gradient(
-            ellipse at 18% 15%,
-            rgba(
-                243,
-                180,
-                207,
-                .045
-            ),
-            transparent 40%
-        ),
-
-        radial-gradient(
-            ellipse at 84% 28%,
-            rgba(
-                185,
-                201,
-                255,
-                .038
-            ),
-            transparent 42%
-        ),
-
-        radial-gradient(
-            ellipse at 62% 88%,
-            rgba(
-                255,
-                226,
-                138,
-                .028
-            ),
-            transparent 43%
-        ),
-
-        #07080d;
-
-}
-
-
-/* =========================================================
-SUBTLE REAL SPACE DUST
-========================================================= */
-
-#spaceDust{
-
-    position:
-        fixed;
-
-    inset:
-        -18%;
-
-    z-index:
-        1;
-
-    pointer-events:
-        none;
-
-    background:
-
-        radial-gradient(
-            ellipse at 25% 30%,
-            rgba(
-                255,
-                255,
-                255,
-                .026
-            ),
-            transparent 30%
-        ),
-
-        radial-gradient(
-            ellipse at 72% 58%,
-            rgba(
-                150,
-                160,
-                220,
-                .022
-            ),
-            transparent 34%
-        ),
-
-        radial-gradient(
-            ellipse at 52% 82%,
-            rgba(
-                255,
-                210,
-                198,
-                .018
-            ),
-            transparent 32%
-        );
-
-    filter:
-        blur(
-            22px
-        );
-
-    opacity:
-        .72;
-
-    animation:
-        spaceDustMove
-        30s
-        ease-in-out
-        infinite
-        alternate;
-
-}
-
-
-@keyframes spaceDustMove{
-
-    0%{
-
-        transform:
-            translate3d(
-                -1.5%,
-                -1%,
-                0
-            )
-            scale(
-                1
-            );
-
-    }
-
-    50%{
-
-        transform:
-            translate3d(
-                1%,
-                1.5%,
-                0
-            )
-            scale(
-                1.025
-            );
-
-    }
-
-    100%{
-
-        transform:
-            translate3d(
-                1.5%,
-                -1%,
-                0
-            )
-            scale(
-                1.04
-            );
-
-    }
-
-}
-
-
-/* =========================================================
-REALISTIC STAR OVERLAY
-========================================================= */
-
-#starGlowLayer{
-
-    position:
-        fixed;
-
-    inset:
-        0;
-
-    z-index:
-        2;
-
-    pointer-events:
-        none;
-
-    background:
-
-        radial-gradient(
-            circle at 50% 50%,
-            transparent 0%,
-            transparent 52%,
-            rgba(
-                0,
-                0,
-                0,
-                .12
-            ) 100%
-        );
-
-}
-
-
-/* =========================================================
-AMBIENT GLOW
-========================================================= */
-
-#ambientGlow{
-
-    position:
-        fixed;
-
-    inset:
-        -22%;
-
-    z-index:
-        3;
-
-    pointer-events:
-        none;
-
-    background:
-
-        radial-gradient(
-            circle at 18% 22%,
-            rgba(
-                243,
-                180,
-                207,
-                .065
-            ),
-            transparent 24%
-        ),
-
-        radial-gradient(
-            circle at 80% 34%,
-            rgba(
-                185,
-                201,
-                255,
-                .055
-            ),
-            transparent 25%
-        ),
-
-        radial-gradient(
-            circle at 58% 88%,
-            rgba(
-                255,
-                226,
-                138,
-                .055
-            ),
-            transparent 25%
-        );
-
-    filter:
-        blur(
-            62px
-        );
-
-    animation:
-        ambientMove
-        18s
-        ease-in-out
-        infinite
-        alternate;
-
-}
-
-
-@keyframes ambientMove{
-
-    0%{
-
-        transform:
-            translate3d(
-                -2%,
-                -1%,
-                0
-            )
-            scale(
-                1
-            );
-
-    }
-
-    50%{
-
-        transform:
-            translate3d(
-                2%,
-                2%,
-                0
-            )
-            scale(
-                1.045
-            );
-
-    }
-
-    100%{
-
-        transform:
-            translate3d(
-                -1%,
-                3%,
-                0
-            )
-            scale(
-                1.02
-            );
-
-    }
-
+    z-index:0;
 }
 
 
@@ -468,278 +110,157 @@ APP
 
 #app{
 
-    position:
-        relative;
+    position:relative;
 
-    z-index:
-        5;
+    z-index:2;
 
-    min-height:
-        100vh;
+    min-height:100vh;
 
+    padding:
+        max(20px, env(safe-area-inset-top))
+        18px
+        max(30px, env(safe-area-inset-bottom));
 }
 
 
 /* =========================================================
-INTRO SCREEN
+INTRO
 ========================================================= */
 
 #introScreen{
 
-    position:
-        fixed;
+    position:fixed;
 
-    inset:
-        0;
+    inset:0;
 
-    z-index:
-        100000;
+    z-index:100;
 
-    display:
-        flex;
+    display:flex;
 
-    align-items:
-        center;
+    align-items:center;
 
-    justify-content:
-        center;
-
-    padding:
-        24px;
+    justify-content:center;
 
     background:
-        transparent;
+        radial-gradient(
+            circle at center,
+            rgba(20,24,50,.88),
+            rgba(4,5,10,.98)
+        );
 
     transition:
-
-        opacity
-        .9s
-        ease,
-
-        visibility
-        .9s
-        ease;
-
+        opacity .8s ease,
+        visibility .8s ease;
 }
-
 
 #introScreen.hide{
 
-    opacity:
-        0;
+    opacity:0;
 
-    visibility:
-        hidden;
+    visibility:hidden;
 
-    pointer-events:
-        none;
-
+    pointer-events:none;
 }
 
 
-.intro-content{
+.introContent{
 
-    width:
-        min(
-            650px,
-            100%
-        );
+    width:min(
+        520px,
+        90vw
+    );
 
-    text-align:
-        center;
-
-    position:
-        relative;
-
-    z-index:
-        3;
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
+    text-align:center;
 }
 
 
-.intro-logo{
+.introLogo{
 
-    width:
-        106px;
+    width:108px;
+    height:108px;
 
-    height:
-        106px;
+    margin:0 auto 24px;
 
-    margin:
-        0 auto 58px;
+    border-radius:32px;
 
-    display:
-        flex;
+    display:grid;
 
-    align-items:
-        center;
+    place-items:center;
 
-    justify-content:
-        center;
+    font-size:44px;
 
-    border-radius:
-        32px;
-
-    font-size:
-        44px;
-
-    font-weight:
-        900;
-
-    color:
-        #fff;
+    font-weight:900;
 
     background:
-
         linear-gradient(
-            135deg,
-            rgba(
-                255,
-                255,
-                255,
-                .055
-            ),
-            rgba(
-                255,
-                226,
-                138,
-                .08
-            ),
-            rgba(
-                243,
-                180,
-                207,
-                .08
-            )
+            145deg,
+            rgba(185,201,255,.28),
+            rgba(243,180,207,.14)
         );
 
     border:
         1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .18
-        );
+        rgba(255,255,255,.2);
 
     box-shadow:
+        inset 0 0 35px
+        rgba(185,201,255,.18),
 
-        0 0 40px
-        rgba(
-            243,
-            180,
-            207,
-            .055
-        ),
-
-        0 0 65px
-        rgba(
-            255,
-            226,
-            138,
-            .035
-        ),
-
-        inset 0 0 30px
-        rgba(
-            255,
-            255,
-            255,
-            .035
-        );
-
-    backdrop-filter:
-        blur(
-            14px
-        );
-
-    -webkit-backdrop-filter:
-        blur(
-            14px
-        );
+        0 0 55px
+        rgba(185,201,255,.12);
 
     animation:
-        introFloat
-        4.5s
-        ease-in-out
-        infinite;
-
+        logoPulse 3s ease-in-out infinite;
 }
 
 
-@keyframes introFloat{
+@keyframes logoPulse{
 
     0%,
     100%{
-
-        transform:
-            translateY(
-                0
-            );
-
+        transform:scale(1);
+        filter:brightness(1);
     }
 
     50%{
-
-        transform:
-            translateY(
-                -7px
-            );
-
+        transform:scale(1.04);
+        filter:brightness(1.25);
     }
-
 }
 
 
-.intro-welcome{
+.introWelcome{
 
-    margin:
-        0;
-
-    color:
-        #f4b9a9;
+    margin:0;
 
     font-size:
         clamp(
-            48px,
+            42px,
             11vw,
             70px
         );
 
-    line-height:
-        1;
+    line-height:.95;
 
-    font-weight:
-        850;
+    font-weight:900;
 
-    letter-spacing:
-        -3px;
+    letter-spacing:-.06em;
 
-    text-shadow:
-
-        0 0 24px
-        rgba(
-            243,
-            180,
-            207,
-            .10
+    background:
+        linear-gradient(
+            90deg,
+            var(--blue),
+            var(--peach),
+            var(--yellow)
         );
 
-    animation:
-        welcomePulse
-        2.8s
-        ease-in-out
-        infinite;
+    -webkit-background-clip:text;
+    background-clip:text;
 
+    color:transparent;
+
+    animation:
+        welcomePulse 2.5s ease-in-out infinite;
 }
 
 
@@ -747,1712 +268,804 @@ INTRO SCREEN
 
     0%,
     100%{
-
-        opacity:
-            .78;
-
+        filter:brightness(1);
     }
 
     50%{
-
-        opacity:
-            1;
-
+        filter:brightness(1.25);
     }
-
 }
 
 
-.intro-title{
+.introSub{
 
     margin:
-        28px 0 0;
-
-    font-size:
-        clamp(
-            20px,
-            5vw,
-            27px
-        );
-
-    line-height:
-        1.2;
-
-    font-weight:
-        500;
-
-    letter-spacing:
-        8px;
-
-    text-transform:
-        lowercase;
-
-    color:
-        #f0eef3;
-
-    text-shadow:
-
-        0 0 18px
-        rgba(
-            255,
-            255,
-            255,
-            .055
-        );
-
-}
-
-
-.intro-line{
-
-    width:
-        min(
-            345px,
-            78vw
-        );
-
-    height:
-        2px;
-
-    margin:
-        49px auto 0;
-
-    border-radius:
-        100px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #f2b5a9 0%,
-            #efc0c7 48%,
-            #ffe17b 100%
-        );
-
-    box-shadow:
-
-        0 0 14px
-        rgba(
-            243,
-            180,
-            207,
-            .10
-        );
-
-}
-
-
-.intro-subtitle{
-
-    max-width:
-        600px;
-
-    margin:
-        43px auto 0;
-
-    color:
-        #77747f;
-
-    font-size:
-        16px;
-
-    line-height:
-        1.6;
-
-    font-weight:
-        500;
-
-    letter-spacing:
-        5px;
-
-    text-transform:
-        uppercase;
-
-}
-
-
-/* =========================================================
-PASSWORD
-========================================================= */
-
-#passwordScreen{
-
-    position:
-        fixed;
-
-    inset:
-        0;
-
-    z-index:
-        99999;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    padding:
-        20px;
-
-    background:
-        rgba(
-            7,
-            8,
-            13,
-            .08
-        );
-
-    backdrop-filter:
-        blur(
-            3px
-        );
-
-    -webkit-backdrop-filter:
-        blur(
-            3px
-        );
-
-    opacity:
-        0;
-
-    visibility:
-        hidden;
-
-    pointer-events:
-        none;
-
-    transition:
-
-        opacity
-        .75s
-        ease,
-
-        visibility
-        .75s
-        ease;
-
-}
-
-
-#passwordScreen.show{
-
-    opacity:
-        1;
-
-    visibility:
-        visible;
-
-    pointer-events:
-        auto;
-
-}
-
-
-#passwordScreen.hide{
-
-    opacity:
-        0;
-
-    visibility:
-        hidden;
-
-    pointer-events:
-        none;
-
-}
-
-
-.password-card{
-
-    width:
-        100%;
-
-    max-width:
-        460px;
-
-    padding:
-        32px;
-
-    border-radius:
+        16px
+        0
         28px;
 
-    background:
+    color:var(--muted);
 
-        linear-gradient(
-            145deg,
-            rgba(
-                28,
-                28,
-                37,
-                .68
-            ),
-            rgba(
-                9,
-                10,
-                16,
-                .78
-            )
-        );
-
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .14
-        );
-
-    box-shadow:
-
-        0 28px 80px
-        rgba(
-            0,
-            0,
-            0,
-            .40
-        ),
-
-        inset 0 1px 0
-        rgba(
-            255,
-            255,
-            255,
-            .05
-        );
-
-    backdrop-filter:
-        blur(
-            16px
-        );
-
-    -webkit-backdrop-filter:
-        blur(
-            16px
-        );
-
-    animation:
-        passwordCardIn
-        .8s
-        cubic-bezier(
-            .2,
-            .8,
-            .2,
-            1
-        );
-
+    font-size:14px;
 }
 
 
-@keyframes passwordCardIn{
+.loadingLine{
 
-    from{
+    position:relative;
 
-        opacity:
-            0;
+    width:min(
+        350px,
+        78vw
+    );
 
-        transform:
-            translateY(
-                22px
-            )
-            scale(
-                .975
-            );
+    height:4px;
 
-    }
+    margin:auto;
 
-    to{
+    overflow:hidden;
 
-        opacity:
-            1;
-
-        transform:
-            translateY(
-                0
-            )
-            scale(
-                1
-            );
-
-    }
-
-}
-
-
-.password-logo{
-
-    width:
-        82px;
-
-    height:
-        82px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    margin-bottom:
-        23px;
-
-    border-radius:
-        25px;
-
-    font-size:
-        34px;
+    border-radius:100px;
 
     background:
-
-        linear-gradient(
-            135deg,
-            rgba(
-                255,
-                226,
-                138,
-                .14
-            ),
-            rgba(
-                243,
-                180,
-                207,
-                .14
-            ),
-            rgba(
-                185,
-                201,
-                255,
-                .12
-            )
-        );
-
-    border:
-        1px solid
-        rgba(
-            255,
-            226,
-            138,
-            .24
-        );
-
-    box-shadow:
-
-        0 0 30px
-        rgba(
-            255,
-            226,
-            138,
-            .06
-        );
-
+        rgba(255,255,255,.08);
 }
 
 
-.password-title{
+.loadingLine::before{
 
-    margin:
-        0;
+    content:"";
 
-    font-size:
-        clamp(
-            35px,
-            8vw,
-            48px
-        );
+    position:absolute;
 
-    line-height:
-        1.05;
+    inset:0;
 
-    letter-spacing:
-        -2px;
-
-    font-weight:
-        900;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #ffffff,
-            #efb4d0,
-            #ffe18a
-        );
-
-    -webkit-background-clip:
-        text;
-
-    background-clip:
-        text;
-
-    color:
-        transparent;
-
-}
-
-
-.password-subtitle{
-
-    margin:
-        14px 0 23px;
-
-    color:
-        #aaa7b3;
-
-    font-size:
-        15px;
-
-    line-height:
-        1.6;
-
-}
-
-
-.password-input{
-
-    width:
-        100%;
-
-    padding:
-        17px 18px;
-
-    border-radius:
-        16px;
-
-    outline:
-        none;
-
-    border:
-        1px solid
-        rgba(
-            243,
-            180,
-            207,
-            .40
-        );
-
-    background:
-        rgba(
-            2,
-            3,
-            9,
-            .82
-        );
-
-    color:
-        #fff;
-
-    font-size:
-        16px;
-
-    caret-color:
-        #efb1d0;
-
-    box-shadow:
-        inset 0 1px 9px
-        rgba(
-            0,
-            0,
-            0,
-            .28
-        );
-
-    transition:
-
-        border-color
-        .25s
-        ease,
-
-        box-shadow
-        .25s
-        ease,
-
-        background
-        .25s
-        ease;
-
-}
-
-
-.password-input::placeholder{
-
-    color:
-        #85828f;
-
-}
-
-
-.password-input:focus{
-
-    background:
-        rgba(
-            3,
-            4,
-            11,
-            .94
-        );
-
-    border-color:
-        rgba(
-            243,
-            180,
-            207,
-            .78
-        );
-
-    box-shadow:
-
-        0 0 0 4px
-        rgba(
-            243,
-            180,
-            207,
-            .08
-        ),
-
-        0 0 24px
-        rgba(
-            243,
-            180,
-            207,
-            .09
-        ),
-
-        inset 0 1px 9px
-        rgba(
-            0,
-            0,
-            0,
-            .32
-        );
-
-}
-
-
-.password-button{
-
-    width:
-        100%;
-
-    margin-top:
-        13px;
-
-    padding:
-        17px;
-
-    border:
-        0;
-
-    border-radius:
-        16px;
-
-    color:
-        #17151b;
-
-    font-size:
-        16px;
-
-    font-weight:
-        900;
-
-    cursor:
-        pointer;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #efb1d0,
-            #f4c2ac,
-            #ffe078
-        );
-
-    box-shadow:
-
-        0 10px 28px
-        rgba(
-            255,
-            224,
-            120,
-            .08
-        );
-
-    transition:
-
-        transform
-        .2s
-        ease,
-
-        box-shadow
-        .2s
-        ease;
-
-}
-
-
-.password-button:hover{
-
-    transform:
-        translateY(
-            -2px
-        );
-
-    box-shadow:
-
-        0 14px 35px
-        rgba(
-            255,
-            224,
-            120,
-            .13
-        );
-
-}
-
-
-.password-button:active{
-
-    transform:
-        scale(
-            .985
-        );
-
-}
-
-
-.password-error{
-
-    min-height:
-        20px;
-
-    margin-top:
-        11px;
-
-    color:
-        #ee9faa;
-
-    font-size:
-        13px;
-
-    text-align:
-        center;
-
-}
-
-
-/* =========================================================
-MAIN CONTAINER
-========================================================= */
-
-#mainContainer{
-
-    width:
-        100%;
-
-    max-width:
-        700px;
-
-    margin:
-        auto;
-
-    opacity:
-        0;
-
-    transform:
-        translateY(
-            10px
-        );
-
-    transition:
-
-        opacity
-        .75s
-        ease,
-
-        transform
-        .75s
-        ease;
-
-}
-
-
-#mainContainer.visible{
-
-    opacity:
-        1;
-
-    transform:
-        translateY(
-            0
-        );
-
-}
-
-
-/* =========================================================
-CARDS
-========================================================= */
-
-.card{
-
-    position:
-        relative;
-
-    overflow:
-        hidden;
-
-    margin-bottom:
-        18px;
-
-    padding:
-        22px;
-
-    border-radius:
-        24px;
-
-    background:
-
-        linear-gradient(
-            145deg,
-            rgba(
-                25,
-                25,
-                34,
-                .40
-            ),
-            rgba(
-                9,
-                10,
-                16,
-                .46
-            )
-        );
-
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .085
-        );
-
-    box-shadow:
-
-        0 20px 55px
-        rgba(
-            0,
-            0,
-            0,
-            .18
-        ),
-
-        inset 0 1px 0
-        rgba(
-            255,
-            255,
-            255,
-            .025
-        );
-
-    backdrop-filter:
-        blur(
-            9px
-        );
-
-    -webkit-backdrop-filter:
-        blur(
-            9px
-        );
-
-    animation:
-        cardIn
-        .65s
-        ease
-        both;
-
-}
-
-
-.card::before{
-
-    content:
-        "";
-
-    position:
-        absolute;
-
-    inset:
-        0;
-
-    pointer-events:
-        none;
-
-    background:
-
-        radial-gradient(
-            circle at 0% 0%,
-            rgba(
-                243,
-                180,
-                207,
-                .032
-            ),
-            transparent 30%
-        ),
-
-        radial-gradient(
-            circle at 100% 100%,
-            rgba(
-                255,
-                226,
-                138,
-                .027
-            ),
-            transparent 30%
-        );
-
-}
-
-
-@keyframes cardIn{
-
-    from{
-
-        opacity:
-            0;
-
-        transform:
-            translateY(
-                14px
-            );
-
-    }
-
-    to{
-
-        opacity:
-            1;
-
-        transform:
-            translateY(
-                0
-            );
-
-    }
-
-}
-
-
-/* =========================================================
-LOGO
-========================================================= */
-
-.logo{
-
-    position:
-        relative;
-
-    text-align:
-        center;
-
-    font-size:
-        30px;
-
-    font-weight:
-        900;
-
-    letter-spacing:
-        -1.4px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #efafd0,
-            #f4dce8,
-            #ffe181
-        );
-
-    -webkit-background-clip:
-        text;
-
-    background-clip:
-        text;
-
-    color:
-        transparent;
-
-}
-
-
-.subtitle{
-
-    position:
-        relative;
-
-    text-align:
-        center;
-
-    color:
-        #918f9b;
-
-    font-size:
-        13px;
-
-    margin:
-        7px 0 21px;
-
-    line-height:
-        1.6;
-
-}
-
-
-/* =========================================================
-BUTTONS
-========================================================= */
-
-button{
-
-    width:
-        100%;
-
-    border:
-        0;
-
-    border-radius:
-        15px;
-
-    padding:
-        15px;
-
-    margin-top:
-        10px;
-
-    cursor:
-        pointer;
-
-    font-size:
-        15px;
-
-    font-weight:
-        850;
-
-    transition:
-
-        transform
-        .2s
-        ease,
-
-        filter
-        .2s
-        ease,
-
-        box-shadow
-        .2s
-        ease;
-
-}
-
-
-button:hover{
-
-    filter:
-        brightness(
-            1.035
-        );
-
-    transform:
-        translateY(
-            -1px
-        );
-
-}
-
-
-button:active{
-
-    transform:
-        scale(
-            .985
-        );
-
-}
-
-
-button:disabled{
-
-    opacity:
-        .45;
-
-    cursor:
-        not-allowed;
-
-    transform:
-        none;
-
-}
-
-
-.select{
-
-    color:
-        #17151a;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #efb3d0,
-            #f5c1ad
-        );
-
-}
-
-
-.folder{
-
-    color:
-        #17151a;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #b8c8ff,
-            #d8dfff
-        );
-
-}
-
-
-.upload{
-
-    color:
-        #17151a;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #efb1d0,
-            #f4c4ad,
-            #ffe078
-        );
-
-}
-
-
-/* =========================================================
-FILE INPUT
-========================================================= */
-
-input[type="file"]{
-
-    display:
-        none;
-
-}
-
-
-/* =========================================================
-SELECTED
-========================================================= */
-
-.selected{
-
-    text-align:
-        center;
-
-    color:
-        #92909c;
-
-    font-size:
-        13px;
-
-    margin:
-        15px 0;
-
-    line-height:
-        1.6;
-
-}
-
-
-/* =========================================================
-PROGRESS
-========================================================= */
-
-.progress-container{
-
-    width:
-        100%;
-
-    height:
-        10px;
-
-    overflow:
-        hidden;
-
-    border-radius:
-        50px;
-
-    margin-top:
-        17px;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            .055
-        );
-
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .04
-        );
-
-}
-
-
-.progress{
-
-    position:
-        relative;
-
-    height:
-        100%;
-
-    width:
-        0%;
-
-    border-radius:
-        50px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #b8c7ff,
-            #eeaecf,
-            #f6c2ad,
-            #ffe078
-        );
-
-    box-shadow:
-
-        0 0 16px
-        rgba(
-            243,
-            180,
-            207,
-            .15
-        );
-
-    transition:
-        width .28s ease;
-
-}
-
-
-.progress::after{
-
-    content:
-        "";
-
-    position:
-        absolute;
-
-    top:
-        0;
-
-    bottom:
-        0;
-
-    width:
-        80px;
-
-    left:
-        -90px;
+    width:50%;
 
     background:
         linear-gradient(
             90deg,
             transparent,
-            rgba(
-                255,
-                255,
-                255,
-                .42
-            ),
+            var(--blue),
+            var(--peach),
             transparent
         );
 
-    animation:
-        progressShine
-        1.5s
-        linear
-        infinite;
+    filter:
+        blur(2px);
 
+    animation:
+        loading 1.8s
+        cubic-bezier(.22,.61,.36,1)
+        infinite;
 }
 
 
-@keyframes progressShine{
+.loadingLine::after{
+
+    content:"✦";
+
+    position:absolute;
+
+    top:50%;
+
+    left:-20px;
+
+    transform:
+        translateY(-50%);
+
+    color:white;
+
+    text-shadow:
+        0 0 7px white,
+        0 0 18px var(--blue),
+        0 0 30px var(--peach);
+
+    animation:
+        starLoading 1.8s
+        cubic-bezier(.22,.61,.36,1)
+        infinite;
+}
+
+
+@keyframes loading{
 
     from{
-        left:-90px;
+        transform:translateX(-100%);
     }
 
     to{
-        left:110%;
+        transform:translateX(220%);
     }
-
 }
 
 
-.status{
+@keyframes starLoading{
 
-    text-align:
-        center;
+    from{
+        left:-20px;
+    }
 
-    color:
-        #a09da9;
-
-    font-size:
-        13px;
-
-    margin-top:
-        10px;
-
-    min-height:
-        20px;
-
-    word-break:
-        break-word;
-
-    line-height:
-        1.5;
-
+    to{
+        left:calc(100% + 20px);
+    }
 }
 
 
 /* =========================================================
-UPLOAD LOADER
+LOGIN
 ========================================================= */
 
-.upload-loader{
+.loginWrap{
 
-    display:
-        none;
+    min-height:100vh;
 
-    align-items:
-        center;
+    display:none;
 
-    justify-content:
-        center;
+    align-items:center;
 
-    gap:
-        8px;
-
-    margin-top:
-        9px;
-
-    color:
-        #aaa7b4;
-
-    font-size:
-        12px;
-
+    justify-content:center;
 }
 
 
-.upload-loader.show{
-
-    display:
-        flex;
-
+.loginWrap.show{
+    display:flex;
 }
 
 
-.loader-dot{
+.loginCard{
 
-    width:
-        7px;
+    width:min(
+        430px,
+        94vw
+    );
 
-    height:
-        7px;
-
-    border-radius:
-        50%;
-
-    background:
-        #efb1d0;
-
-    animation:
-        uploadDot
-        1.1s
-        ease-in-out
-        infinite;
-
-}
-
-
-.loader-dot:nth-child(2){
-
-    animation-delay:
-        .15s;
-
-}
-
-
-.loader-dot:nth-child(3){
-
-    animation-delay:
-        .30s;
-
-}
-
-
-@keyframes uploadDot{
-
-    0%,
-    100%{
-
-        opacity:
-            .25;
-
-        transform:
-            translateY(
-                0
-            );
-
-    }
-
-    50%{
-
-        opacity:
-            1;
-
-        transform:
-            translateY(
-                -4px
-            );
-
-    }
-
-}
-
-
-/* =========================================================
-UPLOADING BOX
-========================================================= */
-
-.uploading-box{
-
-    display:
-        none;
-
-    margin-top:
-        15px;
-
-    padding:
-        13px;
-
-    border-radius:
-        13px;
-
-    background:
-        rgba(
-            243,
-            180,
-            207,
-            .025
-        );
+    padding:34px;
 
     border:
         1px solid
-        rgba(
-            243,
-            180,
-            207,
-            .075
-        );
+        var(--line);
 
-    font-size:
-        12px;
-
-    color:
-        #8c8a96;
-
-    line-height:
-        1.6;
-
-}
-
-
-.uploading-box strong{
-
-    color:
-        #e4b2ca;
-
-}
-
-
-/* =========================================================
-STORAGE DASHBOARD
-========================================================= */
-
-.storage-dashboard{
-
-    position:
-        relative;
-
-    margin-top:
-        18px;
-
-    padding:
-        16px;
-
-    border-radius:
-        18px;
+    border-radius:28px;
 
     background:
-        rgba(
-            5,
-            7,
-            14,
-            .62
+        linear-gradient(
+            145deg,
+            rgba(25,28,45,.86),
+            rgba(10,11,18,.86)
         );
 
-    border:
-        1px solid
-        rgba(
-            185,
-            201,
-            255,
-            .12
-        );
+    backdrop-filter:
+        blur(24px);
 
     box-shadow:
-
-        inset 0 1px 0
-        rgba(
-            255,
-            255,
-            255,
-            .035
-        ),
-
-        0 12px 30px
-        rgba(
-            0,
-            0,
-            0,
-            .14
-        );
-
+        var(--shadow);
 }
 
 
-.storage-top{
+.loginTitle{
 
-    display:
-        flex;
+    margin:0 0 8px;
 
-    align-items:
-        center;
+    font-size:32px;
 
-    justify-content:
-        space-between;
-
-    gap:
-        12px;
-
-    margin-bottom:
-        10px;
-
+    font-weight:900;
 }
 
 
-.storage-label{
+.loginText{
 
-    color:
-        #aaa7b4;
+    margin:0 0 24px;
 
-    font-size:
-        12px;
+    color:var(--muted);
 
-    font-weight:
-        700;
-
-    text-transform:
-        uppercase;
-
-    letter-spacing:
-        1px;
-
+    font-size:14px;
 }
 
 
-.storage-value{
+input[type="password"]{
 
-    color:
-        #eeeaf2;
+    width:100%;
 
-    font-size:
-        13px;
+    padding:15px 16px;
 
-    font-weight:
-        800;
+    border-radius:15px;
 
-}
-
-
-.storage-track{
-
-    width:
-        100%;
-
-    height:
-        8px;
-
-    overflow:
-        hidden;
-
-    border-radius:
-        999px;
+    border:
+        1px solid
+        var(--line);
 
     background:
-        rgba(
-            255,
-            255,
-            255,
-            .07
-        );
+        rgba(255,255,255,.045);
 
+    color:white;
+
+    outline:none;
+
+    font-size:16px;
 }
 
 
-.storage-fill{
+input[type="password"]:focus{
 
-    width:
-        0%;
+    border-color:
+        rgba(185,201,255,.55);
 
-    height:
-        100%;
+    box-shadow:
+        0 0 0 4px
+        rgba(185,201,255,.08);
+}
 
-    border-radius:
-        999px;
+
+.primary{
+
+    width:100%;
+
+    margin-top:14px;
+
+    padding:15px;
+
+    border:0;
+
+    border-radius:15px;
+
+    cursor:pointer;
+
+    font-weight:800;
+
+    font-size:15px;
+
+    color:#080912;
 
     background:
+        linear-gradient(
+            100deg,
+            var(--blue),
+            var(--peach),
+            var(--yellow)
+        );
+}
 
+
+.errorText{
+
+    min-height:20px;
+
+    margin-top:12px;
+
+    color:#ff9dba;
+
+    font-size:13px;
+}
+
+
+/* =========================================================
+MAIN
+========================================================= */
+
+.dashboard{
+
+    display:none;
+
+    max-width:1200px;
+
+    margin:auto;
+}
+
+
+.dashboard.show{
+    display:block;
+}
+
+
+.topbar{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    padding:
+        10px
+        0
+        24px;
+}
+
+
+.brand{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+}
+
+
+.brandLogo{
+
+    width:48px;
+    height:48px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(185,201,255,.2),
+            rgba(243,180,207,.13)
+        );
+
+    border:
+        1px solid
+        var(--line);
+
+    box-shadow:
+        inset 0 0 20px
+        rgba(185,201,255,.12);
+}
+
+
+.brandTitle{
+
+    margin:0;
+
+    font-size:18px;
+
+    font-weight:900;
+}
+
+
+.brandStatus{
+
+    margin:3px 0 0;
+
+    color:#8ff0bd;
+
+    font-size:12px;
+}
+
+
+.logout{
+
+    border:
+        1px solid
+        var(--line);
+
+    background:
+        rgba(255,255,255,.04);
+
+    color:var(--muted);
+
+    padding:
+        10px 14px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+}
+
+
+/* =========================================================
+STORAGE CARD
+========================================================= */
+
+.storageCard{
+
+    padding:22px;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(23,25,42,.82),
+            rgba(11,12,20,.72)
+        );
+
+    backdrop-filter:
+        blur(22px);
+
+    box-shadow:
+        var(--shadow);
+}
+
+
+.storageTop{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    align-items:flex-end;
+}
+
+
+.storageLabel{
+
+    color:var(--muted);
+
+    font-size:12px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.12em;
+}
+
+
+.storageNumber{
+
+    margin-top:5px;
+
+    font-size:28px;
+
+    font-weight:900;
+}
+
+
+.storagePercent{
+
+    font-size:24px;
+
+    font-weight:900;
+
+    color:var(--blue);
+}
+
+
+.progress{
+
+    position:relative;
+
+    height:10px;
+
+    margin-top:18px;
+
+    overflow:hidden;
+
+    border-radius:100px;
+
+    background:
+        rgba(255,255,255,.07);
+}
+
+
+.progressBar{
+
+    height:100%;
+
+    width:0%;
+
+    border-radius:100px;
+
+    background:
         linear-gradient(
             90deg,
-            #b8c8ff,
-            #efb1d0,
-            #ffe078
+            var(--blue),
+            var(--peach),
+            var(--yellow)
         );
 
     box-shadow:
+        0 0 18px
+        rgba(185,201,255,.4);
 
-        0 0 15px
-        rgba(
-            239,
-            177,
-            208,
-            .18
+    transition:
+        width .6s ease;
+}
+
+
+.storageBottom{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    margin-top:10px;
+
+    color:var(--muted);
+
+    font-size:12px;
+}
+
+
+/* =========================================================
+STORAGE BREAKDOWN
+========================================================= */
+
+.storageBreakdown{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap:9px;
+
+    margin-top:17px;
+}
+
+
+.breakdownItem{
+
+    padding:12px;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:14px;
+
+    background:
+        rgba(255,255,255,.025);
+}
+
+
+.breakdownLabel{
+
+    color:var(--muted);
+
+    font-size:10px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+}
+
+
+.breakdownValue{
+
+    margin-top:4px;
+
+    font-size:14px;
+
+    font-weight:900;
+}
+
+
+/* =========================================================
+UPLOAD
+========================================================= */
+
+.uploadCard{
+
+    margin-top:18px;
+
+    padding:22px;
+
+    border:
+        1px dashed
+        rgba(185,201,255,.28);
+
+    border-radius:24px;
+
+    background:
+        rgba(185,201,255,.035);
+
+    text-align:center;
+}
+
+
+.uploadButton{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:
+        14px 22px;
+
+    border-radius:15px;
+
+    cursor:pointer;
+
+    font-weight:900;
+
+    color:#090a10;
+
+    background:
+        linear-gradient(
+            100deg,
+            var(--blue),
+            var(--peach)
+        );
+}
+
+
+.uploadHint{
+
+    margin:
+        12px
+        0
+        0;
+
+    color:var(--muted);
+
+    font-size:12px;
+}
+
+
+#fileInput{
+    display:none;
+}
+
+
+#uploadSelectedButton{
+
+    width:auto;
+
+    margin:
+        12px auto
+        0;
+
+    display:none;
+
+    padding:
+        13px 22px;
+}
+
+
+/* =========================================================
+UPLOAD QUEUE
+========================================================= */
+
+#uploadQueue{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    margin-top:15px;
+}
+
+
+.queueItem{
+
+    padding:14px;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:16px;
+
+    background:
+        rgba(255,255,255,.035);
+}
+
+
+.queueTop{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    font-size:13px;
+}
+
+
+.queueName{
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+}
+
+
+.queuePercent{
+
+    color:var(--blue);
+
+    font-weight:800;
+}
+
+
+.queueProgress{
+
+    height:5px;
+
+    margin-top:9px;
+
+    overflow:hidden;
+
+    border-radius:100px;
+
+    background:
+        rgba(255,255,255,.07);
+}
+
+
+.queueProgress > div{
+
+    height:100%;
+
+    width:0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--blue),
+            var(--peach)
         );
 
     transition:
-        width .45s ease;
-
-}
-
-
-.storage-details{
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    gap:
-        10px;
-
-    margin-top:
-        8px;
-
-    color:
-        #716f7b;
-
-    font-size:
-        11px;
-
+        width .2s ease;
 }
 
 
 /* =========================================================
-INFO
+FILES HEADER
 ========================================================= */
 
-.info{
+.filesHeader{
 
-    margin-top:
-        16px;
+    display:flex;
 
-    padding:
-        14px;
+    justify-content:space-between;
 
-    border-radius:
-        14px;
+    align-items:center;
 
-    background:
-        rgba(
-            185,
-            201,
-            255,
-            .022
-        );
+    gap:12px;
 
-    border:
-        1px solid
-        rgba(
-            185,
-            201,
-            255,
-            .06
-        );
+    margin-top:28px;
 
-    color:
-        #898793;
-
-    font-size:
-        12px;
-
-    line-height:
-        1.7;
-
+    margin-bottom:13px;
 }
 
 
-.info b{
+.filesTitle{
 
-    color:
-        #c5c2cd;
+    margin:0;
 
+    font-size:21px;
+
+    font-weight:900;
+}
+
+
+.refresh{
+
+    padding:
+        9px 13px;
+
+    border-radius:12px;
+
+    border:
+        1px solid
+        var(--line);
+
+    color:var(--muted);
+
+    background:
+        rgba(255,255,255,.035);
+
+    cursor:pointer;
 }
 
 
@@ -2460,96 +1073,147 @@ INFO
 FILE TOOLBAR
 ========================================================= */
 
-.file-toolbar{
+.fileToolbar{
 
-    display:
-        flex;
+    display:flex;
 
-    align-items:
-        center;
+    flex-direction:column;
 
-    justify-content:
-        space-between;
+    gap:12px;
 
-    gap:
-        12px;
-
-    margin-bottom:
-        15px;
-
+    margin-bottom:16px;
 }
 
 
-.view-switch{
+.searchBox{
 
-    display:
-        flex;
+    position:relative;
+
+    width:100%;
+}
+
+
+.searchInput{
+
+    width:100%;
 
     padding:
-        3px;
+        14px
+        16px
+        14px
+        43px;
 
-    border-radius:
-        12px;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            .045
-        );
+    border-radius:15px;
 
     border:
         1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .07
-        );
+        var(--line);
 
+    outline:none;
+
+    color:var(--text);
+
+    background:
+        rgba(255,255,255,.045);
+
+    font-size:14px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
 }
 
 
-.view-switch button{
+.searchInput:focus{
 
-    width:
-        auto;
+    border-color:
+        rgba(185,201,255,.5);
 
-    margin:
-        0;
+    box-shadow:
+        0 0 0 4px
+        rgba(185,201,255,.06);
+}
+
+
+.searchIcon{
+
+    position:absolute;
+
+    left:15px;
+
+    top:50%;
+
+    transform:
+        translateY(-50%);
+
+    color:var(--muted);
+
+    pointer-events:none;
+}
+
+
+.filterRow{
+
+    display:flex;
+
+    gap:8px;
+
+    overflow-x:auto;
+
+    padding-bottom:2px;
+
+    scrollbar-width:none;
+}
+
+
+.filterRow::-webkit-scrollbar{
+    display:none;
+}
+
+
+.filterButton{
+
+    flex:
+        0 0 auto;
 
     padding:
-        8px 12px;
+        9px 13px;
 
-    border-radius:
-        9px;
+    border-radius:12px;
 
-    color:
-        #85828e;
+    border:
+        1px solid
+        var(--line);
+
+    color:var(--muted);
 
     background:
-        transparent;
+        rgba(255,255,255,.035);
 
-    font-size:
-        12px;
+    cursor:pointer;
 
+    font-size:12px;
+
+    font-weight:800;
+
+    transition:
+        .2s ease;
 }
 
 
-.view-switch button.active{
+.filterButton.active{
 
-    color:
-        #18151b;
+    color:#090a10;
+
+    border-color:
+        transparent;
 
     background:
-
         linear-gradient(
-            90deg,
-            #efb1d0,
-            #ffe078
+            100deg,
+            var(--blue),
+            var(--peach)
         );
-
 }
 
 
@@ -2557,1207 +1221,647 @@ FILE TOOLBAR
 FILE LIST
 ========================================================= */
 
-h2{
+#fileList{
 
-    position:
-        relative;
+    display:grid;
 
-    text-align:
-        center;
-
-    margin:
-        0 0 15px;
-
-    font-size:
-        20px;
-
-}
-
-
-.file-list{
-
-    max-height:
-        550px;
-
-    overflow-y:
-        auto;
-
-}
-
-
-.file{
-
-    padding:
-        14px;
-
-    margin-bottom:
-        10px;
-
-    border-radius:
-        16px;
-
-    background:
-
-        rgba(
-            8,
-            9,
-            15,
-            .34
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(270px,1fr)
         );
 
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .065
-        );
-
-    transition:
-
-        transform
-        .2s
-        ease,
-
-        border-color
-        .2s
-        ease;
-
-}
-
-
-.file:hover{
-
-    transform:
-        translateY(
-            -2px
-        );
-
-    border-color:
-        rgba(
-            243,
-            180,
-            207,
-            .13
-        );
-
-}
-
-
-.file-name{
-
-    color:
-        #d5d2da;
-
-    font-size:
-        14px;
-
-    font-weight:
-        750;
-
-    line-height:
-        1.5;
-
-    word-break:
-        break-word;
-
-}
-
-
-.file-size{
-
-    color:
-        #74717c;
-
-    font-size:
-        12px;
-
-    margin-top:
-        5px;
-
-    margin-bottom:
-        10px;
-
-}
-
-
-.actions{
-
-    display:
-        flex;
-
-    gap:
-        8px;
-
-}
-
-
-.actions a,
-.actions button{
-
-    flex:
-        1;
-
-    width:
-        auto;
-
-    margin:
-        0;
-
-    padding:
-        10px;
-
-    border-radius:
-        10px;
-
-    text-align:
-        center;
-
-    text-decoration:
-        none;
-
-    font-size:
-        13px;
-
-    font-weight:
-        750;
-
-}
-
-
-.download{
-
-    color:
-        #17151a;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #b8c8ff,
-            #d8dfff
-        );
-
-}
-
-
-.delete{
-
-    color:
-        #fff;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #5a3445,
-            #6b3848
-        );
-
-}
-
-
-.preview-button{
-
-    color:
-        #17151a !important;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #f3c0d3,
-            #f8d2c2
-        ) !important;
-
+    gap:14px;
 }
 
 
 .empty{
 
-    text-align:
-        center;
+    grid-column:1/-1;
 
-    color:
-        #65636f;
+    padding:50px 20px;
 
-    padding:
-        24px;
+    text-align:center;
 
-}
-
-
-/* =========================================================
-GRID VIEW
-========================================================= */
-
-.file-list.grid-view{
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fill,
-            minmax(
-                170px,
-                1fr
-            )
-        );
-
-    gap:
-        12px;
-
-    max-height:
-        600px;
-
-}
-
-
-.file-list.grid-view .file{
-
-    margin:
-        0;
-
-    padding:
-        10px;
-
-}
-
-
-.file-list.grid-view .file-size{
-
-    margin-bottom:
-        8px;
-
-}
-
-
-.file-list.grid-view .actions{
-
-    flex-direction:
-        column;
-
-}
-
-
-.file-list.grid-view .actions a,
-.file-list.grid-view .actions button{
-
-    width:
-        100%;
-
-}
-
-
-/* =========================================================
-FILE THUMBNAIL
-========================================================= */
-
-.file-thumbnail{
-
-    position:
-        relative;
-
-    width:
-        100%;
-
-    height:
-        145px;
-
-    margin-bottom:
-        10px;
-
-    overflow:
-        hidden;
-
-    border-radius:
-        13px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    background:
-        #03040a;
+    color:var(--muted);
 
     border:
         1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .055
-        );
+        var(--line);
 
-}
-
-
-.file-thumbnail img,
-.file-thumbnail video{
-
-    width:
-        100%;
-
-    height:
-        100%;
-
-    object-fit:
-        cover;
-
-}
-
-
-.file-thumbnail-placeholder{
-
-    font-size:
-        35px;
-
-    color:
-        #aaa7b4;
-
-}
-
-
-.video-badge{
-
-    position:
-        absolute;
-
-    right:
-        7px;
-
-    bottom:
-        7px;
-
-    padding:
-        4px 7px;
-
-    border-radius:
-        7px;
-
-    color:
-        #fff;
+    border-radius:22px;
 
     background:
-        rgba(
-            0,
-            0,
-            0,
-            .65
-        );
-
-    backdrop-filter:
-        blur(
-            6px
-        );
-
-    font-size:
-        10px;
-
+        rgba(255,255,255,.025);
 }
 
 
 /* =========================================================
-QUICK PREVIEW MODAL
+FILE CARD
 ========================================================= */
 
-.preview-modal{
+.fileCard{
 
-    position:
-        fixed;
+    overflow:hidden;
 
-    inset:
-        0;
+    border:
+        1px solid
+        var(--line);
 
-    z-index:
-        200000;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    padding:
-        20px;
+    border-radius:22px;
 
     background:
-        rgba(
-            2,
-            3,
-            8,
-            .78
-        );
-
-    backdrop-filter:
-        blur(
-            14px
-        );
-
-    -webkit-backdrop-filter:
-        blur(
-            14px
-        );
-
-    opacity:
-        0;
-
-    visibility:
-        hidden;
-
-    pointer-events:
-        none;
-
-    transition:
-
-        opacity
-        .25s
-        ease,
-
-        visibility
-        .25s
-        ease;
-
-}
-
-
-.preview-modal.show{
-
-    opacity:
-        1;
-
-    visibility:
-        visible;
-
-    pointer-events:
-        auto;
-
-}
-
-
-.preview-modal-card{
-
-    position:
-        relative;
-
-    width:
-        min(
-            900px,
-            100%
-        );
-
-    max-height:
-        90vh;
-
-    overflow:
-        auto;
-
-    padding:
-        16px;
-
-    border-radius:
-        22px;
-
-    background:
-
         linear-gradient(
             145deg,
-            rgba(
-                25,
-                26,
-                36,
-                .94
-            ),
-            rgba(
-                7,
-                8,
-                13,
-                .96
-            )
-        );
-
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .12
+            rgba(22,24,39,.8),
+            rgba(10,11,18,.82)
         );
 
     box-shadow:
+        0 15px 45px
+        rgba(0,0,0,.2);
 
-        0 30px 100px
-        rgba(
-            0,
-            0,
-            0,
-            .55
+    transition:
+        transform .2s ease,
+        border-color .2s ease;
+}
+
+
+.fileCard:hover{
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(185,201,255,.18);
+}
+
+
+.preview{
+
+    position:relative;
+
+    height:175px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(185,201,255,.12),
+            transparent 60%
         );
-
 }
 
 
-.preview-modal-title{
+.preview img{
 
-    padding:
-        4px 45px 13px 4px;
+    width:100%;
+    height:100%;
 
-    color:
-        #eeeaf2;
-
-    font-size:
-        14px;
-
-    font-weight:
-        800;
-
-    word-break:
-        break-word;
-
+    object-fit:cover;
 }
 
 
-.preview-modal-content{
+.preview video{
 
-    width:
-        100%;
+    width:100%;
+    height:100%;
 
-    min-height:
-        180px;
+    object-fit:cover;
+}
 
-    display:
-        flex;
 
-    align-items:
-        center;
+.previewOverlay{
 
-    justify-content:
-        center;
+    position:absolute;
 
-    overflow:
-        hidden;
+    inset:0;
 
-    border-radius:
-        15px;
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    opacity:0;
 
     background:
-        #02030a;
+        rgba(0,0,0,.28);
 
+    transition:
+        opacity .2s ease;
 }
 
 
-.preview-modal-content img,
-.preview-modal-content video{
-
-    display:
-        block;
-
-    width:
-        100%;
-
-    max-height:
-        72vh;
-
-    object-fit:
-        contain;
-
+.preview:hover .previewOverlay{
+    opacity:1;
 }
 
 
-.preview-modal-content audio{
-
-    width:
-        90%;
-
-}
-
-
-.preview-close{
-
-    position:
-        absolute;
-
-    top:
-        12px;
-
-    right:
-        12px;
-
-    z-index:
-        2;
-
-    width:
-        36px !important;
-
-    height:
-        36px;
-
-    margin:
-        0 !important;
+.previewOpen{
 
     padding:
-        0 !important;
+        9px 13px;
 
-    border-radius:
-        50% !important;
-
-    color:
-        #fff !important;
+    border-radius:12px;
 
     background:
-        rgba(
-            255,
-            255,
-            255,
-            .08
-        ) !important;
+        rgba(7,8,13,.72);
 
     border:
         1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .1
-        ) !important;
+        rgba(255,255,255,.14);
 
-    font-size:
-        18px !important;
+    color:white;
 
+    font-size:12px;
+
+    font-weight:800;
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+.fileIcon{
+
+    font-size:55px;
+
+    filter:
+        drop-shadow(
+            0 0 15px
+            rgba(185,201,255,.35)
+        );
+}
+
+
+.fileInfo{
+
+    padding:16px;
+}
+
+
+.fileName{
+
+    margin:0;
+
+    font-size:14px;
+
+    font-weight:800;
+
+    word-break:break-word;
+}
+
+
+.fileMeta{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+
+.fileActions{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:7px;
+
+    margin-top:14px;
+}
+
+
+.fileAction{
+
+    min-width:0;
+
+    padding:10px 6px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    border:
+        1px solid
+        var(--line);
+
+    color:var(--text);
+
+    background:
+        rgba(255,255,255,.04);
+
+    font-weight:700;
+
+    font-size:11px;
+}
+
+
+.fileAction.delete{
+
+    color:#ff9eb9;
+}
+
+
+.fileAction.share{
+
+    color:var(--blue);
 }
 
 
 /* =========================================================
-FAB
+NO SEARCH RESULTS
 ========================================================= */
 
-.upload-fab{
+.noResults{
 
-    position:
-        fixed;
+    grid-column:1/-1;
 
-    right:
+    padding:45px 20px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:22px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    color:var(--muted);
+}
+
+
+/* =========================================================
+AUTO LOCK INDICATOR
+========================================================= */
+
+.lockStatus{
+
+    margin-top:12px;
+
+    text-align:center;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+
+.lockStatus span{
+
+    color:var(--blue);
+
+    font-weight:800;
+}
+
+
+/* =========================================================
+MODAL
+========================================================= */
+
+#viewer{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:80;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        rgba(3,4,8,.88);
+
+    backdrop-filter:
+        blur(18px);
+}
+
+
+#viewer.show{
+    display:flex;
+}
+
+
+.viewerBox{
+
+    width:min(
+        1000px,
+        96vw
+    );
+
+    max-height:92vh;
+
+    overflow:auto;
+
+    padding:18px;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:24px;
+
+    background:
+        #0b0d15;
+
+    box-shadow:
+        var(--shadow);
+}
+
+
+.viewerTop{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:14px;
+}
+
+
+.viewerTitle{
+
+    margin:0;
+
+    font-size:14px;
+
+    font-weight:800;
+
+    word-break:break-word;
+}
+
+
+.closeViewer{
+
+    width:38px;
+    height:38px;
+
+    border:0;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    background:
+        rgba(255,255,255,.07);
+
+    color:white;
+
+    font-size:18px;
+}
+
+
+#viewerContent{
+
+    width:100%;
+
+    max-height:75vh;
+
+    border-radius:16px;
+
+    overflow:hidden;
+}
+
+
+#viewerContent img{
+
+    display:block;
+
+    width:100%;
+
+    max-height:75vh;
+
+    object-fit:contain;
+}
+
+
+#viewerContent video{
+
+    width:100%;
+
+    max-height:75vh;
+}
+
+
+#viewerContent iframe{
+
+    width:100%;
+
+    height:75vh;
+
+    border:0;
+}
+
+
+#viewerContent audio{
+
+    width:100%;
+}
+
+
+/* =========================================================
+LOCK OVERLAY
+========================================================= */
+
+#autoLockOverlay{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:150;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(20,24,50,.95),
+            rgba(4,5,10,.99)
+        );
+
+    backdrop-filter:
+        blur(24px);
+}
+
+
+#autoLockOverlay.show{
+    display:flex;
+}
+
+
+.autoLockBox{
+
+    width:min(
+        430px,
+        94vw
+    );
+
+    padding:32px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(25,28,45,.9),
+            rgba(10,11,18,.92)
+        );
+
+    box-shadow:
+        var(--shadow);
+}
+
+
+.autoLockIcon{
+
+    width:70px;
+    height:70px;
+
+    margin:0 auto 18px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:22px;
+
+    font-size:30px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(185,201,255,.18),
+            rgba(243,180,207,.12)
+        );
+
+    border:
+        1px solid
+        var(--line);
+
+    box-shadow:
+        0 0 35px
+        rgba(185,201,255,.1);
+}
+
+
+.autoLockTitle{
+
+    margin:0;
+
+    font-size:25px;
+
+    font-weight:900;
+}
+
+
+.autoLockText{
+
+    margin:
+        9px
+        0
         22px;
 
-    bottom:
-        calc(
-            22px +
-            env(
-                safe-area-inset-bottom
-            )
-        );
+    color:var(--muted);
 
-    z-index:
-        50000;
+    font-size:13px;
 
-    width:
-        58px;
-
-    height:
-        58px;
-
-    margin:
-        0;
-
-    padding:
-        0;
-
-    border-radius:
-        50%;
-
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            .18
-        );
-
-    color:
-        #17151b;
-
-    background:
-
-        linear-gradient(
-            135deg,
-            #efb1d0,
-            #f4c4ad,
-            #ffe078
-        );
-
-    box-shadow:
-
-        0 12px 35px
-        rgba(
-            0,
-            0,
-            0,
-            .38
-        ),
-
-        0 0 28px
-        rgba(
-            243,
-            180,
-            207,
-            .12
-        );
-
-    font-size:
-        30px;
-
-    line-height:
-        1;
-
-}
-
-
-.upload-fab:hover{
-
-    transform:
-        translateY(
-            -3px
-        )
-        scale(
-            1.03
-        );
-
-}
-
-
-.upload-fab:active{
-
-    transform:
-        scale(
-            .94
-        );
-
-}
-
-
-.upload-fab span{
-
-    display:
-        block;
-
-    transform:
-        translateY(
-            -1px
-        );
-
+    line-height:1.5;
 }
 
 
 /* =========================================================
-QR
+RESPONSIVE
 ========================================================= */
 
-.qr-card{
+@media(max-width:650px){
 
-    text-align:
-        center;
-
-}
-
-
-.qr-title{
-
-    font-size:
-        18px;
-
-    font-weight:
-        850;
-
-}
-
-
-.qr-subtitle{
-
-    color:
-        #777581;
-
-    font-size:
-        12px;
-
-    margin:
-        6px 0 13px;
-
-}
-
-
-#qrcode{
-
-    display:
-        flex;
-
-    justify-content:
-        center;
-
-    align-items:
-        center;
-
-    width:
-        max-content;
-
-    margin:
-        auto;
-
-    padding:
-        7px;
-
-    background:
-        #fff;
-
-    border-radius:
-        11px;
-
-}
-
-
-#qrcode img{
-
-    display:
-        block;
-
-    width:
-        105px !important;
-
-    height:
-        105px !important;
-
-}
-
-
-.qr-url{
-
-    margin-top:
-        9px;
-
-    color:
-        #5e5c67;
-
-    font-size:
-        10px;
-
-    word-break:
-        break-all;
-
-}
-
-
-/* =========================================================
-SCROLLBAR
-========================================================= */
-
-.file-list::-webkit-scrollbar{
-
-    width:
-        5px;
-
-}
-
-
-.file-list::-webkit-scrollbar-track{
-
-    background:
-        transparent;
-
-}
-
-
-.file-list::-webkit-scrollbar-thumb{
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            .10
-        );
-
-    border-radius:
-        20px;
-
-}
-
-
-/* =========================================================
-MOBILE
-========================================================= */
-
-@media(
-    max-width:480px
-){
-
-    body{
-
-        padding:
-            10px;
-
+    #app{
+        padding-left:12px;
+        padding-right:12px;
     }
 
-
-    .intro-logo{
-
-        width:
-            90px;
-
-        height:
-            90px;
-
-        margin-bottom:
-            42px;
-
-        border-radius:
-            28px;
-
-        font-size:
-            38px;
-
+    .loginCard{
+        padding:25px;
     }
 
-
-    .intro-welcome{
-
-        font-size:
-            48px;
-
-        letter-spacing:
-            -2px;
-
+    .storageTop{
+        align-items:flex-start;
     }
 
-
-    .intro-title{
-
-        margin-top:
-            25px;
-
-        font-size:
-            20px;
-
-        letter-spacing:
-            6px;
-
+    .storageNumber{
+        font-size:22px;
     }
 
-
-    .intro-line{
-
-        width:
-            345px;
-
-        max-width:
-            80vw;
-
-        margin-top:
-            45px;
-
+    .storagePercent{
+        font-size:20px;
     }
 
-
-    .intro-subtitle{
-
-        margin-top:
-            40px;
-
-        font-size:
-            13px;
-
-        letter-spacing:
-            4px;
-
+    .storageBreakdown{
+        grid-template-columns:1fr;
     }
 
-
-    .password-card{
-
-        padding:
-            25px;
-
-        border-radius:
-            24px;
-
+    #fileList{
+        grid-template-columns:1fr;
     }
 
-
-    .password-logo{
-
-        width:
-            74px;
-
-        height:
-            74px;
-
-        font-size:
-            30px;
-
+    .preview{
+        height:190px;
     }
 
-
-    .password-title{
-
-        font-size:
-            35px;
-
-    }
-
-
-    .card{
-
-        padding:
-            17px;
-
-        border-radius:
-            20px;
-
-    }
-
-
-    .logo{
-
-        font-size:
-            25px;
-
-    }
-
-
-    .actions{
-
-        flex-direction:
-            column;
-
-    }
-
-
-    .actions a,
-    .actions button{
-
-        width:
-            100%;
-
-    }
-
-
-    .file-toolbar{
-
-        align-items:
-            flex-start;
-
-    }
-
-
-    .file-list.grid-view{
-
+    .fileActions{
         grid-template-columns:
-            repeat(
-                2,
-                minmax(
-                    0,
-                    1fr
-                )
-            );
-
-        gap:
-            9px;
-
+            repeat(2,1fr);
     }
 
-
-    .file-list.grid-view .file{
-
-        padding:
-            8px;
-
+    .filesHeader{
+        align-items:flex-start;
     }
-
-
-    .file-list.grid-view .file-name{
-
-        font-size:
-            12px;
-
-    }
-
-
-    .file-thumbnail{
-
-        height:
-            115px;
-
-    }
-
-
-    .upload-fab{
-
-        right:
-            16px;
-
-        width:
-            54px;
-
-        height:
-            54px;
-
-        font-size:
-            27px;
-
-    }
-
 }
-
-
-/* =========================================================
-REDUCE MOTION
-========================================================= */
-
-@media(
-    prefers-reduced-motion:reduce
-){
-
-    #spaceDust,
-    #ambientGlow,
-    .intro-logo,
-    .intro-welcome,
-    .progress::after{
-
-        animation:
-            none !important;
-
-    }
-
-}
-
-
-/* =========================================================
-SMOOTH STAR PERFORMANCE
-========================================================= */
-
-@media(
-    max-width:600px
-){
-
-    #spaceDust{
-
-        opacity:
-            .55;
-
-    }
-
-}
-
 
 </style>
 
@@ -3767,1526 +1871,2930 @@ SMOOTH STAR PERFORMANCE
 <body>
 
 
-<!-- =========================================================
-UPGRADED REAL STAR BACKGROUND
-========================================================= -->
-
-<canvas id="starCanvas"></canvas>
-
-<div id="spaceDust"></div>
-
-<div id="starGlowLayer"></div>
-
-<div id="ambientGlow"></div>
+<canvas id="spaceCanvas"></canvas>
 
 
-<div id="app">
-
-
-<!-- =========================================================
+<!-- =======================================================
 INTRO
-========================================================= -->
+======================================================= -->
 
-<div id="introScreen">
+<section id="introScreen">
 
-    <div class="intro-content">
+    <div class="introContent">
 
-        <div class="intro-logo">
+        <div class="introLogo">
             ✦
         </div>
 
-        <div class="intro-welcome">
+        <h1 class="introWelcome">
             Welcome
-        </div>
-
-        <div class="intro-title">
-            my-personal-cloud
-        </div>
-
-        <div class="intro-line"></div>
-
-        <div class="intro-subtitle">
-            Preparing Your Private Space
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-PASSWORD
-========================================================= -->
-
-<div id="passwordScreen">
-
-    <div class="password-card">
-
-        <div class="password-logo">
-            ✦
-        </div>
-
-        <h1 class="password-title">
-            Private Access
         </h1>
 
-        <div class="password-subtitle">
-            Enter your password to continue to the website.
-        </div>
+        <p class="introSub">
+            My Personal Cloud
+        </p>
 
-        <input
-            id="passwordInput"
-            class="password-input"
-            type="password"
-            placeholder="Enter password"
-            autocomplete="off"
-        >
-
-        <button
-            class="password-button"
-            type="button"
-            onclick="checkPassword()"
-        >
-            Enter Website
-        </button>
-
-        <div
-            class="password-error"
-            id="passwordError"
-        ></div>
+        <div class="loadingLine"></div>
 
     </div>
 
-</div>
+</section>
 
 
-<!-- =========================================================
-MAIN
-========================================================= -->
+<!-- =======================================================
+APP
+======================================================= -->
 
-<div
-    class="container"
-    id="mainContainer"
-    style="display:none;"
->
+<main id="app">
 
 
-<!-- =========================================================
-UPLOAD CARD
-========================================================= -->
+    <!-- LOGIN -->
 
-<div class="card">
-
-    <div class="logo">
-        my-personal-cloud
-    </div>
-
-    <div class="subtitle">
-        4K Video • Photos • Audio • Documents • Files • Folders
-    </div>
-
-
-    <input
-        id="fileInput"
-        type="file"
-        multiple
+    <section
+        id="loginWrap"
+        class="loginWrap"
     >
 
+        <div class="loginCard">
 
-    <input
-        id="folderInput"
-        type="file"
-        webkitdirectory
-        directory
-        multiple
-    >
+            <h1 class="loginTitle">
+                My Personal Cloud
+            </h1>
 
+            <p class="loginText">
+                Your private cloud storage
+            </p>
 
-    <button
-        class="select"
-        type="button"
-        onclick="
-            playClick();
-            document
-            .getElementById('fileInput')
-            .click()
-        "
-    >
-        Select Multiple Files
-    </button>
-
-
-    <button
-        class="folder"
-        type="button"
-        onclick="
-            playClick();
-            document
-            .getElementById('folderInput')
-            .click()
-        "
-    >
-        Select Complete Folder
-    </button>
-
-
-    <div
-        class="selected"
-        id="selected"
-    >
-        No files selected
-    </div>
-
-
-    <button
-        class="upload"
-        id="uploadButton"
-        type="button"
-        onclick="
-            playClick();
-            startUpload()
-        "
-    >
-        Start Upload
-    </button>
-
-
-    <div class="progress-container">
-
-        <div
-            class="progress"
-            id="progress"
-        ></div>
-
-    </div>
-
-
-    <div
-        class="status"
-        id="status"
-    ></div>
-
-
-    <div
-        class="upload-loader"
-        id="uploadLoader"
-    >
-
-        <span class="loader-dot"></span>
-
-        <span class="loader-dot"></span>
-
-        <span class="loader-dot"></span>
-
-        <span>
-            Uploading securely...
-        </span>
-
-    </div>
-
-
-    <div
-        class="uploading-box"
-        id="uploadingBox"
-    >
-
-        <strong>
-            4K Large File Upload
-        </strong>
-
-        <br>
-
-        Your files are being uploaded in small
-        5 MB chunks. If a chunk fails, the same
-        chunk will automatically retry.
-
-    </div>
-
-
-    <!-- STORAGE -->
-
-    <div class="storage-dashboard">
-
-        <div class="storage-top">
-
-            <div class="storage-label">
-                Cloud Storage
-            </div>
-
-            <div
-                class="storage-value"
-                id="storageValue"
+            <input
+                id="password"
+                type="password"
+                placeholder="Enter password"
+                autocomplete="current-password"
             >
-                0 B / 20 GB
-            </div>
 
-        </div>
-
-
-        <div class="storage-track">
+            <button
+                id="loginButton"
+                class="primary"
+            >
+                Unlock Cloud
+            </button>
 
             <div
-                class="storage-fill"
-                id="storageFill"
+                id="loginError"
+                class="errorText"
             ></div>
 
         </div>
 
+    </section>
 
-        <div class="storage-details">
 
-            <span id="storageUsedText">
-                0 B used
-            </span>
+    <!-- DASHBOARD -->
 
-            <span>
-                20 GB total
-            </span>
+    <section
+        id="dashboard"
+        class="dashboard"
+    >
+
+        <header class="topbar">
+
+            <div class="brand">
+
+                <div class="brandLogo">
+                    ✦
+                </div>
+
+                <div>
+
+                    <h1 class="brandTitle">
+                        My Personal Cloud
+                    </h1>
+
+                    <p class="brandStatus">
+                        ● Secure storage online
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="logoutButton"
+                class="logout"
+            >
+                Logout
+            </button>
+
+        </header>
+
+
+        <!-- STORAGE -->
+
+        <section class="storageCard">
+
+            <div class="storageTop">
+
+                <div>
+
+                    <div class="storageLabel">
+                        Cloud Storage
+                    </div>
+
+                    <div
+                        id="storageNumber"
+                        class="storageNumber"
+                    >
+                        0 B / 10 GB
+                    </div>
+
+                </div>
+
+                <div
+                    id="storagePercent"
+                    class="storagePercent"
+                >
+                    0%
+                </div>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    id="storageBar"
+                    class="progressBar"
+                ></div>
+
+            </div>
+
+
+            <div class="storageBottom">
+
+                <span id="storageUsed">
+                    Used: 0 B
+                </span>
+
+                <span id="storageRemaining">
+                    Free: 10 GB
+                </span>
+
+            </div>
+
+
+            <div class="storageBreakdown">
+
+                <div class="breakdownItem">
+
+                    <div class="breakdownLabel">
+                        Images
+                    </div>
+
+                    <div
+                        id="imageStorage"
+                        class="breakdownValue"
+                    >
+                        0 B
+                    </div>
+
+                </div>
+
+
+                <div class="breakdownItem">
+
+                    <div class="breakdownLabel">
+                        Videos
+                    </div>
+
+                    <div
+                        id="videoStorage"
+                        class="breakdownValue"
+                    >
+                        0 B
+                    </div>
+
+                </div>
+
+
+                <div class="breakdownItem">
+
+                    <div class="breakdownLabel">
+                        Documents
+                    </div>
+
+                    <div
+                        id="documentStorage"
+                        class="breakdownValue"
+                    >
+                        0 B
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- UPLOAD -->
+
+        <section class="uploadCard">
+
+            <label
+                class="uploadButton"
+                for="fileInput"
+            >
+                + Select Files
+            </label>
+
+            <input
+                id="fileInput"
+                type="file"
+                multiple
+                webkitdirectory
+            >
+
+            <button
+                id="uploadSelectedButton"
+                class="primary"
+                type="button"
+            >
+                Upload Selected
+            </button>
+
+            <p class="uploadHint">
+                Select files or a folder first, then press Upload Selected
+            </p>
+
+            <div id="uploadQueue"></div>
+
+        </section>
+
+
+        <!-- FILES -->
+
+        <div class="filesHeader">
+
+            <h2 class="filesTitle">
+                Your Files
+            </h2>
+
+            <button
+                id="refreshButton"
+                class="refresh"
+            >
+                Refresh
+            </button>
 
         </div>
 
+
+        <!-- SEARCH + FILTER -->
+
+        <div class="fileToolbar">
+
+            <div class="searchBox">
+
+                <span class="searchIcon">
+                    🔎
+                </span>
+
+                <input
+                    id="searchInput"
+                    class="searchInput"
+                    type="search"
+                    placeholder="Search your files..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="filterRow">
+
+                <button
+                    class="filterButton active"
+                    data-filter="all"
+                >
+                    All
+                </button>
+
+                <button
+                    class="filterButton"
+                    data-filter="image"
+                >
+                    Images
+                </button>
+
+                <button
+                    class="filterButton"
+                    data-filter="video"
+                >
+                    Videos
+                </button>
+
+                <button
+                    class="filterButton"
+                    data-filter="document"
+                >
+                    Documents
+                </button>
+
+                <button
+                    class="filterButton"
+                    data-filter="audio"
+                >
+                    Audio
+                </button>
+
+                <button
+                    class="filterButton"
+                    data-filter="other"
+                >
+                    Other
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <section id="fileList"></section>
+
+        <div class="lockStatus">
+            Auto-lock after inactivity:
+            <span id="lockCountdown">
+                15:00
+            </span>
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =======================================================
+VIEWER
+======================================================= -->
+
+<section id="viewer">
+
+    <div class="viewerBox">
+
+        <div class="viewerTop">
+
+            <h3
+                id="viewerTitle"
+                class="viewerTitle"
+            ></h3>
+
+            <button
+                id="closeViewer"
+                class="closeViewer"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div id="viewerContent"></div>
+
     </div>
 
-
-    <div class="info">
-
-        <b>
-            4K Large File Upload
-        </b>
-
-        <br>
-
-        Files are uploaded in
-        <strong>
-            5 MB chunks
-        </strong>
-        for better reliability on mobile
-        and slow connections.
-
-        <br><br>
-
-        <b>
-            Automatic Retry:
-        </b>
-
-        5 attempts per chunk
-
-        <br><br>
-
-        <b>
-            Maximum per file:
-        </b>
-
-        20 GB
-
-        <br><br>
-
-        <b>
-            Supported:
-        </b>
-
-        4K Video • Photos • Screenshots •
-        Audio • PDF • ZIP • Documents • Other Files
-
-    </div>
-
-</div>
+</section>
 
 
-<!-- =========================================================
-STORED FILES
-========================================================= -->
+<!-- =======================================================
+AUTO LOCK
+======================================================= -->
 
-<div class="card">
+<section id="autoLockOverlay">
 
-    <div class="file-toolbar">
+    <div class="autoLockBox">
 
-        <h2 style="margin:0;">
-            Stored Files
+        <div class="autoLockIcon">
+            🔒
+        </div>
+
+        <h2 class="autoLockTitle">
+            Cloud Locked
         </h2>
 
-        <div class="view-switch">
-
-            <button
-                id="listViewButton"
-                type="button"
-                class="active"
-                onclick="setFileView('list')"
-            >
-                List
-            </button>
-
-            <button
-                id="gridViewButton"
-                type="button"
-                onclick="setFileView('grid')"
-            >
-                Grid
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <div
-        class="file-list"
-        id="fileList"
-    >
-        Loading...
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-QR
-========================================================= -->
-
-<div class="card qr-card">
-
-    <div class="qr-title">
-        Open Cloud Vault
-    </div>
-
-    <div class="qr-subtitle">
-        Scan this QR code to open this
-        Cloud Vault website
-    </div>
-
-    <div id="qrcode"></div>
-
-    <div
-        class="qr-url"
-        id="qrUrl"
-    ></div>
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<!-- =========================================================
-FAB
-========================================================= -->
-
-<button
-    class="upload-fab"
-    id="uploadFab"
-    type="button"
-    aria-label="Upload files"
-    onclick="openUploadPicker()"
-    style="display:none;"
->
-
-    <span>
-        +
-    </span>
-
-</button>
-
-
-<!-- =========================================================
-PREVIEW MODAL
-========================================================= -->
-
-<div
-    class="preview-modal"
-    id="previewModal"
-    onclick="closePreview(event)"
->
-
-    <div class="preview-modal-card">
+        <p class="autoLockText">
+            Your cloud was automatically locked
+            because there was no activity for a while.
+        </p>
 
         <button
-            class="preview-close"
-            type="button"
-            onclick="closePreview()"
+            id="unlockAgainButton"
+            class="primary"
         >
-            ×
+            Unlock Cloud
         </button>
-
-        <div
-            class="preview-modal-title"
-            id="previewModalTitle"
-        ></div>
-
-        <div
-            class="preview-modal-content"
-            id="previewModalContent"
-        ></div>
 
     </div>
 
-</div>
-
-
-<!-- =========================================================
-QR LIBRARY
-========================================================= -->
-
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-></script>
+</section>
 
 
 <script>
 
 /* =========================================================
-PASSWORD
+ELEMENTS
 ========================================================= */
 
-const VAULT_PASSWORD =
-    "Manish.raju123321";
-
-
-/* =========================================================
-CHUNK SETTINGS
-========================================================= */
-
-const CHUNK_SIZE =
-    5 *
-    1024 *
-    1024;
-
-
-const MAX_FILE_SIZE =
-    20 *
-    1024 *
-    1024 *
-    1024;
-
-
-/* =========================================================
-TOTAL STORAGE
-========================================================= */
-
-const TOTAL_STORAGE =
-    20 *
-    1024 *
-    1024 *
-    1024;
-
-
-const selectedFiles =
-    new Map();
-
-
-let currentFileView =
-    localStorage.getItem(
-        "cloudFileView"
-    ) || "list";
-
-
-/* =========================================================
-UPGRADED REALISTIC STAR SYSTEM
-========================================================= */
-
-const canvas =
+const intro =
     document.getElementById(
-        "starCanvas"
+        "introScreen"
     );
 
-
-const ctx =
-    canvas.getContext(
-        "2d",
-        {
-            alpha:
-                true
-        }
+const loginWrap =
+    document.getElementById(
+        "loginWrap"
     );
 
+const dashboard =
+    document.getElementById(
+        "dashboard"
+    );
 
-let width =
-    0;
+const password =
+    document.getElementById(
+        "password"
+    );
 
+const loginButton =
+    document.getElementById(
+        "loginButton"
+    );
 
-let height =
-    0;
+const loginError =
+    document.getElementById(
+        "loginError"
+    );
 
+const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
 
-let stars =
-    [];
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
 
+const fileList =
+    document.getElementById(
+        "fileList"
+    );
 
-let shootingStars =
-    [];
+const uploadQueue =
+    document.getElementById(
+        "uploadQueue"
+    );
 
+const uploadSelectedButton =
+    document.getElementById(
+        "uploadSelectedButton"
+    );
 
-const desktopStars =
-    230;
+const storageNumber =
+    document.getElementById(
+        "storageNumber"
+    );
 
+const storagePercent =
+    document.getElementById(
+        "storagePercent"
+    );
 
-const tabletStars =
-    165;
+const storageBar =
+    document.getElementById(
+        "storageBar"
+    );
 
+const storageUsed =
+    document.getElementById(
+        "storageUsed"
+    );
 
-const mobileStars =
-    115;
+const storageRemaining =
+    document.getElementById(
+        "storageRemaining"
+    );
 
+const imageStorage =
+    document.getElementById(
+        "imageStorage"
+    );
 
-const starColors = [
+const videoStorage =
+    document.getElementById(
+        "videoStorage"
+    );
 
-    "255,255,255",
+const documentStorage =
+    document.getElementById(
+        "documentStorage"
+    );
 
-    "255,244,247",
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
 
-    "243,180,207",
+const lockCountdown =
+    document.getElementById(
+        "lockCountdown"
+    );
 
-    "185,201,255",
+const autoLockOverlay =
+    document.getElementById(
+        "autoLockOverlay"
+    );
 
-    "255,226,138"
-
-];
+const unlockAgainButton =
+    document.getElementById(
+        "unlockAgainButton"
+    );
 
 
 /* =========================================================
-RANDOM
+GLOBAL FILE STATE
 ========================================================= */
 
-function random(
-    min,
-    max
+let allFiles = [];
+
+let currentFilter =
+    "all";
+
+let currentSearch =
+    "";
+
+let selectedFiles = [];
+
+
+/* =========================================================
+API
+========================================================= */
+
+async function api(
+    url,
+    options = {}
 ){
 
-    return (
-        Math.random() *
-        (
-            max -
-            min
-        )
-        +
-        min
-    );
-
-}
-
-
-/* =========================================================
-CREATE SHOOTING STAR
-========================================================= */
-
-function createShootingStar(){
-
-    if(
-        Math.random() >
-        .35
-    ){
-
-        return;
-
-    }
-
-
-    shootingStars.push({
-
-        x:
-            random(
-                width *
-                    .05,
-                width *
-                    .95
-            ),
-
-        y:
-            random(
-                0,
-                height *
-                    .45
-            ),
-
-        length:
-            random(
-                45,
-                105
-            ),
-
-        speed:
-            random(
-                5,
-                9
-            ),
-
-        opacity:
-            random(
-                .25,
-                .65
-            ),
-
-        life:
-            0,
-
-        maxLife:
-            random(
-                35,
-                75
-            ),
-
-        angle:
-            random(
-                .55,
-                .85
-            )
-
-    });
-
-}
-
-
-/* =========================================================
-RESIZE CANVAS
-========================================================= */
-
-function resizeCanvas(){
-
-    const dpr =
-        Math.min(
-            window.devicePixelRatio ||
-                1,
-            2
+    const response =
+        await fetch(
+            url,
+            {
+                credentials:"same-origin",
+                ...options
+            }
         );
 
 
-    width =
-        window.innerWidth;
+    let data = null;
+
+    try{
+
+        data =
+            await response.json();
+
+    }catch(_){}
 
 
-    height =
-        window.innerHeight;
+    if(
+        response.status === 401
+    ){
+
+        showLogin();
+
+        throw new Error(
+            "Authentication required"
+        );
+    }
 
 
-    canvas.width =
-        width *
-        dpr;
+    if(
+        !response.ok
+    ){
+
+        throw new Error(
+            data?.error ||
+            "Request failed"
+        );
+    }
 
 
-    canvas.height =
-        height *
-        dpr;
-
-
-    canvas.style.width =
-        width +
-        "px";
-
-
-    canvas.style.height =
-        height +
-        "px";
-
-
-    ctx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
-    );
-
-
-    createStars();
-
+    return data;
 }
 
 
 /* =========================================================
-CREATE STARS
+LOGIN
 ========================================================= */
 
-function createStars(){
+async function checkLogin(){
 
-    let count;
+    try{
 
-
-    if(
-        width <=
-        600
-    ){
-
-        count =
-            mobileStars;
-
-    }else if(
-        width <=
-        1000
-    ){
-
-        count =
-            tabletStars;
-
-    }else{
-
-        count =
-            desktopStars;
-
-    }
-
-
-    stars =
-        [];
-
-
-    for(
-        let i = 0;
-        i < count;
-        i++
-    ){
-
-        const randomType =
-            Math.random();
-
-
-        let radius;
-
-
-        let baseAlpha;
-
-
-        let speed;
+        const result =
+            await api(
+                "/api/auth/me"
+            );
 
 
         if(
-            randomType <
-            .72
+            result.authenticated
         ){
 
-            radius =
-                random(
-                    .35,
-                    1.05
-                );
-
-            baseAlpha =
-                random(
-                    .18,
-                    .58
-                );
-
-            speed =
-                random(
-                    .25,
-                    .75
-                );
-
-        }else if(
-            randomType <
-            .94
-        ){
-
-            radius =
-                random(
-                    .85,
-                    1.65
-                );
-
-            baseAlpha =
-                random(
-                    .35,
-                    .78
-                );
-
-            speed =
-                random(
-                    .45,
-                    1.15
-                );
+            showDashboard();
 
         }else{
 
-            radius =
-                random(
-                    1.65,
-                    2.65
-                );
-
-            baseAlpha =
-                random(
-                    .55,
-                    .92
-                );
-
-            speed =
-                random(
-                    .7,
-                    1.45
-                );
-
+            showLogin();
         }
 
+    }catch(_){
 
-        const color =
-            starColors[
-                Math.floor(
-                    Math.random() *
-                    starColors.length
-                )
-            ];
-
-
-        stars.push({
-
-            x:
-                random(
-                    0,
-                    width
-                ),
-
-            y:
-                random(
-                    0,
-                    height
-                ),
-
-            radius:
-                radius,
-
-            baseAlpha:
-                baseAlpha,
-
-            phase:
-                random(
-                    0,
-                    Math.PI *
-                    2
-                ),
-
-            speed:
-                speed,
-
-            color:
-                color,
-
-            driftX:
-                random(
-                    -.55,
-                    .55
-                ),
-
-            driftY:
-                random(
-                    -.35,
-                    .35
-                ),
-
-            cross:
-                radius >
-                1.65 &&
-                Math.random() >
-                .70
-
-        });
-
+        showLogin();
     }
+}
 
+
+function showLogin(){
+
+    autoLockOverlay.classList.remove(
+        "show"
+    );
+
+    loginWrap.classList.add(
+        "show"
+    );
+
+    dashboard.classList.remove(
+        "show"
+    );
+
+    stopAutoLock();
+
+    setTimeout(
+        () => password.focus(),
+        100
+    );
+}
+
+
+function showDashboard(){
+
+    loginWrap.classList.remove(
+        "show"
+    );
+
+    autoLockOverlay.classList.remove(
+        "show"
+    );
+
+    dashboard.classList.add(
+        "show"
+    );
+
+    resetAutoLock();
+
+    loadEverything();
+}
+
+
+loginButton.addEventListener(
+    "click",
+    login
+);
+
+
+password.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key === "Enter"
+        ){
+
+            login();
+        }
+    }
+);
+
+
+async function login(){
+
+    loginError.textContent =
+        "";
+
+    loginButton.disabled =
+        true;
+
+    loginButton.textContent =
+        "Unlocking...";
+
+
+    try{
+
+        await api(
+            "/api/auth/login",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        password:
+                            password.value
+                    })
+            }
+        );
+
+
+        password.value =
+            "";
+
+        showDashboard();
+
+    }catch(error){
+
+        loginError.textContent =
+            error.message;
+
+    }finally{
+
+        loginButton.disabled =
+            false;
+
+        loginButton.textContent =
+            "Unlock Cloud";
+    }
 }
 
 
 /* =========================================================
-DRAW REALISTIC STARS
+LOGOUT
 ========================================================= */
 
-function drawStars(
-    time
-){
+logoutButton.addEventListener(
+    "click",
+    async () => {
 
-    ctx.clearRect(
-        0,
-        0,
-        width,
-        height
-    );
+        try{
 
-
-    /*
-        Very subtle atmospheric haze
-        behind the stars.
-    */
-
-    const haze =
-        ctx.createRadialGradient(
-            width *
-                .5,
-            height *
-                .45,
-            0,
-            width *
-                .5,
-            height *
-                .45,
-            Math.max(
-                width,
-                height
-            ) *
-                .7
-        );
-
-
-    haze.addColorStop(
-        0,
-        "rgba(100,110,150,.018)"
-    );
-
-
-    haze.addColorStop(
-        .55,
-        "rgba(50,60,100,.008)"
-    );
-
-
-    haze.addColorStop(
-        1,
-        "rgba(0,0,0,0)"
-    );
-
-
-    ctx.fillStyle =
-        haze;
-
-
-    ctx.fillRect(
-        0,
-        0,
-        width,
-        height
-    );
-
-
-    for(
-        const star of stars
-    ){
-
-        const pulse =
-            (
-                Math.sin(
-                    time *
-                    .001 *
-                    star.speed
-                    +
-                    star.phase
-                )
-                +
-                1
-            )
-            /
-            2;
-
-
-        const secondaryPulse =
-            (
-                Math.sin(
-                    time *
-                    .00043
-                    +
-                    star.phase *
-                    1.7
-                )
-                +
-                1
-            )
-            /
-            2;
-
-
-        const alpha =
-            Math.max(
-                .08,
-                star.baseAlpha *
-                (
-                    .58 +
-                    pulse *
-                    .48 +
-                    secondaryPulse *
-                    .16
-                )
+            await api(
+                "/api/auth/logout",
+                {
+                    method:"POST"
+                }
             );
 
+        }finally{
 
-        const x =
-            star.x
-            +
-            Math.sin(
-                time *
-                .000055
-                +
-                star.phase
-            )
-            *
-            star.driftX
-            *
-            4;
-
-
-        const y =
-            star.y
-            +
-            Math.cos(
-                time *
-                .000045
-                +
-                star.phase
-            )
-            *
-            star.driftY
-            *
-            4;
-
-
-        /*
-            Larger stars receive
-            a very soft natural halo.
-        */
-
-        if(
-            star.radius >
-                1.25
-        ){
-
-            const glow =
-                ctx.createRadialGradient(
-                    x,
-                    y,
-                    0,
-                    x,
-                    y,
-                    star.radius *
-                    7.5
-                );
-
-
-            glow.addColorStop(
-                0,
-                `rgba(
-                    ${star.color},
-                    ${Math.min(
-                        alpha *
-                        .40,
-                        .34
-                    )}
-                )`
-            );
-
-
-            glow.addColorStop(
-                .25,
-                `rgba(
-                    ${star.color},
-                    ${Math.min(
-                        alpha *
-                        .12,
-                        .11
-                    )}
-                )`
-            );
-
-
-            glow.addColorStop(
-                1,
-                `rgba(
-                    ${star.color},
-                    0
-                )`
-            );
-
-
-            ctx.fillStyle =
-                glow;
-
-
-            ctx.beginPath();
-
-
-            ctx.arc(
-                x,
-                y,
-                star.radius *
-                7.5,
-                0,
-                Math.PI *
-                2
-            );
-
-
-            ctx.fill();
-
+            showLogin();
         }
-
-
-        /*
-            Rare cross-shaped stars.
-        */
-
-        if(
-            star.cross &&
-            alpha >
-            .52
-        ){
-
-            const crossAlpha =
-                Math.min(
-                    alpha *
-                    .58,
-                    .55
-                );
-
-
-            const length =
-                star.radius *
-                6.5;
-
-
-            const gradientVertical =
-                ctx.createLinearGradient(
-                    x,
-                    y -
-                    length,
-                    x,
-                    y +
-                    length
-                );
-
-
-            gradientVertical.addColorStop(
-                0,
-                `rgba(
-                    ${star.color},
-                    0
-                )`
-            );
-
-
-            gradientVertical.addColorStop(
-                .5,
-                `rgba(
-                    ${star.color},
-                    ${crossAlpha}
-                )`
-            );
-
-
-            gradientVertical.addColorStop(
-                1,
-                `rgba(
-                    ${star.color},
-                    0
-                )`
-            );
-
-
-            ctx.strokeStyle =
-                gradientVertical;
-
-
-            ctx.lineWidth =
-                .55;
-
-
-            ctx.beginPath();
-
-
-            ctx.moveTo(
-                x,
-                y -
-                length
-            );
-
-
-            ctx.lineTo(
-                x,
-                y +
-                length
-            );
-
-
-            ctx.stroke();
-
-
-            const gradientHorizontal =
-                ctx.createLinearGradient(
-                    x -
-                    length,
-                    y,
-                    x +
-                    length,
-                    y
-                );
-
-
-            gradientHorizontal.addColorStop(
-                0,
-                `rgba(
-                    ${star.color},
-                    0
-                )`
-            );
-
-
-            gradientHorizontal.addColorStop(
-                .5,
-                `rgba(
-                    ${star.color},
-                    ${crossAlpha}
-                )`
-            );
-
-
-            gradientHorizontal.addColorStop(
-                1,
-                `rgba(
-                    ${star.color},
-                    0
-                )`
-            );
-
-
-            ctx.strokeStyle =
-                gradientHorizontal;
-
-
-            ctx.beginPath();
-
-
-            ctx.moveTo(
-                x -
-                length,
-                y
-            );
-
-
-            ctx.lineTo(
-                x +
-                length,
-                y
-            );
-
-
-            ctx.stroke();
-
-        }
-
-
-        /*
-            Actual star point.
-        */
-
-        ctx.fillStyle =
-            `rgba(
-                ${star.color},
-                ${Math.min(
-                    alpha,
-                    .92
-                )}
-            )`;
-
-
-        ctx.beginPath();
-
-
-        ctx.arc(
-            x,
-            y,
-            star.radius,
-            0,
-            Math.PI *
-            2
-        );
-
-
-        ctx.fill();
-
     }
-
-
-    /*
-        Very rare shooting stars.
-    */
-
-    if(
-        Math.random() <
-        .004
-    ){
-
-        createShootingStar();
-
-    }
-
-
-    for(
-        let i =
-            shootingStars.length -
-            1;
-
-        i >=
-            0;
-
-        i--
-    ){
-
-        const meteor =
-            shootingStars[i];
-
-
-        meteor.life +=
-            1;
-
-
-        meteor.x +=
-            meteor.speed;
-
-
-        meteor.y +=
-            meteor.speed *
-            meteor.angle;
-
-
-        const progress =
-            meteor.life /
-            meteor.maxLife;
-
-
-        const fade =
-            Math.sin(
-                Math.PI *
-                progress
-            );
-
-
-        const tailX =
-            meteor.x -
-            meteor.length;
-
-
-        const tailY =
-            meteor.y -
-            meteor.length *
-            meteor.angle;
-
-
-        const gradient =
-            ctx.createLinearGradient(
-                tailX,
-                tailY,
-                meteor.x,
-                meteor.y
-            );
-
-
-        gradient.addColorStop(
-            0,
-            "rgba(255,255,255,0)"
-        );
-
-
-        gradient.addColorStop(
-            .65,
-            `rgba(
-                255,
-                244,
-                247,
-                ${meteor.opacity *
-                fade *
-                .28}
-            )`
-        );
-
-
-        gradient.addColorStop(
-            1,
-            `rgba(
-                255,
-                255,
-                255,
-                ${meteor.opacity *
-                fade}
-            )`
-        );
-
-
-        ctx.strokeStyle =
-            gradient;
-
-
-        ctx.lineWidth =
-            1;
-
-
-        ctx.beginPath();
-
-
-        ctx.moveTo(
-            tailX,
-            tailY
-        );
-
-
-        ctx.lineTo(
-            meteor.x,
-            meteor.y
-        );
-
-
-        ctx.stroke();
-
-
-        if(
-            meteor.life >=
-                meteor.maxLife ||
-            meteor.x >
-                width +
-                150 ||
-            meteor.y >
-                height +
-                150
-        ){
-
-            shootingStars.splice(
-                i,
-                1
-            );
-
-        }
-
-    }
-
-
-    requestAnimationFrame(
-        drawStars
-    );
-
-}
-
-
-window.addEventListener(
-    "resize",
-    resizeCanvas,
-    {
-        passive:
-            true
-    }
-);
-
-
-resizeCanvas();
-
-
-requestAnimationFrame(
-    drawStars
 );
 
 
 /* =========================================================
-CLICK SOUND
+STORAGE
+========================================================= */
+
+async function loadStorage(){
+
+    const data =
+        await api(
+            "/api/storage"
+        );
+
+
+    storageNumber.textContent =
+        `${data.usedText} / ${data.limitText}`;
+
+
+    storagePercent.textContent =
+        `${data.usedPercent}%`;
+
+
+    storageBar.style.width =
+        `${data.usedPercent}%`;
+
+
+    storageUsed.textContent =
+        `Used: ${data.usedText}`;
+
+
+    storageRemaining.textContent =
+        `Free: ${data.remainingText}`;
+}
+
+
+/* =========================================================
+STORAGE BREAKDOWN
+========================================================= */
+
+function updateStorageBreakdown(files){
+
+    let images = 0;
+    let videos = 0;
+    let documents = 0;
+
+
+    for(
+        const file of files
+    ){
+
+        const type =
+            String(
+                file.type || ""
+            ).toLowerCase();
+
+
+        const size =
+            Number(
+                file.size || 0
+            );
+
+
+        if(
+            type.startsWith("image/")
+        ){
+
+            images += size;
+
+        }else if(
+            type.startsWith("video/")
+        ){
+
+            videos += size;
+
+        }else{
+
+            documents += size;
+        }
+    }
+
+
+    imageStorage.textContent =
+        formatBytes(images);
+
+    videoStorage.textContent =
+        formatBytes(videos);
+
+    documentStorage.textContent =
+        formatBytes(documents);
+}
+
+
+/* =========================================================
+FILES
+========================================================= */
+
+async function loadFiles(){
+
+    fileList.innerHTML =
+        `
+        <div class="empty">
+            Loading your cloud...
+        </div>
+        `;
+
+
+    try{
+
+        const files =
+            await api(
+                "/api/files"
+            );
+
+
+        allFiles =
+            Array.isArray(files)
+                ? files
+                : [];
+
+
+        updateStorageBreakdown(
+            allFiles
+        );
+
+
+        renderFilteredFiles();
+
+    }catch(error){
+
+        fileList.innerHTML =
+            `
+            <div class="empty">
+                ${escapeHtml(
+                    error.message
+                )}
+            </div>
+            `;
+    }
+}
+
+
+/* =========================================================
+SEARCH + FILTER
+========================================================= */
+
+searchInput.addEventListener(
+    "input",
+    () => {
+
+        currentSearch =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+        renderFilteredFiles();
+    }
+);
+
+
+document
+    .querySelectorAll(
+        ".filterButton"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".filterButton"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+
+                    currentFilter =
+                        button.dataset.filter ||
+                        "all";
+
+
+                    renderFilteredFiles();
+                }
+            );
+        }
+    );
+
+
+function matchesFilter(file){
+
+    const type =
+        String(
+            file.type || ""
+        ).toLowerCase();
+
+
+    if(
+        currentFilter === "all"
+    ){
+
+        return true;
+    }
+
+
+    if(
+        currentFilter === "image"
+    ){
+
+        return type.startsWith(
+            "image/"
+        );
+    }
+
+
+    if(
+        currentFilter === "video"
+    ){
+
+        return type.startsWith(
+            "video/"
+        );
+    }
+
+
+    if(
+        currentFilter === "audio"
+    ){
+
+        return type.startsWith(
+            "audio/"
+        );
+    }
+
+
+    if(
+        currentFilter === "document"
+    ){
+
+        return (
+            type.includes("pdf") ||
+            type.includes("word") ||
+            type.includes("document") ||
+            type.includes("text") ||
+            type.includes("spreadsheet") ||
+            type.includes("presentation") ||
+            type.includes("excel") ||
+            type.includes("powerpoint")
+        );
+    }
+
+
+    if(
+        currentFilter === "other"
+    ){
+
+        return (
+            !type.startsWith("image/") &&
+            !type.startsWith("video/") &&
+            !type.startsWith("audio/") &&
+            !type.includes("pdf") &&
+            !type.includes("word") &&
+            !type.includes("document") &&
+            !type.includes("text") &&
+            !type.includes("spreadsheet") &&
+            !type.includes("presentation") &&
+            !type.includes("excel") &&
+            !type.includes("powerpoint")
+        );
+    }
+
+
+    return true;
+}
+
+
+function matchesSearch(file){
+
+    if(
+        !currentSearch
+    ){
+
+        return true;
+    }
+
+
+    const name =
+        String(
+            file.name || ""
+        ).toLowerCase();
+
+
+    const type =
+        String(
+            file.type || ""
+        ).toLowerCase();
+
+
+    return (
+        name.includes(
+            currentSearch
+        ) ||
+        type.includes(
+            currentSearch
+        )
+    );
+}
+
+
+function renderFilteredFiles(){
+
+    const filtered =
+        allFiles.filter(
+            file =>
+                matchesFilter(file) &&
+                matchesSearch(file)
+        );
+
+
+    if(
+        !allFiles.length
+    ){
+
+        fileList.innerHTML =
+            `
+            <div class="empty">
+                No files yet.<br>
+                Upload your first file.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    if(
+        !filtered.length
+    ){
+
+        fileList.innerHTML =
+            `
+            <div class="noResults">
+                No files found.<br>
+                Try another search or category.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    fileList.innerHTML =
+        "";
+
+
+    for(
+        const file of filtered
+    ){
+
+        fileList.appendChild(
+            createFileCard(file)
+        );
+    }
+}
+
+
+/* =========================================================
+FILE CARD
+========================================================= */
+
+function createFileCard(file){
+
+    const card =
+        document.createElement(
+            "article"
+        );
+
+    card.className =
+        "fileCard";
+
+
+    const preview =
+        document.createElement(
+            "div"
+        );
+
+    preview.className =
+        "preview";
+
+
+    const type =
+        String(
+            file.type || ""
+        );
+
+
+    if(
+        type.startsWith("image/")
+    ){
+
+        const img =
+            document.createElement(
+                "img"
+            );
+
+        img.src =
+            streamUrl(file.name);
+
+        img.loading =
+            "lazy";
+
+        preview.appendChild(
+            img
+        );
+
+    }else if(
+        type.startsWith("video/")
+    ){
+
+        const video =
+            document.createElement(
+                "video"
+            );
+
+        video.src =
+            streamUrl(file.name);
+
+        video.muted =
+            true;
+
+        video.preload =
+            "metadata";
+
+        video.playsInline =
+            true;
+
+        preview.appendChild(
+            video
+        );
+
+    }else{
+
+        const icon =
+            document.createElement(
+                "div"
+            );
+
+        icon.className =
+            "fileIcon";
+
+        icon.textContent =
+            iconFor(type);
+
+        preview.appendChild(
+            icon
+        );
+    }
+
+
+    const previewOverlay =
+        document.createElement(
+            "div"
+        );
+
+    previewOverlay.className =
+        "previewOverlay";
+
+
+    const previewOpen =
+        document.createElement(
+            "div"
+        );
+
+    previewOpen.className =
+        "previewOpen";
+
+    previewOpen.textContent =
+        canPreview(type)
+            ? "Tap to Preview"
+            : "File Info";
+
+
+    previewOverlay.appendChild(
+        previewOpen
+    );
+
+    preview.appendChild(
+        previewOverlay
+    );
+
+
+    preview.addEventListener(
+        "click",
+        () => {
+
+            if(
+                canPreview(type)
+            ){
+
+                openViewer(file);
+
+            }else{
+
+                downloadFile(
+                    file.name
+                );
+            }
+        }
+    );
+
+
+    const info =
+        document.createElement(
+            "div"
+        );
+
+    info.className =
+        "fileInfo";
+
+
+    const name =
+        document.createElement(
+            "p"
+        );
+
+    name.className =
+        "fileName";
+
+    name.textContent =
+        file.name;
+
+
+    const meta =
+        document.createElement(
+            "div"
+        );
+
+    meta.className =
+        "fileMeta";
+
+
+    const size =
+        document.createElement(
+            "span"
+        );
+
+    size.textContent =
+        file.sizeText ||
+        formatBytes(
+            Number(
+                file.size || 0
+            )
+        );
+
+
+    const date =
+        document.createElement(
+            "span"
+        );
+
+    date.textContent =
+        file.modified
+            ? new Date(
+                file.modified
+            ).toLocaleDateString()
+            : "";
+
+
+    meta.append(
+        size,
+        date
+    );
+
+
+    const actions =
+        document.createElement(
+            "div"
+        );
+
+    actions.className =
+        "fileActions";
+
+
+    const open =
+        document.createElement(
+            "button"
+        );
+
+    open.className =
+        "fileAction";
+
+    open.textContent =
+        canPreview(type)
+            ? "Open"
+            : "Info";
+
+    open.addEventListener(
+        "click",
+        () => {
+
+            if(
+                canPreview(type)
+            ){
+
+                openViewer(file);
+
+            }else{
+
+                downloadFile(
+                    file.name
+                );
+            }
+        }
+    );
+
+
+    const download =
+        document.createElement(
+            "button"
+        );
+
+    download.className =
+        "fileAction";
+
+    download.textContent =
+        "Download";
+
+    download.addEventListener(
+        "click",
+        () =>
+            downloadFile(
+                file.name
+            )
+    );
+
+
+    const share =
+        document.createElement(
+            "button"
+        );
+
+    share.className =
+        "fileAction share";
+
+    share.textContent =
+        "Share";
+
+    share.addEventListener(
+        "click",
+        () =>
+            shareFile(file)
+    );
+
+
+    const del =
+        document.createElement(
+            "button"
+        );
+
+    del.className =
+        "fileAction delete";
+
+    del.textContent =
+        "Delete";
+
+    del.addEventListener(
+        "click",
+        () =>
+            deleteFile(
+                file.name
+            )
+    );
+
+
+    actions.append(
+        open,
+        download,
+        share,
+        del
+    );
+
+
+    info.append(
+        name,
+        meta,
+        actions
+    );
+
+
+    card.append(
+        preview,
+        info
+    );
+
+
+    return card;
+}
+
+
+/* =========================================================
+PREVIEW
+========================================================= */
+
+function canPreview(type){
+
+    return (
+        type.startsWith("image/") ||
+        type.startsWith("video/") ||
+        type === "application/pdf" ||
+        type.startsWith("audio/")
+    );
+}
+
+
+function iconFor(type){
+
+    if(type.startsWith("video/"))
+        return "🎬";
+
+    if(type.startsWith("audio/"))
+        return "🎵";
+
+    if(type === "application/pdf")
+        return "📕";
+
+    if(type.includes("zip"))
+        return "🗜️";
+
+    if(type.includes("word"))
+        return "📄";
+
+    if(type.includes("spreadsheet"))
+        return "📊";
+
+    if(type.includes("presentation"))
+        return "📑";
+
+    if(type.includes("text"))
+        return "📝";
+
+    return "📦";
+}
+
+
+function streamUrl(name){
+
+    return (
+        "/api/stream/" +
+        name
+            .split("/")
+            .map(
+                encodeURIComponent
+            )
+            .join("/")
+    );
+}
+
+
+function downloadUrl(name){
+
+    return (
+        "/api/download/" +
+        name
+            .split("/")
+            .map(
+                encodeURIComponent
+            )
+            .join("/")
+    );
+}
+
+
+function downloadFile(name){
+
+    const a =
+        document.createElement(
+            "a"
+        );
+
+    a.href =
+        downloadUrl(name);
+
+    a.download =
+        name.split("/").pop();
+
+    a.rel =
+        "noopener";
+
+    document.body.appendChild(
+        a
+    );
+
+    a.click();
+
+    a.remove();
+}
+
+
+/* =========================================================
+REAL FILE SHARE
+========================================================= */
+
+async function shareFile(file){
+
+    const fileName =
+        String(
+            file.name || "file"
+        );
+
+
+    const type =
+        String(
+            file.type || ""
+        ) ||
+        "application/octet-stream";
+
+
+    const stream =
+        streamUrl(
+            fileName
+        );
+
+
+    /*
+     * First try to share the actual file.
+     */
+
+    try{
+
+        const response =
+            await fetch(
+                stream,
+                {
+                    credentials:
+                        "same-origin"
+                }
+            );
+
+
+        if(
+            response.ok
+        ){
+
+            const blob =
+                await response.blob();
+
+
+            const sharedFile =
+                new File(
+                    [blob],
+                    fileName,
+                    {
+                        type:
+                            blob.type ||
+                            type
+                    }
+                );
+
+
+            if(
+                navigator.share &&
+                navigator.canShare &&
+                navigator.canShare({
+                    files:[
+                        sharedFile
+                    ]
+                })
+            ){
+
+                await navigator.share({
+
+                    files:[
+                        sharedFile
+                    ],
+
+                    title:
+                        fileName,
+
+                    text:
+                        "File from My Personal Cloud"
+                });
+
+
+                return;
+            }
+        }
+
+    }catch(error){
+
+        if(
+            error?.name ===
+            "AbortError"
+        ){
+
+            return;
+        }
+
+
+        console.warn(
+            "Direct file sharing unavailable:",
+            error
+        );
+    }
+
+
+    /*
+     * Fallback to native link sharing.
+     */
+
+    const url =
+        new URL(
+            stream,
+            window.location.origin
+        ).href;
+
+
+    try{
+
+        if(
+            navigator.share
+        ){
+
+            await navigator.share({
+
+                title:
+                    fileName,
+
+                text:
+                    "File from My Personal Cloud",
+
+                url
+            });
+
+            return;
+        }
+
+
+        if(
+            navigator.clipboard &&
+            window.isSecureContext
+        ){
+
+            await navigator.clipboard.writeText(
+                url
+            );
+
+            alert(
+                "File link copied to clipboard."
+            );
+
+            return;
+        }
+
+
+        const temp =
+            document.createElement(
+                "textarea"
+            );
+
+
+        temp.value =
+            url;
+
+
+        document.body.appendChild(
+            temp
+        );
+
+
+        temp.select();
+
+
+        document.execCommand(
+            "copy"
+        );
+
+
+        temp.remove();
+
+
+        alert(
+            "File link copied to clipboard."
+        );
+
+    }catch(error){
+
+        if(
+            error?.name ===
+            "AbortError"
+        ){
+
+            return;
+        }
+
+
+        alert(
+            "Unable to share this file."
+        );
+    }
+}
+
+
+/* =========================================================
+VIEWER
+========================================================= */
+
+const viewer =
+    document.getElementById(
+        "viewer"
+    );
+
+const viewerTitle =
+    document.getElementById(
+        "viewerTitle"
+    );
+
+const viewerContent =
+    document.getElementById(
+        "viewerContent"
+    );
+
+
+document
+    .getElementById(
+        "closeViewer"
+    )
+    .addEventListener(
+        "click",
+        closeViewer
+    );
+
+
+viewer.addEventListener(
+    "click",
+    event => {
+
+        if(
+            event.target === viewer
+        ){
+
+            closeViewer();
+        }
+    }
+);
+
+
+function openViewer(file){
+
+    viewerTitle.textContent =
+        file.name;
+
+    viewerContent.innerHTML =
+        "";
+
+
+    const type =
+        String(
+            file.type || ""
+        );
+
+
+    const url =
+        streamUrl(
+            file.name
+        );
+
+
+    if(
+        type.startsWith("image/")
+    ){
+
+        const img =
+            document.createElement(
+                "img"
+            );
+
+        img.src =
+            url;
+
+        img.alt =
+            file.name;
+
+        viewerContent.appendChild(
+            img
+        );
+
+    }else if(
+        type.startsWith("video/")
+    ){
+
+        const video =
+            document.createElement(
+                "video"
+            );
+
+        video.src =
+            url;
+
+        video.controls =
+            true;
+
+        video.autoplay =
+            false;
+
+        video.playsInline =
+            true;
+
+        viewerContent.appendChild(
+            video
+        );
+
+    }else if(
+        type.startsWith("audio/")
+    ){
+
+        const audio =
+            document.createElement(
+                "audio"
+            );
+
+        audio.src =
+            url;
+
+        audio.controls =
+            true;
+
+        viewerContent.appendChild(
+            audio
+        );
+
+    }else if(
+        type === "application/pdf"
+    ){
+
+        const iframe =
+            document.createElement(
+                "iframe"
+            );
+
+        iframe.src =
+            url;
+
+        iframe.title =
+            file.name;
+
+        viewerContent.appendChild(
+            iframe
+        );
+
+    }
+
+
+    viewer.classList.add(
+        "show"
+    );
+}
+
+
+function closeViewer(){
+
+    viewer.classList.remove(
+        "show"
+    );
+
+    viewerContent.innerHTML =
+        "";
+}
+
+
+/* =========================================================
+DELETE
+========================================================= */
+
+async function deleteFile(name){
+
+    const ok =
+        confirm(
+            `Delete "${name}" permanently?`
+        );
+
+
+    if(!ok){
+        return;
+    }
+
+
+    try{
+
+        await api(
+            "/api/files",
+            {
+                method:"DELETE",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        name
+                    })
+            }
+        );
+
+
+        await loadEverything();
+
+    }catch(error){
+
+        alert(
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+SELECT FILES
+========================================================= */
+
+fileInput.addEventListener(
+    "change",
+    event => {
+
+        selectedFiles =
+            Array.from(
+                event.target.files || []
+            );
+
+
+        if(
+            !selectedFiles.length
+        ){
+
+            uploadSelectedButton.style.display =
+                "none";
+
+            uploadQueue.innerHTML =
+                "";
+
+            return;
+        }
+
+
+        uploadQueue.innerHTML =
+            "";
+
+
+        for(
+            const file of selectedFiles
+        ){
+
+            createQueueItem(
+                file
+            );
+        }
+
+
+        uploadSelectedButton.style.display =
+            "inline-flex";
+
+
+        uploadSelectedButton.textContent =
+            `Upload Selected (${selectedFiles.length})`;
+    }
+);
+
+
+/* =========================================================
+UPLOAD SELECTED
+========================================================= */
+
+uploadSelectedButton.addEventListener(
+    "click",
+    async () => {
+
+        if(
+            !selectedFiles.length
+        ){
+
+            return;
+        }
+
+
+        const filesToUpload =
+            [...selectedFiles];
+
+
+        uploadSelectedButton.disabled =
+            true;
+
+        uploadSelectedButton.textContent =
+            "Uploading...";
+
+
+        try{
+
+            for(
+                const file of filesToUpload
+            ){
+
+                try{
+
+                    await uploadFile(
+                        file
+                    );
+
+                }catch(error){
+
+                    console.error(
+                        error
+                    );
+
+                    alert(
+                        `${file.name}: ${error.message}`
+                    );
+                }
+            }
+
+
+            selectedFiles =
+                [];
+
+            fileInput.value =
+                "";
+
+            uploadSelectedButton.style.display =
+                "none";
+
+
+            await loadEverything();
+
+        }finally{
+
+            uploadSelectedButton.disabled =
+                false;
+
+            if(
+                selectedFiles.length
+            ){
+
+                uploadSelectedButton.textContent =
+                    `Upload Selected (${selectedFiles.length})`;
+            }
+        }
+    }
+);
+
+
+/* =========================================================
+UPLOAD ONE FILE
+========================================================= */
+
+const CHUNK_SIZE =
+    100 * 1024 * 1024;
+
+
+async function uploadFile(file){
+
+    const total =
+        Math.max(
+            1,
+            Math.ceil(
+                file.size /
+                CHUNK_SIZE
+            )
+        );
+
+
+    const id =
+        cryptoRandomId();
+
+
+    /*
+     * Find the existing queue item
+     * for this selected file.
+     */
+
+    const queue =
+        findQueueItem(
+            file
+        );
+
+
+    let uploaded =
+        0;
+
+
+    for(
+        let index = 0;
+        index < total;
+        index++
+    ){
+
+        const start =
+            index *
+            CHUNK_SIZE;
+
+        const end =
+            Math.min(
+                file.size,
+                start +
+                CHUNK_SIZE
+            );
+
+
+        const blob =
+            file.slice(
+                start,
+                end
+            );
+
+
+        const params =
+            new URLSearchParams({
+
+                id,
+
+                index:
+                    String(index),
+
+                total:
+                    String(total),
+
+                size:
+                    String(file.size),
+
+                name:
+                    file.name,
+
+                relativePath:
+                    file.webkitRelativePath ||
+                    file.name
+            });
+
+
+        const response =
+            await fetch(
+                "/api/upload-chunk?" +
+                params.toString(),
+                {
+
+                    method:"POST",
+
+                    credentials:
+                        "same-origin",
+
+                    headers:{
+                        "Content-Type":
+                            "application/octet-stream",
+
+                        "Content-Length":
+                            String(
+                                blob.size
+                            )
+                    },
+
+                    body:blob
+                }
+            );
+
+
+        let data = null;
+
+        try{
+
+            data =
+                await response.json();
+
+        }catch(_){}
+
+
+        if(
+            response.status === 401
+        ){
+
+            showLogin();
+
+            throw new Error(
+                "Session expired"
+            );
+        }
+
+
+        if(
+            !response.ok
+        ){
+
+            throw new Error(
+                data?.error ||
+                "Upload failed"
+            );
+        }
+
+
+        uploaded +=
+            blob.size;
+
+
+        updateQueue(
+            queue,
+            file,
+            file.size > 0
+                ? uploaded /
+                    file.size *
+                    100
+                : 100
+        );
+    }
+
+
+    updateQueue(
+        queue,
+        file,
+        100,
+        true
+    );
+}
+
+
+/* =========================================================
+UPLOAD UI
+========================================================= */
+
+function createQueueItem(file){
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+    item.className =
+        "queueItem";
+
+
+    item.dataset.fileName =
+        file.name;
+
+
+    const top =
+        document.createElement(
+            "div"
+        );
+
+    top.className =
+        "queueTop";
+
+
+    const name =
+        document.createElement(
+            "div"
+        );
+
+    name.className =
+        "queueName";
+
+    name.textContent =
+        file.webkitRelativePath ||
+        file.name;
+
+
+    const percent =
+        document.createElement(
+            "div"
+        );
+
+    percent.className =
+        "queuePercent";
+
+    percent.textContent =
+        "Waiting";
+
+
+    top.append(
+        name,
+        percent
+    );
+
+
+    const track =
+        document.createElement(
+            "div"
+        );
+
+    track.className =
+        "queueProgress";
+
+
+    const bar =
+        document.createElement(
+            "div"
+        );
+
+
+    track.appendChild(
+        bar
+    );
+
+
+    item.append(
+        top,
+        track
+    );
+
+
+    uploadQueue.appendChild(
+        item
+    );
+
+
+    return {
+        item,
+        percent,
+        bar
+    };
+}
+
+
+function findQueueItem(file){
+
+    const items =
+        Array.from(
+            uploadQueue.querySelectorAll(
+                ".queueItem"
+            )
+        );
+
+
+    const path =
+        file.webkitRelativePath ||
+        file.name;
+
+
+    const existing =
+        items.find(
+            item => {
+
+                const name =
+                    item.querySelector(
+                        ".queueName"
+                    );
+
+                return (
+                    name &&
+                    name.textContent === path
+                );
+            }
+        );
+
+
+    if(
+        existing
+    ){
+
+        return {
+
+            item:existing,
+
+            percent:
+                existing.querySelector(
+                    ".queuePercent"
+                ),
+
+            bar:
+                existing.querySelector(
+                    ".queueProgress > div"
+                )
+        };
+    }
+
+
+    return createQueueItem(
+        file
+    );
+}
+
+
+function updateQueue(
+    queue,
+    file,
+    value,
+    done = false
+){
+
+    if(
+        !queue
+    ){
+
+        return;
+    }
+
+
+    const rounded =
+        Math.min(
+            100,
+            Math.round(value)
+        );
+
+
+    queue.percent.textContent =
+        done
+            ? "✓"
+            : `${rounded}%`;
+
+
+    queue.bar.style.width =
+        `${rounded}%`;
+
+
+    if(done){
+
+        setTimeout(
+            () => {
+
+                if(
+                    queue.item
+                ){
+
+                    queue.item.remove();
+                }
+
+            },
+            1600
+        );
+    }
+}
+
+
+/* =========================================================
+ID
+========================================================= */
+
+function cryptoRandomId(){
+
+    if(
+        window.crypto &&
+        crypto.randomUUID
+    ){
+
+        return crypto.randomUUID();
+    }
+
+
+    return (
+        Date.now()
+        .toString(36) +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2)
+    );
+}
+
+
+/* =========================================================
+LOAD EVERYTHING
+========================================================= */
+
+async function loadEverything(){
+
+    try{
+
+        await Promise.all([
+            loadStorage(),
+            loadFiles()
+        ]);
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+document
+    .getElementById(
+        "refreshButton"
+    )
+    .addEventListener(
+        "click",
+        loadEverything
+    );
+
+
+/* =========================================================
+ESCAPE
+========================================================= */
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+/* =========================================================
+FORMAT BYTES
+========================================================= */
+
+function formatBytes(bytes){
+
+    if(
+        !Number.isFinite(bytes) ||
+        bytes <= 0
+    ){
+
+        return "0 B";
+    }
+
+
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB",
+        "TB"
+    ];
+
+
+    const index =
+        Math.min(
+            Math.floor(
+                Math.log(bytes) /
+                Math.log(1024)
+            ),
+            units.length - 1
+        );
+
+
+    const value =
+        bytes /
+        Math.pow(
+            1024,
+            index
+        );
+
+
+    return (
+        value.toFixed(
+            index === 0 ? 0 : 2
+        ) +
+        " " +
+        units[index]
+    );
+}
+
+
+/* =========================================================
+AUTO LOCK
+========================================================= */
+
+const AUTO_LOCK_MS =
+    15 * 60 * 1000;
+
+
+let lastActivity =
+    Date.now();
+
+let autoLockTimer =
+    null;
+
+let countdownTimer =
+    null;
+
+
+function resetAutoLock(){
+
+    if(
+        !dashboard.classList.contains(
+            "show"
+        )
+    ){
+
+        return;
+    }
+
+
+    lastActivity =
+        Date.now();
+
+
+    updateLockCountdown();
+
+
+    if(
+        autoLockTimer
+    ){
+
+        clearTimeout(
+            autoLockTimer
+        );
+    }
+
+
+    autoLockTimer =
+        setTimeout(
+            autoLock,
+            AUTO_LOCK_MS
+        );
+}
+
+
+function updateLockCountdown(){
+
+    if(
+        !dashboard.classList.contains(
+            "show"
+        )
+    ){
+
+        return;
+    }
+
+
+    const remaining =
+        Math.max(
+            0,
+            AUTO_LOCK_MS -
+            (
+                Date.now() -
+                lastActivity
+            )
+        );
+
+
+    const seconds =
+        Math.ceil(
+            remaining / 1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const secs =
+        seconds % 60;
+
+
+    lockCountdown.textContent =
+        `${String(minutes).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+
+
+    if(
+        remaining <= 0
+    ){
+
+        autoLock();
+
+        return;
+    }
+
+
+    if(
+        countdownTimer
+    ){
+
+        clearTimeout(
+            countdownTimer
+        );
+    }
+
+
+    countdownTimer =
+        setTimeout(
+            updateLockCountdown,
+            1000
+        );
+}
+
+
+function stopAutoLock(){
+
+    if(
+        autoLockTimer
+    ){
+
+        clearTimeout(
+            autoLockTimer
+        );
+
+        autoLockTimer =
+            null;
+    }
+
+
+    if(
+        countdownTimer
+    ){
+
+        clearTimeout(
+            countdownTimer
+        );
+
+        countdownTimer =
+            null;
+    }
+}
+
+
+async function autoLock(){
+
+    if(
+        !dashboard.classList.contains(
+            "show"
+        )
+    ){
+
+        return;
+    }
+
+
+    stopAutoLock();
+
+    closeViewer();
+
+
+    try{
+
+        await api(
+            "/api/auth/logout",
+            {
+                method:"POST"
+            }
+        );
+
+    }catch(_){}
+
+
+    dashboard.classList.remove(
+        "show"
+    );
+
+    loginWrap.classList.remove(
+        "show"
+    );
+
+    autoLockOverlay.classList.add(
+        "show"
+    );
+}
+
+
+unlockAgainButton.addEventListener(
+    "click",
+    () => {
+
+        autoLockOverlay.classList.remove(
+            "show"
+        );
+
+        showLogin();
+    }
+);
+
+
+[
+    "click",
+    "touchstart",
+    "keydown",
+    "mousemove",
+    "scroll"
+].forEach(
+    eventName => {
+
+        document.addEventListener(
+            eventName,
+            () => {
+
+                if(
+                    dashboard.classList.contains(
+                        "show"
+                    )
+                ){
+
+                    lastActivity =
+                        Date.now();
+
+                    resetAutoLock();
+                }
+            },
+            {
+                passive:true
+            }
+        );
+    }
+);
+
+
+/* =========================================================
+REALISTIC CLICK SOUND
 ========================================================= */
 
 let audioContext =
     null;
 
 
-function playClick(){
+function playClickSound(){
 
     try{
 
@@ -5294,12 +4802,20 @@ function playClick(){
             !audioContext
         ){
 
-            audioContext =
-                new (
-                    window.AudioContext ||
-                    window.webkitAudioContext
-                )();
+            const AudioContext =
+                window.AudioContext ||
+                window.webkitAudioContext;
 
+            if(
+                !AudioContext
+            ){
+
+                return;
+            }
+
+
+            audioContext =
+                new AudioContext();
         }
 
 
@@ -5309,8 +4825,11 @@ function playClick(){
         ){
 
             audioContext.resume();
-
         }
+
+
+        const now =
+            audioContext.currentTime;
 
 
         const oscillator =
@@ -5326,35 +4845,32 @@ function playClick(){
 
 
         oscillator.frequency.setValueAtTime(
-            520,
-            audioContext.currentTime
+            180,
+            now
         );
 
 
         oscillator.frequency.exponentialRampToValueAtTime(
-            280,
-            audioContext.currentTime +
-            .055
+            95,
+            now + .045
         );
 
 
         gain.gain.setValueAtTime(
             .0001,
-            audioContext.currentTime
+            now
         );
 
 
         gain.gain.exponentialRampToValueAtTime(
-            .05,
-            audioContext.currentTime +
-            .008
+            .045,
+            now + .006
         );
 
 
         gain.gain.exponentialRampToValueAtTime(
             .0001,
-            audioContext.currentTime +
-            .065
+            now + .055
         );
 
 
@@ -5362,665 +4878,696 @@ function playClick(){
             gain
         );
 
-
         gain.connect(
             audioContext.destination
         );
 
 
-        oscillator.start();
-
+        oscillator.start(
+            now
+        );
 
         oscillator.stop(
-            audioContext.currentTime +
-            .07
+            now + .06
         );
 
-    }catch(error){
-
-        console.log(
-            "Click sound unavailable",
-            error
-        );
-
-    }
-
+    }catch(_){}
 }
 
 
 /* =========================================================
-INTRO
+BUTTON SOUND
 ========================================================= */
 
-window.addEventListener(
-    "load",
-    function(){
+document.addEventListener(
+    "pointerdown",
+    event => {
 
-        initializeFileView();
-
-
-        setTimeout(
-            function(){
-
-                const intro =
-                    document.getElementById(
-                        "introScreen"
-                    );
+        const target =
+            event.target.closest(
+                "button, .uploadButton, label"
+            );
 
 
-                intro.classList.add(
-                    "hide"
-                );
+        if(
+            target
+        ){
 
-
-                setTimeout(
-                    function(){
-
-                        document
-                            .getElementById(
-                                "passwordScreen"
-                            )
-                            .classList
-                            .add(
-                                "show"
-                            );
-
-                    },
-                    450
-                );
-
-            },
-            6000
-        );
-
+            playClickSound();
+        }
+    },
+    {
+        passive:true
     }
 );
 
 
 /* =========================================================
-PASSWORD CHECK
+STAR SPACE
 ========================================================= */
 
-function checkPassword(){
+const canvas =
+    document.getElementById(
+        "spaceCanvas"
+    );
 
-    playClick();
+const ctx =
+    canvas.getContext(
+        "2d"
+    );
 
 
-    const input =
-        document.getElementById(
-            "passwordInput"
+let width = 0;
+let height = 0;
+let dpr = 1;
+
+let stars = [];
+let crashes = [];
+
+
+function resizeCanvas(){
+
+    dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
         );
 
 
-    const error =
-        document.getElementById(
-            "passwordError"
+    width =
+        window.innerWidth;
+
+    height =
+        window.innerHeight;
+
+
+    canvas.width =
+        width * dpr;
+
+    canvas.height =
+        height * dpr;
+
+
+    canvas.style.width =
+        width + "px";
+
+    canvas.style.height =
+        height + "px";
+
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+
+    createStars();
+}
+
+
+function createStars(){
+
+    stars = [];
+
+
+    const amount =
+        Math.min(
+            180,
+            Math.floor(
+                width *
+                height /
+                6500
+            )
         );
 
 
-    if(
-        input.value ===
-        VAULT_PASSWORD
+    for(
+        let i = 0;
+        i < amount;
+        i++
     ){
 
-        error.textContent =
-            "";
+        stars.push({
+
+            x:
+                Math.random() *
+                width,
+
+            y:
+                Math.random() *
+                height,
+
+            r:
+                .4 +
+                Math.random() *
+                1.5,
+
+            alpha:
+                .25 +
+                Math.random() *
+                .75,
+
+            phase:
+                Math.random() *
+                Math.PI *
+                2,
+
+            speed:
+                .5 +
+                Math.random() *
+                2
+        });
+    }
+}
 
 
-        const passwordScreen =
-            document.getElementById(
-                "passwordScreen"
+function spawnCrash(){
+
+    const fromTop =
+        Math.random() < .65;
+
+
+    const x =
+        fromTop
+            ? Math.random() * width
+            : width + 30;
+
+
+    const y =
+        fromTop
+            ? -40
+            : Math.random() *
+                height *
+                .65;
+
+
+    const targetX =
+        Math.random() *
+        width;
+
+
+    const targetY =
+        height *
+        (
+            .25 +
+            Math.random() *
+            .5
+        );
+
+
+    const dx =
+        targetX - x;
+
+    const dy =
+        targetY - y;
+
+    const distance =
+        Math.hypot(
+            dx,
+            dy
+        );
+
+
+    const speed =
+        7 +
+        Math.random() *
+        6;
+
+
+    crashes.push({
+
+        x,
+        y,
+
+        vx:
+            dx /
+            distance *
+            speed,
+
+        vy:
+            dy /
+            distance *
+            speed,
+
+        life:1,
+
+        trail:[],
+
+        target:
+            distance *
+            .78,
+
+        travelled:0
+    });
+}
+
+
+function explode(x,y){
+
+    for(
+        let i=0;
+        i<28;
+        i++
+    ){
+
+        const angle =
+            Math.random() *
+            Math.PI *
+            2;
+
+
+        const speed =
+            1.2 +
+            Math.random() *
+            5.5;
+
+
+        const life =
+            .6 +
+            Math.random() *
+            .5;
+
+
+        crashes.push({
+
+            x,
+            y,
+
+            vx:
+                Math.cos(angle) *
+                speed,
+
+            vy:
+                Math.sin(angle) *
+                speed,
+
+            life,
+
+            particle:true
+        });
+    }
+
+
+    crashes.push({
+
+        x,
+        y,
+
+        ring:true,
+
+        radius:2,
+
+        life:1
+    });
+}
+
+
+function animationLoop(time){
+
+    if(
+        time -
+        animationLoop.lastCrash >
+        850
+    ){
+
+        spawnCrash();
+
+        animationLoop.lastCrash =
+            time;
+    }
+}
+
+
+animationLoop.lastCrash =
+    0;
+
+
+function drawSpaceFrame(time){
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    for(
+        const star of stars
+    ){
+
+        const alpha =
+            star.alpha *
+            (
+                .55 +
+                Math.sin(
+                    time *
+                    .002 *
+                    star.speed +
+                    star.phase
+                ) *
+                .45
             );
 
 
-        const main =
-            document.getElementById(
-                "mainContainer"
+        ctx.beginPath();
+
+        ctx.arc(
+            star.x,
+            star.y,
+            star.r,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fillStyle =
+            `rgba(255,255,255,${alpha})`;
+
+
+        ctx.shadowBlur =
+            star.r > 1.2
+                ? 8
+                : 2;
+
+
+        ctx.shadowColor =
+            "rgba(185,201,255,.8)";
+
+
+        ctx.fill();
+    }
+
+
+    for(
+        let i=crashes.length-1;
+        i>=0;
+        i--
+    ){
+
+        const item =
+            crashes[i];
+
+
+        if(item.particle){
+
+            item.x +=
+                item.vx;
+
+            item.y +=
+                item.vy;
+
+
+            item.vx *=
+                .97;
+
+            item.vy *=
+                .97;
+
+
+            item.life -=
+                .02;
+
+
+            ctx.beginPath();
+
+            ctx.arc(
+                item.x,
+                item.y,
+                1.4 +
+                item.life,
+                0,
+                Math.PI * 2
             );
 
 
-        passwordScreen.classList.add(
+            ctx.fillStyle =
+                `rgba(255,226,138,${item.life})`;
+
+
+            ctx.shadowBlur =
+                12;
+
+
+            ctx.shadowColor =
+                "rgba(255,190,120,.9)";
+
+
+            ctx.fill();
+
+
+            if(
+                item.life <= 0
+            ){
+
+                crashes.splice(
+                    i,
+                    1
+                );
+            }
+
+            continue;
+        }
+
+
+        if(item.ring){
+
+            item.radius +=
+                4.5;
+
+            item.life *=
+                .94;
+
+
+            ctx.beginPath();
+
+            ctx.arc(
+                item.x,
+                item.y,
+                item.radius,
+                0,
+                Math.PI * 2
+            );
+
+
+            ctx.strokeStyle =
+                `rgba(255,220,160,${item.life})`;
+
+
+            ctx.lineWidth =
+                2;
+
+
+            ctx.shadowBlur =
+                20;
+
+
+            ctx.shadowColor =
+                "rgba(255,190,130,.9)";
+
+
+            ctx.stroke();
+
+
+            if(
+                item.life < .025
+            ){
+
+                crashes.splice(
+                    i,
+                    1
+                );
+            }
+
+            continue;
+        }
+
+
+        item.trail.push({
+
+            x:item.x,
+            y:item.y
+
+        });
+
+
+        if(
+            item.trail.length > 13
+        ){
+
+            item.trail.shift();
+        }
+
+
+        ctx.beginPath();
+
+
+        item.trail.forEach(
+            (
+                point,
+                index
+            ) => {
+
+                if(
+                    index === 0
+                ){
+
+                    ctx.moveTo(
+                        point.x,
+                        point.y
+                    );
+
+                }else{
+
+                    ctx.lineTo(
+                        point.x,
+                        point.y
+                    );
+                }
+            }
+        );
+
+
+        ctx.strokeStyle =
+            "rgba(185,201,255,.42)";
+
+
+        ctx.lineWidth =
+            2;
+
+
+        ctx.shadowBlur =
+            16;
+
+
+        ctx.shadowColor =
+            "rgba(185,201,255,.9)";
+
+
+        ctx.stroke();
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            item.x,
+            item.y,
+            2.6,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fillStyle =
+            "white";
+
+
+        ctx.shadowBlur =
+            25;
+
+
+        ctx.shadowColor =
+            "white";
+
+
+        ctx.fill();
+
+
+        item.x +=
+            item.vx;
+
+        item.y +=
+            item.vy;
+
+
+        item.travelled +=
+            Math.hypot(
+                item.vx,
+                item.vy
+            );
+
+
+        if(
+            item.travelled >=
+            item.target
+        ){
+
+            explode(
+                item.x,
+                item.y
+            );
+
+
+            crashes.splice(
+                i,
+                1
+            );
+        }
+    }
+
+
+    ctx.shadowBlur =
+        0;
+}
+
+
+function render(time){
+
+    drawSpaceFrame(
+        time
+    );
+
+    animationLoop(
+        time
+    );
+
+    requestAnimationFrame(
+        render
+    );
+}
+
+
+/* =========================================================
+START
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
+
+
+resizeCanvas();
+
+
+requestAnimationFrame(
+    render
+);
+
+
+/* =========================================================
+INTRO TIMING
+========================================================= */
+
+setTimeout(
+    () => {
+
+        intro.classList.add(
             "hide"
         );
 
-
-        main.style.display =
-            "block";
-
-
-        document
-            .getElementById(
-                "uploadFab"
-            )
-            .style.display =
-            "block";
-
-
-        requestAnimationFrame(
-            function(){
-
-                requestAnimationFrame(
-                    function(){
-
-                        main.classList.add(
-                            "visible"
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-        setTimeout(
-            function(){
-
-                passwordScreen.style.display =
-                    "none";
-
-            },
-            900
-        );
-
-
-        initializeQRCode();
-
-
-        loadFiles();
-
-    }else{
-
-        error.textContent =
-            "Incorrect password";
-
-
-        input.value =
-            "";
-
-
-        input.focus();
-
-
-        input.animate(
-            [
-                {
-                    transform:
-                        "translateX(0)"
-                },
-                {
-                    transform:
-                        "translateX(-5px)"
-                },
-                {
-                    transform:
-                        "translateX(5px)"
-                },
-                {
-                    transform:
-                        "translateX(0)"
-                }
-            ],
-            {
-                duration:
-                    240
-            }
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-ENTER PASSWORD
-========================================================= */
-
-document
-    .getElementById(
-        "passwordInput"
-    )
-    .addEventListener(
-        "keydown",
-        function(event){
-
-            if(
-                event.key ===
-                "Enter"
-            ){
-
-                checkPassword();
-
-            }
-
-        }
-    );
-
-
-/* =========================================================
-QR CODE
-========================================================= */
-
-function initializeQRCode(){
-
-    const qrElement =
-        document.getElementById(
-            "qrcode"
-        );
-
-
-    const qrUrl =
-        window.location.href;
-
-
-    qrElement.innerHTML =
-        "";
-
-
-    if(
-        typeof QRCode !==
-        "undefined"
-    ){
-
-        new QRCode(
-            qrElement,
-            {
-
-                text:
-                    qrUrl,
-
-                width:
-                    105,
-
-                height:
-                    105,
-
-                correctLevel:
-                    QRCode
-                        .CorrectLevel
-                        .H
-
-            }
-        );
-
-    }else{
-
-        qrElement.textContent =
-            "QR code library could not load.";
-
-    }
-
-
-    document
-        .getElementById(
-            "qrUrl"
-        )
-        .textContent =
-        qrUrl;
-
-}
-
-
-/* =========================================================
-FILE SELECTION
-========================================================= */
-
-document
-    .getElementById(
-        "fileInput"
-    )
-    .addEventListener(
-        "change",
-        function(){
-
-            addFiles(
-                this.files
-            );
-
-            this.value =
-                "";
-
-        }
-    );
-
-
-document
-    .getElementById(
-        "folderInput"
-    )
-    .addEventListener(
-        "change",
-        function(){
-
-            addFiles(
-                this.files
-            );
-
-            this.value =
-                "";
-
-        }
-    );
-
-
-/* =========================================================
-ADD FILES
-========================================================= */
-
-function addFiles(
-    files
-){
-
-    for(
-        const file of files
-    ){
-
-        if(
-            file.size ===
-            0
-        ){
-
-            continue;
-
-        }
-
-
-        if(
-            file.size >
-            MAX_FILE_SIZE
-        ){
-
-            alert(
-                file.name +
-                "\n\nThis file is larger than 20 GB."
-            );
-
-            continue;
-
-        }
-
-
-        const filePath =
-            file.webkitRelativePath ||
-            file.name;
-
-
-        const key =
-            filePath +
-            ":" +
-            file.size +
-            ":" +
-            file.lastModified;
-
-
-        selectedFiles.set(
-            key,
-            file
-        );
-
-    }
-
-
-    updateSelectedText();
-
-}
-
-
-/* =========================================================
-SELECTED TEXT
-========================================================= */
-
-function updateSelectedText(){
-
-    const element =
-        document.getElementById(
-            "selected"
-        );
-
-
-    if(
-        selectedFiles.size ===
-        0
-    ){
-
-        element.textContent =
-            "No files selected";
-
-        return;
-
-    }
-
-
-    let totalSize =
-        0;
-
-
-    for(
-        const file of
-            selectedFiles.values()
-    ){
-
-        totalSize +=
-            file.size;
-
-    }
-
-
-    element.textContent =
-
-        selectedFiles.size +
-        " file(s) selected • " +
-        formatBytes(
-            totalSize
-        );
-
-}
-
-
-/* =========================================================
-FAB
-========================================================= */
-
-function openUploadPicker(){
-
-    playClick();
-
-
-    document
-        .getElementById(
-            "fileInput"
-        )
-        .click();
-
-}
-
-
-/* =========================================================
-START UPLOAD
-========================================================= */
-
-async function startUpload(){
-
-    const files =
-        Array.from(
-            selectedFiles.values()
-        );
-
-
-    if(
-        files.length ===
-        0
-    ){
-
-        alert(
-            "Please select files first."
-        );
-
-        return;
-
-    }
-
-
-    const button =
-        document.getElementById(
-            "uploadButton"
-        );
-
-
-    const status =
-        document.getElementById(
-            "status"
-        );
-
-
-    const progress =
-        document.getElementById(
-            "progress"
-        );
-
-
-    const uploadingBox =
-        document.getElementById(
-            "uploadingBox"
-        );
-
-
-    const loader =
-        document.getElementById(
-            "uploadLoader"
-        );
-
-
-    button.disabled =
-        true;
-
-
-    uploadingBox.style.display =
-        "block";
-
-
-    loader.classList.add(
-        "show"
-    );
-
-
-    progress.style.width =
-        "0%";
-
-
-    status.textContent =
-        "Preparing upload...";
-
-
-    try{
-
-        for(
-            let i = 0;
-            i < files.length;
-            i++
-        ){
-
-            await uploadFile(
-                files[i],
-                i,
-                files.length
-            );
-
-        }
-
-
-        status.textContent =
-            "All " +
-            files.length +
-            " file(s) uploaded successfully";
-
-
-        progress.style.width =
-            "100%";
-
-
-        selectedFiles.clear();
-
-
-        updateSelectedText();
-
-
-        await loadFiles();
-
-    }catch(error){
-
-        console.error(
-            "Upload failed:",
-            error
-        );
-
-
-        status.textContent =
-            "Upload failed: " +
-            error.message;
-
-    }finally{
-
-        button.disabled =
-            false;
-
-
-        setTimeout(
-            function(){
-
-                uploadingBox.style.display =
-                    "none";
-
-                loader.classList.remove(
-                    "show"
-                );
-
-            },
-            900
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-YOUR ORIGINAL UPLOAD FUNCTION CONTINUES HERE
-========================================================= */
-
-/*
-    IMPORTANT:
-
-    आपके भेजे हुए original code में uploadFile()
-    function यहाँ से "con" पर अधूरा था।
-
-    इसलिए आपके existing backend/upload logic को
-    इसी जगह से continue रखें।
-
-    ऊपर का पूरा बदलाव केवल background/star system
-    के लिए किया गया है।
-*/
-
-
-/* =========================================================
-REDUCED MOTION FALLBACK
-========================================================= */
-
-if(
-    window.matchMedia &&
-    window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-    ).matches
-){
-
-    shootingStars =
-        [];
-
-}
+        checkLogin();
+
+    },
+    2500
+);
 
 </script>
 
-
 </body>
-
     </html>
