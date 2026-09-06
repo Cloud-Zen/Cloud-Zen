@@ -22,7 +22,8 @@ const fs = require("fs");
 const fsp = fs.promises;
 const os = require("os");
 const { once } = require("events");
-const { Readable } = require("stream");
+const { Readable, Transform } = require("stream");
+const { pipeline } = require("stream/promises");
 const archiver = require("archiver");
 
 const app = express();
@@ -39,34 +40,37 @@ const TMP_DIR = path.join(os.tmpdir(), "cloud-zen");
 ========================= */
 const APP_PASSWORD = String(process.env.APP_PASSWORD ?? "").trim();
 const DELETE_PASSWORD = String(process.env.DELETE_PASSWORD ?? "").trim();
+const RENAME_PASSWORD = String(process.env.RENAME_PASSWORD ?? "").trim();
+const DOWNLOAD_PASSWORD = String(process.env.DOWNLOAD_PASSWORD ?? "").trim();
 const SESSION_SECRET = String(process.env.SESSION_SECRET ?? "").trim();
 const TELEGRAM_API_ID = Number(process.env.TELEGRAM_API_ID || 0);
 const TELEGRAM_API_HASH = String(process.env.TELEGRAM_API_HASH || "").trim();
 const TELEGRAM_SESSION = String(process.env.TELEGRAM_SESSION || "").trim();
 const TELEGRAM_STORAGE_CHAT = String(process.env.TELEGRAM_STORAGE_CHAT || "me").trim();
 
+// A moderate chunk keeps mobile connections responsive while allowing several
+// chunks to be in flight at the same time. Render -> Telegram remains bounded
+// by the worker pool below so the service does not thrash under large uploads.
 const CHUNK_SIZE = Math.max(
-  4 * 1024 * 1024,
-  Math.min(Number(process.env.CHUNK_SIZE || 64 * 1024 * 1024), 512 * 1024 * 1024)
+  8 * 1024 * 1024,
+  Math.min(Number(process.env.CHUNK_SIZE || 16 * 1024 * 1024), 128 * 1024 * 1024)
 );
 const MAX_FILE_SIZE = Number(process.env.MAX_FILE_SIZE || 20 * 1024 * 1024 * 1024 * 1024);
 const MAX_CHUNKS = 100000;
+const TELEGRAM_UPLOAD_CONCURRENCY = Math.max(1, Math.min(Number(process.env.TELEGRAM_UPLOAD_CONCURRENCY || 3), 8));
+const TELEGRAM_WORKERS = Math.max(1, Math.min(Number(process.env.TELEGRAM_WORKERS || 8), 16));
+const TELEGRAM_UPLOAD_RETRIES = Math.max(1, Math.min(Number(process.env.TELEGRAM_UPLOAD_RETRIES || 4), 8));
+const MAX_ACTIVE_UPLOAD_REQUESTS = Math.max(1, Math.min(Number(process.env.MAX_ACTIVE_UPLOAD_REQUESTS || 6), 8));
+const MAX_PENDING_UPLOAD_BYTES = Math.max(
+  64 * 1024 * 1024,
+  Math.min(Number(process.env.MAX_PENDING_UPLOAD_BYTES || 256 * 1024 * 1024), 1024 * 1024 * 1024)
+);
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DEVICE_LOCK_MS = 24 * 60 * 60 * 1000;
 const MAX_LOGIN_FAILURES = 3;
 
-// Upload pipeline: browser -> Render disk -> Telegram can overlap.
-// These limits keep the temporary filesystem bounded while allowing the
-// browser to continue sending later chunks instead of waiting for Telegram
-// to finish each earlier chunk.
-const TELEGRAM_UPLOAD_CONCURRENCY = Math.max(1, Math.min(Number(process.env.TELEGRAM_UPLOAD_CONCURRENCY || 3), 6));
-const MAX_PENDING_UPLOAD_BYTES = Math.max(
-  CHUNK_SIZE,
-  Math.min(Number(process.env.MAX_PENDING_UPLOAD_BYTES || CHUNK_SIZE * 4), CHUNK_SIZE * 8)
-);
-
-if (!APP_PASSWORD || !DELETE_PASSWORD || !SESSION_SECRET) {
-  console.warn("[Cloud-Zen] APP_PASSWORD, DELETE_PASSWORD and SESSION_SECRET must be set in Render.");
+if (!APP_PASSWORD || !DELETE_PASSWORD || !RENAME_PASSWORD || !DOWNLOAD_PASSWORD || !SESSION_SECRET) {
+  console.warn("[Cloud-Zen] APP_PASSWORD, DELETE_PASSWORD, RENAME_PASSWORD, DOWNLOAD_PASSWORD and SESSION_SECRET must be set in Render.");
 }
 if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH || !TELEGRAM_SESSION) {
   console.warn("[Cloud-Zen] Telegram MTProto credentials are not fully configured.");
@@ -284,14 +288,37 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// Upload password removed by design. The main APP_PASSWORD session remains required.
+// Upload itself is authenticated by the main private-cloud session. No second
+// upload password is needed, so uploads can start immediately after login.
 function requireUploadPassword(req, res, next) {
   next();
 }
 
 function requireDownloadPassword(req, res, next) {
-  // The main Enter password already authenticates the private cloud.
-  // There is intentionally NO second download password.
+  if (isLocked(req, "download")) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
+  const cookieToken = actionCookie(req, "download");
+  if (validActionToken(cookieToken, "download")) return next();
+  const password = String(req.body?.downloadPassword ?? req.query?.downloadPassword ?? req.headers["x-download-password"] ?? "").trim();
+  if (!DOWNLOAD_PASSWORD || !safeEqual(password, DOWNLOAD_PASSWORD)) {
+    const locked = registerFailure(req, "download");
+    return res.status(locked ? 423 : 403).json({
+      error: locked ? "Download access locked for 24 hours." : "Incorrect download password."
+    });
+  }
+  clearFailures(req, "download");
+  next();
+}
+
+function requireRenamePassword(req, res, next) {
+  if (isLocked(req, "rename")) return res.status(423).json({ error: "Rename access is locked for 24 hours on this device." });
+  const password = String(req.body?.renamePassword ?? "").trim();
+  if (!RENAME_PASSWORD || !safeEqual(password, RENAME_PASSWORD)) {
+    const locked = registerFailure(req, "rename");
+    return res.status(locked ? 423 : 403).json({
+      error: locked ? "Rename access locked for 24 hours." : "Incorrect rename password."
+    });
+  }
+  clearFailures(req, "rename");
   next();
 }
 
@@ -308,9 +335,18 @@ function requireDeletePassword(req, res, next) {
   next();
 }
 
-// Kept as a compatibility endpoint. It never introduces another password.
 app.post("/api/access/download", requireAuth, (req, res) => {
-  res.json({ ok: true, expiresIn: 0, message: "Download is protected by the main Enter password." });
+  const password = String(req.body?.downloadPassword ?? "").trim();
+  if (isLocked(req, "download")) return res.status(423).json({ error: "Download access is locked for 24 hours on this device." });
+  if (!DOWNLOAD_PASSWORD || !safeEqual(password, DOWNLOAD_PASSWORD)) {
+    const locked = registerFailure(req, "download");
+    return res.status(locked ? 423 : 403).json({ error: locked ? "Download access locked for 24 hours." : "Incorrect download password." });
+  }
+  clearFailures(req, "download");
+  const token = createActionToken("download");
+  const secure = process.env.NODE_ENV === "production";
+  res.setHeader("Set-Cookie", [`cloud_zen_download_access=${encodeURIComponent(token)}`, "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=900", secure ? "Secure" : ""].filter(Boolean).join("; "));
+  res.json({ ok: true, expiresIn: 900 });
 });
 
 app.post("/api/auth/login", (req, res) => {
@@ -538,122 +574,60 @@ app.get("/api/files", requireAuth, async (req, res) => {
 });
 
 /* =========================
-   UPLOAD CHUNK / PIPELINE
+   UPLOAD CHUNK
 ========================= */
 const activeUploads = new Map();
 
-function createUploadState(id, total, name, size) {
-  const state = {
-    id,
-    total,
-    name,
-    size,
-    chunks: new Map(),
-    pendingBytes: 0,
-    running: 0,
-    queue: [],
-    error: null,
-    draining: null,
-    drainResolve: null,
-    drainReject: null
-  };
-  activeUploads.set(id, state);
-  return state;
-}
+// Small semaphore: browser requests can arrive in parallel, but Telegram
+// uploads are kept at a controlled concurrency so one large file cannot make
+// the Render process unstable.
+let telegramSlotsInUse = 0;
+const telegramSlotQueue = [];
 
-function finishUploadStateIfReady(state) {
-  if (state.error) {
-    if (state.running === 0 && state.queue.length === 0 && state.drainReject) {
-      const reject = state.drainReject;
-      state.drainResolve = null;
-      state.drainReject = null;
-      state.draining = null;
-      reject(state.error);
-    }
+async function acquireTelegramSlot() {
+  if (telegramSlotsInUse < TELEGRAM_UPLOAD_CONCURRENCY) {
+    telegramSlotsInUse += 1;
     return;
   }
+  await new Promise(resolve => telegramSlotQueue.push(resolve));
+  telegramSlotsInUse += 1;
+}
 
-  if (state.chunks.size === state.total && state.running === 0 && state.queue.length === 0) {
-    fileIndex.set(state.name, {
-      id: state.id,
-      name: state.name,
-      size: state.size,
-      total: state.total,
-      chunks: new Map(state.chunks),
-      modified: new Date().toISOString()
-    });
-    indexLoaded = true;
-    activeUploads.delete(state.id);
+function releaseTelegramSlot() {
+  telegramSlotsInUse = Math.max(0, telegramSlotsInUse - 1);
+  const next = telegramSlotQueue.shift();
+  if (next) next();
+}
 
-    if (state.drainResolve) {
-      const resolve = state.drainResolve;
-      state.drainResolve = null;
-      state.drainReject = null;
-      state.draining = null;
-      resolve();
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function retryDelay(error, attempt) {
+  const waitSeconds = Number(error?.seconds || error?.waitTime || 0);
+  if (Number.isFinite(waitSeconds) && waitSeconds > 0) return Math.min(waitSeconds * 1000, 30000);
+  return Math.min(1000 * (2 ** attempt) + Math.floor(Math.random() * 400), 15000);
+}
+
+async function sendChunkToTelegram(client, meta, index, tmp, sha256) {
+  let lastError = null;
+  for (let attempt = 0; attempt < TELEGRAM_UPLOAD_RETRIES; attempt += 1) {
+    try {
+      return await client.sendFile(TELEGRAM_STORAGE_CHAT, {
+        file: tmp,
+        caption: captionFor(meta, index, sha256),
+        forceDocument: true,
+        workers: TELEGRAM_WORKERS,
+        progressCallback: () => {}
+      });
+    } catch (error) {
+      lastError = error;
+      if (attempt >= TELEGRAM_UPLOAD_RETRIES - 1) break;
+      console.warn(`[Cloud-Zen] Telegram chunk ${index + 1} retry ${attempt + 1}/${TELEGRAM_UPLOAD_RETRIES}: ${error?.message || error}`);
+      await delay(retryDelay(error, attempt));
     }
   }
-}
-
-function waitForUploadDrain(state) {
-  if (!state.error && state.chunks.size === state.total && state.running === 0 && state.queue.length === 0) {
-    return Promise.resolve();
-  }
-  if (state.draining) return state.draining;
-  state.draining = new Promise((resolve, reject) => {
-    state.drainResolve = resolve;
-    state.drainReject = reject;
-  });
-  finishUploadStateIfReady(state);
-  return state.draining;
-}
-
-async function processTelegramUpload(state, job) {
-  const { tmp, index, expectedSize, sha256 } = job;
-  try {
-    const client = await getTelegramClient();
-    const message = await client.sendFile(TELEGRAM_STORAGE_CHAT, {
-      file: tmp,
-      caption: captionFor({ id: state.id, name: state.name, size: state.size, total: state.total }, index, sha256),
-      forceDocument: true,
-      workers: Math.max(1, Math.min(Number(process.env.TELEGRAM_WORKERS || 8), 16)),
-      progressCallback: () => {}
-    });
-
-    state.chunks.set(index, {
-      messageId: Number(message?.id),
-      index,
-      size: expectedSize,
-      sha256
-    });
-  } catch (error) {
-    state.error = error;
-    console.error(`UPLOAD CHUNK ${index + 1}/${state.total} TELEGRAM ERROR:`, error);
-  } finally {
-    try { await fsp.unlink(tmp); } catch (_) {}
-    state.pendingBytes = Math.max(0, state.pendingBytes - expectedSize);
-    state.running = Math.max(0, state.running - 1);
-  }
-}
-
-function pumpUploadQueue(state) {
-  while (!state.error && state.running < TELEGRAM_UPLOAD_CONCURRENCY && state.queue.length) {
-    const job = state.queue.shift();
-    state.running += 1;
-    processTelegramUpload(state, job).finally(() => {
-      pumpUploadQueue(state);
-      finishUploadStateIfReady(state);
-    });
-  }
-  finishUploadStateIfReady(state);
-}
-
-async function waitForUploadCapacity(state, incomingBytes) {
-  while (!state.error && state.pendingBytes + incomingBytes > MAX_PENDING_UPLOAD_BYTES) {
-    if (state.running === 0 && state.queue.length === 0) break;
-    await new Promise(resolve => setTimeout(resolve, 25));
-  }
-  if (state.error) throw state.error;
+  throw lastError || new Error("Telegram upload failed");
 }
 
 app.post("/api/upload-chunk", requireAuth, requireUploadPassword, async (req, res) => {
@@ -675,48 +649,76 @@ app.post("/api/upload-chunk", requireAuth, requireUploadPassword, async (req, re
   const received = Number(req.headers["content-length"] || 0);
   if (received && received !== expectedSize) return res.status(400).json({ error: `Expected ${expectedSize} bytes, received ${received}` });
 
-  let state = activeUploads.get(id);
-  if (!state) state = createUploadState(id, total, name, size);
+  const uploadKey = id;
+  if (!activeUploads.has(uploadKey)) {
+    activeUploads.set(uploadKey, { chunks: new Map(), pendingBytes: 0, name, size, total, createdAt: Date.now() });
+  }
+  const state = activeUploads.get(uploadKey);
+  if (state.chunks.has(index)) return res.json({ ok: true, done: state.chunks.size === total, part: index + 1, total, duplicate: true });
 
-  if (state.error) return res.status(state.error?.statusCode || 500).json({ error: state.error.message || "Upload failed" });
-  if (state.chunks.has(index) || state.queue.some(job => job.index === index)) {
-    return res.json({ ok: true, done: state.chunks.size === total && state.running === 0 && state.queue.length === 0, part: index + 1, total, duplicate: true });
+  // Keep a bounded amount of local data while waiting for Telegram. The
+  // browser still streams the next request normally, but Render never grows
+  // an unbounded temporary queue for a huge upload.
+  if (state.pendingBytes + expectedSize > MAX_PENDING_UPLOAD_BYTES) {
+    return res.status(429).json({ error: "Upload pipeline is busy; retry this chunk shortly.", retryAfterMs: 1200 });
   }
 
+  const tmp = path.join(TMP_DIR, `${id}-${index}-${crypto.randomBytes(6).toString("hex")}.part`);
+  await fsp.mkdir(TMP_DIR, { recursive: true });
+  state.pendingBytes += expectedSize;
+
   try {
-    await waitForUploadCapacity(state, expectedSize);
-    if (state.error) throw state.error;
-
-    const tmp = path.join(TMP_DIR, `${id}-${index}-${crypto.randomBytes(6).toString("hex")}.part`);
-    await fsp.mkdir(TMP_DIR, { recursive: true });
-
     const out = fs.createWriteStream(tmp, { flags: "wx" });
     let bytes = 0;
     const hash = crypto.createHash("sha256");
-    req.on("data", chunk => {
-      bytes += chunk.length;
-      hash.update(chunk);
+    const hashing = new Transform({
+      transform(chunk, encoding, callback) {
+        bytes += chunk.length;
+        hash.update(chunk);
+        callback(null, chunk);
+      }
     });
-    req.pipe(out);
-    await once(out, "close");
+
+    await pipeline(req, hashing, out);
 
     if (bytes !== expectedSize) throw new Error(`Chunk size mismatch: expected ${expectedSize}, got ${bytes}`);
     const sha256 = hash.digest("hex");
 
-    state.pendingBytes += expectedSize;
-    state.queue.push({ tmp, index, expectedSize, sha256 });
-    pumpUploadQueue(state);
+    const client = await getTelegramClient();
+    const meta = { id, name, size, total };
 
-    // IMPORTANT: respond after the chunk is safely on Render's temporary disk,
-    // not after Telegram finishes. This lets the browser send the next chunk
-    // while Telegram is uploading previous chunks in parallel.
-    const isLast = index === total - 1;
-    if (isLast) {
-      await waitForUploadDrain(state);
-      if (state.error) throw state.error;
+    let message;
+    await acquireTelegramSlot();
+    try {
+      message = await sendChunkToTelegram(client, meta, index, tmp, sha256);
+    } finally {
+      releaseTelegramSlot();
     }
 
-    const done = state.chunks.size === total && state.running === 0 && state.queue.length === 0;
+    state.chunks.set(index, {
+      messageId: Number(message?.id),
+      index,
+      size: expectedSize,
+      sha256
+    });
+    state.pendingBytes = Math.max(0, state.pendingBytes - expectedSize);
+
+    try { await fsp.unlink(tmp); } catch (_) {}
+
+    const done = state.chunks.size === total;
+    if (done) {
+      fileIndex.set(name, {
+        id,
+        name,
+        size,
+        total,
+        chunks: new Map(state.chunks),
+        modified: new Date().toISOString()
+      });
+      indexLoaded = true;
+      activeUploads.delete(uploadKey);
+    }
+
     return res.json({
       ok: true,
       done,
@@ -724,10 +726,11 @@ app.post("/api/upload-chunk", requireAuth, requireUploadPassword, async (req, re
       total,
       name,
       size,
-      sha256,
-      queued: !done
+      sha256
     });
   } catch (error) {
+    state.pendingBytes = Math.max(0, state.pendingBytes - expectedSize);
+    try { await fsp.unlink(tmp); } catch (_) {}
     console.error("UPLOAD CHUNK ERROR:", error);
     return res.status(error?.statusCode || 500).json({ error: error.message || "Upload failed" });
   }
@@ -741,11 +744,6 @@ app.delete("/api/upload/:id", requireAuth, requireUploadPassword, async (req, re
   const state = activeUploads.get(id);
   try {
     if (state) {
-      state.error = new Error("Upload cancelled");
-      for (const job of state.queue.splice(0)) {
-        try { await fsp.unlink(job.tmp); } catch (_) {}
-        state.pendingBytes = Math.max(0, state.pendingBytes - Number(job.expectedSize || 0));
-      }
       const client = await getTelegramClient();
       const ids = [...state.chunks.values()].map(v => Number(v.messageId)).filter(Boolean);
       if (ids.length) await deleteTelegramMessages(ids);
@@ -903,7 +901,7 @@ function verifyShareToken(token) {
   } catch (_) { return null; }
 }
 
-app.patch("/api/files", requireAuth, async (req, res) => {
+app.patch("/api/files", requireAuth, requireRenamePassword, async (req, res) => {
   try {
     const oldName = cleanName(req.body?.name);
     const newName = cleanName(req.body?.newName);
@@ -1103,5 +1101,9 @@ process.on("SIGINT", () => shutdown("SIGINT"));
 app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
+  console.log(`[Cloud-Zen] Telegram upload concurrency: ${TELEGRAM_UPLOAD_CONCURRENCY}`);
+  console.log(`[Cloud-Zen] Max pending upload bytes: ${formatBytes(MAX_PENDING_UPLOAD_BYTES)}`);
+  console.log(`[Cloud-Zen] Frontend parallel requests: ${MAX_ACTIVE_UPLOAD_REQUESTS}`);
 });
 
+                          
