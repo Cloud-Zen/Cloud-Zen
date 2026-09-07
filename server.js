@@ -78,6 +78,9 @@ app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  res.setHeader("X-DNS-Prefetch-Control", "off");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; frame-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'");
   if (process.env.NODE_ENV === "production") res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   next();
 });
@@ -413,6 +416,13 @@ let trashIndex = new Map();
 let folderIndex = new Set();
 let indexLoaded = false;
 let indexPromise = null;
+const activityLog = [];
+const MAX_ACTIVITY = 500;
+
+function recordActivity(type, details = {}) {
+  activityLog.unshift({ id: crypto.randomUUID(), type, at: new Date().toISOString(), ...details });
+  if (activityLog.length > MAX_ACTIVITY) activityLog.length = MAX_ACTIVITY;
+}
 
 async function rebuildIndex(force = false) {
   if (indexPromise && !force) return indexPromise;
@@ -504,7 +514,13 @@ app.get("/api/config", (req, res) => {
       rename: true,
       share: true,
       delete: true,
-      downloadAll: true
+      downloadAll: true,
+      copy: true,
+      bulk: true,
+      folders: true,
+      activity: true,
+      resumable: true,
+      rangeDownload: true
     }
   });
 });
@@ -518,7 +534,8 @@ app.get("/api/health", async (req, res) => {
       storage: "Cloud Storage",
       persistent: true,
       multipart: true,
-      telegram: { configured: true, connected: telegramReady }
+      telegram: { configured: true, connected: telegramReady },
+      version: "4.0.0-core"
     });
   } catch (error) {
     res.status(503).json({ success: false, status: "degraded", storage: "Cloud Storage", error: error.message });
@@ -652,6 +669,7 @@ app.post("/api/upload-chunk", requireAuth, requireUploadPassword, async (req, re
       });
       indexLoaded = true;
       activeUploads.delete(uploadKey);
+      recordActivity("file.uploaded", { name, size });
     }
 
     return res.json({
@@ -847,6 +865,7 @@ app.patch("/api/files", requireAuth, async (req, res) => {
     const renamed = await editFileMetadata(file, { name: newName, modified: new Date().toISOString() });
     fileIndex.delete(oldName);
     fileIndex.set(newName, renamed);
+    recordActivity("file.renamed", { from: oldName, name: newName });
     return res.json({ ok: true, file: publicFile(renamed) });
   } catch (error) {
     console.error("RENAME ERROR:", error);
@@ -889,6 +908,7 @@ app.post("/api/files/trash", requireAuth, async (req, res) => {
     const updated = await editFileMetadata(file, { trashed: true, modified: new Date().toISOString() });
     fileIndex.delete(name);
     trashIndex.set(name, updated);
+    recordActivity("file.trashed", { name });
     res.json({ ok: true, file: publicFile(updated) });
   } catch (error) {
     res.status(500).json({ error: error.message || "Could not move file to trash" });
@@ -905,10 +925,109 @@ app.post("/api/files/restore", requireAuth, async (req, res) => {
     const updated = await editFileMetadata(file, { trashed: false, modified: new Date().toISOString() });
     trashIndex.delete(name);
     fileIndex.set(name, updated);
+    recordActivity("file.restored", { name });
     res.json({ ok: true, file: publicFile(updated) });
   } catch (error) {
     res.status(500).json({ error: error.message || "Restore failed" });
   }
+});
+
+
+/* =========================
+   ADVANCED FILE OPERATIONS
+========================= */
+app.post("/api/files/copy", requireAuth, async (req, res) => {
+  try {
+    const sourceName = cleanName(req.body?.name);
+    const targetName = cleanName(req.body?.newName);
+    const targetFolder = String(req.body?.folder || "").trim().slice(0, 160);
+    if (!sourceName || !targetName || sourceName === targetName) return res.status(400).json({ error: "Enter a different destination name." });
+    await rebuildIndex();
+    const source = fileIndex.get(sourceName);
+    if (!source) return res.status(404).json({ error: "Source file not found" });
+    if (fileIndex.has(targetName) || trashIndex.has(targetName)) return res.status(409).json({ error: "A file with that name already exists." });
+
+    const client = await getTelegramClient();
+    const newId = crypto.randomUUID();
+    const newChunks = new Map();
+    await fsp.mkdir(TMP_DIR, { recursive: true });
+    try {
+      for (let i = 0; i < source.total; i += 1) {
+        const original = source.chunks.get(i);
+        if (!original) throw new Error(`Stored chunk ${i + 1} is missing`);
+        const target = path.join(TMP_DIR, `copy-${newId}-${i}-${crypto.randomBytes(4).toString("hex")}.part`);
+        await downloadChunkToFile(original.messageId, target);
+        const hash = crypto.createHash("sha256");
+        const data = await fsp.readFile(target);
+        hash.update(data);
+        const sha256 = hash.digest("hex");
+        const meta = { id: newId, name: targetName, size: source.size, total: source.total, folder: targetFolder, starred: false, trashed: false };
+        const message = await client.sendFile(TELEGRAM_STORAGE_CHAT, {
+          file: target, caption: captionFor(meta, i, sha256), forceDocument: true,
+          workers: Math.max(1, Math.min(Number(process.env.TELEGRAM_WORKERS || 8), 16))
+        });
+        newChunks.set(i, { messageId: Number(message?.id), index: i, size: original.size, sha256 });
+        try { await fsp.unlink(target); } catch (_) {}
+      }
+    } catch (error) {
+      try { await deleteTelegramMessages([...newChunks.values()].map(x => x.messageId)); } catch (_) {}
+      throw error;
+    }
+    const copied = { id: newId, name: targetName, size: source.size, total: source.total, chunks: newChunks, modified: new Date().toISOString(), folder: targetFolder, starred: false, trashed: false };
+    fileIndex.set(targetName, copied);
+    folderIndex = new Set([...folderIndex, ...(targetFolder ? [targetFolder] : [])]);
+    indexLoaded = true;
+    recordActivity("file.copied", { from: sourceName, name: targetName });
+    res.json({ ok: true, file: publicFile(copied) });
+  } catch (error) {
+    console.error("COPY ERROR:", error);
+    res.status(500).json({ error: error.message || "Copy failed" });
+  }
+});
+
+app.post("/api/files/bulk", requireAuth, async (req, res) => {
+  try {
+    const names = Array.isArray(req.body?.names) ? req.body.names.map(cleanName).filter(Boolean).slice(0, 100) : [];
+    const action = String(req.body?.action || "");
+    if (!names.length) return res.status(400).json({ error: "No files selected." });
+    await rebuildIndex();
+    const results = [];
+    for (const name of names) {
+      const file = fileIndex.get(name) || trashIndex.get(name);
+      if (!file) { results.push({ name, ok: false, error: "Not found" }); continue; }
+      if (action === "star" || action === "unstar") {
+        const updated = await editFileMetadata(file, { starred: action === "star", modified: new Date().toISOString() });
+        fileIndex.set(name, updated); results.push({ name, ok: true }); continue;
+      }
+      if (action === "trash") {
+        const updated = await editFileMetadata(file, { trashed: true, modified: new Date().toISOString() });
+        fileIndex.delete(name); trashIndex.set(name, updated); results.push({ name, ok: true }); continue;
+      }
+      if (action === "restore") {
+        const updated = await editFileMetadata(file, { trashed: false, modified: new Date().toISOString() });
+        trashIndex.delete(name); fileIndex.set(name, updated); results.push({ name, ok: true }); continue;
+      }
+      if (action === "move") {
+        const folder = String(req.body?.folder || "").trim().slice(0, 160);
+        const updated = await editFileMetadata(file, { folder, modified: new Date().toISOString() });
+        fileIndex.set(name, updated); folderIndex.add(folder); results.push({ name, ok: true }); continue;
+      }
+      results.push({ name, ok: false, error: "Unsupported action" });
+    }
+    recordActivity("files.bulk", { action, count: results.filter(x => x.ok).length });
+    res.json({ ok: true, results });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Bulk operation failed" });
+  }
+});
+
+app.get("/api/folders", requireAuth, async (req, res) => {
+  try { await rebuildIndex(); res.json([...folderIndex].filter(Boolean).sort((a,b)=>a.localeCompare(b))); }
+  catch (error) { res.status(503).json({ error: "Folders unavailable" }); }
+});
+
+app.get("/api/activity", requireAuth, (req, res) => {
+  res.json(activityLog.slice(0, Math.min(Number(req.query.limit) || 100, MAX_ACTIVITY)));
 });
 
 app.post("/api/share", requireAuth, async (req, res) => {
@@ -916,9 +1035,10 @@ app.post("/api/share", requireAuth, async (req, res) => {
     const name = cleanName(req.body?.name);
     const file = await findFile(name);
     if (!file) return res.status(404).json({ error: "File not found" });
-    const token = createShareToken(name, req.body?.ttlSeconds || 86400);
+    const ttlSeconds = Math.max(300, Math.min(Number(req.body?.ttlSeconds) || 86400, 7 * 86400));
+    const token = createShareToken(name, ttlSeconds);
     const base = `${req.protocol}://${req.get("host")}`;
-    res.json({ ok: true, url: `${base}/s/${encodeURIComponent(token)}`, expiresIn: 86400, name: file.name });
+    res.json({ ok: true, url: `${base}/s/${encodeURIComponent(token)}`, expiresIn: ttlSeconds, name: file.name });
   } catch (error) {
     res.status(500).json({ error: error.message || "Could not create share link" });
   }
@@ -1064,6 +1184,11 @@ app.get("/api/download-all", requireAuth, requireDownloadPassword, async (req, r
    ROOT / 404
 ========================= */
 app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
+
+app.use((req, res) => {
+  if (req.path.startsWith("/api/")) return res.status(404).json({ error: "Endpoint not found" });
+  res.status(404).send("Cloud-Zen page not found");
+});
 
 app.use((err, req, res, next) => {
   console.error("UNHANDLED ERROR:", err);
