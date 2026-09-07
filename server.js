@@ -378,14 +378,17 @@ function captionFor(meta, index, sha256) {
     String(meta.total),
     String(meta.size),
     Buffer.from(meta.name, "utf8").toString("base64url"),
-    sha256
+    sha256,
+    Buffer.from(String(meta.folder || ""), "utf8").toString("base64url"),
+    meta.trashed ? "trash" : "active",
+    meta.starred ? "star" : "normal"
   ].join("|");
 }
 
 function parseChunkCaption(text) {
   const parts = String(text || "").split("|");
   if (parts.length < 8 || parts[0] !== "CZ1" || parts[1] !== "CHUNK") return null;
-  const [_, __, id, index, total, size, encodedName, sha256] = parts;
+  const [_, __, id, index, total, size, encodedName, sha256, encodedFolder = "", state = "active", star = "normal"] = parts;
   try {
     return {
       kind: "chunk",
@@ -394,7 +397,10 @@ function parseChunkCaption(text) {
       total: Number(total),
       size: Number(size),
       name: Buffer.from(encodedName, "base64url").toString("utf8"),
-      sha256
+      sha256,
+      folder: Buffer.from(encodedFolder, "base64url").toString("utf8"),
+      trashed: state === "trash",
+      starred: star === "star"
     };
   } catch (_) { return null; }
 }
@@ -403,6 +409,8 @@ function parseChunkCaption(text) {
    INDEX / FILE DISCOVERY
 ========================= */
 let fileIndex = new Map();
+let trashIndex = new Map();
+let folderIndex = new Set();
 let indexLoaded = false;
 let indexPromise = null;
 
@@ -414,8 +422,6 @@ async function rebuildIndex(force = false) {
     const client = await getTelegramClient();
     const grouped = new Map();
 
-    // Telegram history is the durable index. Only messages with our CZ1
-    // marker are considered storage records.
     for await (const message of client.iterMessages(TELEGRAM_STORAGE_CHAT, { limit: 0 })) {
       const parsed = parseChunkCaption(message?.message || message?.text || "");
       if (!parsed || !Number.isInteger(parsed.index) || parsed.index < 0) continue;
@@ -423,36 +429,27 @@ async function rebuildIndex(force = false) {
       if (!grouped.has(parsed.id)) grouped.set(parsed.id, { ...parsed, chunks: new Map(), complete: false });
       const entry = grouped.get(parsed.id);
       entry.chunks.set(parsed.index, {
-        messageId: Number(message.id),
-        index: parsed.index,
-        size: parsed.size,
-        sha256: parsed.sha256
+        messageId: Number(message.id), index: parsed.index, size: parsed.size, sha256: parsed.sha256
       });
-      entry.name = parsed.name;
-      entry.total = parsed.total;
-      entry.size = parsed.size;
+      Object.assign(entry, { name: parsed.name, total: parsed.total, size: parsed.size, folder: parsed.folder, trashed: parsed.trashed, starred: parsed.starred });
     }
 
     const next = new Map();
+    const trash = new Map();
+    const folders = new Set();
     for (const [id, entry] of grouped) {
       const complete = entry.total > 0 && entry.chunks.size === entry.total;
-      if (complete) {
-        let totalBytes = 0;
-        for (const chunk of entry.chunks.values()) totalBytes += Number(chunk.size || 0);
-        if (totalBytes === entry.size) {
-          next.set(entry.name, {
-            id,
-            name: entry.name,
-            size: entry.size,
-            total: entry.total,
-            chunks: entry.chunks,
-            modified: null
-          });
-        }
-      }
+      if (!complete) continue;
+      let totalBytes = 0;
+      for (const chunk of entry.chunks.values()) totalBytes += Number(chunk.size || 0);
+      if (totalBytes !== entry.size) continue;
+      const meta = { id, name: entry.name, size: entry.size, total: entry.total, chunks: entry.chunks, modified: null, folder: entry.folder || "", starred: Boolean(entry.starred), trashed: Boolean(entry.trashed) };
+      if (meta.folder) folders.add(meta.folder);
+      (meta.trashed ? trash : next).set(entry.name, meta);
     }
-
     fileIndex = next;
+    trashIndex = trash;
+    folderIndex = folders;
     indexLoaded = true;
     return fileIndex;
   })();
@@ -470,13 +467,48 @@ function publicFile(meta) {
     type: mimeFor(meta.name),
     storage: "CLOUD",
     storageLabel: "Cloud Storage",
-    chunks: meta.total
+    chunks: meta.total,
+    folder: meta.folder || "",
+    starred: Boolean(meta.starred),
+    trashed: Boolean(meta.trashed)
   };
 }
+
+async function editFileMetadata(file, changes) {
+  const client = await getTelegramClient();
+  const nextMeta = { ...file, ...changes };
+  for (const chunk of file.chunks.values()) {
+    const messages = await client.getMessages(TELEGRAM_STORAGE_CHAT, { ids: [Number(chunk.messageId)] });
+    const message = Array.isArray(messages) ? messages[0] : messages;
+    if (!message) throw new Error(`Stored chunk ${chunk.index + 1} not found`);
+    const caption = captionFor(nextMeta, chunk.index, chunk.sha256);
+    await client.editMessage(TELEGRAM_STORAGE_CHAT, { message: Number(chunk.messageId), text: caption });
+  }
+  return nextMeta;
+}
+
 
 /* =========================
    STORAGE STATUS
 ========================= */
+app.get("/api/config", (req, res) => {
+  res.json({
+    ok: true,
+    chunkSize: CHUNK_SIZE,
+    maxFileSize: MAX_FILE_SIZE,
+    sessionTtlMs: SESSION_TTL_MS,
+    features: {
+      upload: true,
+      download: true,
+      preview: true,
+      rename: true,
+      share: true,
+      delete: true,
+      downloadAll: true
+    }
+  });
+});
+
 app.get("/api/health", async (req, res) => {
   try {
     await getTelegramClient();
@@ -578,7 +610,10 @@ app.post("/api/upload-chunk", requireAuth, requireUploadPassword, async (req, re
       id,
       name,
       size,
-      total
+      total,
+      folder: cleanName(req.query.folder || "").slice(0, 160),
+      starred: String(req.query.starred || "") === "1",
+      trashed: false
     };
 
     let message;
@@ -809,21 +844,70 @@ app.patch("/api/files", requireAuth, async (req, res) => {
     if (!file) return res.status(404).json({ error: "File not found" });
     if (fileIndex.has(newName)) return res.status(409).json({ error: "A file with that name already exists." });
 
-    const client = await getTelegramClient();
-    for (const chunk of file.chunks.values()) {
-      const messages = await client.getMessages(TELEGRAM_STORAGE_CHAT, { ids: [Number(chunk.messageId)] });
-      const message = Array.isArray(messages) ? messages[0] : messages;
-      if (!message) throw new Error(`Stored chunk ${chunk.index + 1} not found`);
-      const caption = captionFor({ ...file, name: newName }, chunk.index, chunk.sha256);
-      await client.editMessage(TELEGRAM_STORAGE_CHAT, { message: Number(chunk.messageId), text: caption });
-    }
-    const renamed = { ...file, name: newName, modified: new Date().toISOString() };
+    const renamed = await editFileMetadata(file, { name: newName, modified: new Date().toISOString() });
     fileIndex.delete(oldName);
     fileIndex.set(newName, renamed);
     return res.json({ ok: true, file: publicFile(renamed) });
   } catch (error) {
     console.error("RENAME ERROR:", error);
     return res.status(500).json({ error: error.message || "Rename failed" });
+  }
+});
+
+app.get("/api/trash", requireAuth, async (req, res) => {
+  try {
+    await rebuildIndex();
+    res.json([...trashIndex.values()].map(publicFile).sort((a, b) => a.name.localeCompare(b.name)));
+  } catch (error) {
+    res.status(503).json({ error: error.message || "Trash unavailable" });
+  }
+});
+
+app.patch("/api/files/meta", requireAuth, async (req, res) => {
+  try {
+    const name = cleanName(req.body?.name);
+    await rebuildIndex();
+    const file = fileIndex.get(name) || trashIndex.get(name);
+    if (!file) return res.status(404).json({ error: "File not found" });
+    const changes = {};
+    if (Object.prototype.hasOwnProperty.call(req.body || {}, "folder")) changes.folder = String(req.body.folder || "").trim().slice(0, 160);
+    if (Object.prototype.hasOwnProperty.call(req.body || {}, "starred")) changes.starred = Boolean(req.body.starred);
+    const updated = await editFileMetadata(file, { ...changes, modified: new Date().toISOString() });
+    fileIndex.set(updated.name, updated);
+    folderIndex = new Set([...folderIndex, ...(updated.folder ? [updated.folder] : [])]);
+    res.json({ ok: true, file: publicFile(updated) });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Metadata update failed" });
+  }
+});
+
+app.post("/api/files/trash", requireAuth, async (req, res) => {
+  try {
+    const name = cleanName(req.body?.name);
+    const file = await findFile(name);
+    if (!file) return res.status(404).json({ error: "File not found" });
+    const updated = await editFileMetadata(file, { trashed: true, modified: new Date().toISOString() });
+    fileIndex.delete(name);
+    trashIndex.set(name, updated);
+    res.json({ ok: true, file: publicFile(updated) });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Could not move file to trash" });
+  }
+});
+
+app.post("/api/files/restore", requireAuth, async (req, res) => {
+  try {
+    const name = cleanName(req.body?.name);
+    await rebuildIndex();
+    const file = trashIndex.get(name);
+    if (!file) return res.status(404).json({ error: "File not found in trash" });
+    if (fileIndex.has(name)) return res.status(409).json({ error: "A file with that name already exists." });
+    const updated = await editFileMetadata(file, { trashed: false, modified: new Date().toISOString() });
+    trashIndex.delete(name);
+    fileIndex.set(name, updated);
+    res.json({ ok: true, file: publicFile(updated) });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Restore failed" });
   }
 });
 
@@ -922,6 +1006,7 @@ app.delete("/api/files", requireAuth, requireDeletePassword, async (req, res) =>
     if (ids.length) await deleteTelegramMessages(ids);
 
     fileIndex.delete(name);
+    trashIndex.delete(name);
     res.json({ ok: true, name, message: "File permanently deleted" });
   } catch (error) {
     console.error("DELETE ERROR:", error);
@@ -1001,4 +1086,5 @@ app.listen(PORT, HOST, () => {
   console.log(`[Cloud-Zen] Server running on ${HOST}:${PORT}`);
   console.log(`[Cloud-Zen] Chunk size: ${formatBytes(CHUNK_SIZE)}`);
 });
+
   
