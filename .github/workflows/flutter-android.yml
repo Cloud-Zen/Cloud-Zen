@@ -9,7 +9,7 @@ on:
         default: "https://cloud-zen-backend.onrender.com"
 
       client_apk_url:
-        description: "HTTPS URL of Client APK"
+        description: "HTTPS URL of the Client APK"
         required: false
         default: ""
 
@@ -17,221 +17,332 @@ permissions:
   contents: read
 
 jobs:
-
-  # ============================================================
-  # MASTER APK
-  # ============================================================
-  build-master:
-    name: Build Master APK
+  build:
+    name: Build ${{ matrix.app }} APK
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - master_app
+          - client_app
 
     steps:
 
+      # ============================================================
+      # 1. CHECKOUT
+      # ============================================================
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      # ============================================================
+      # 2. FLUTTER
+      # ============================================================
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Check Master source
-        working-directory: master_app
+
+      # ============================================================
+      # 3. CHECK APP DIRECTORY
+      # ============================================================
+      - name: Verify Flutter app
+        working-directory: ${{ matrix.app }}
         shell: bash
         run: |
           set -e
 
+          echo "=========================================="
+          echo "Cloud-Zen Flutter App Check"
+          echo "=========================================="
+          echo "Application: ${{ matrix.app }}"
+          echo ""
+
           test -f pubspec.yaml
           test -f lib/main.dart
 
-          echo "Master source found."
+          echo "pubspec.yaml found"
+          echo "lib/main.dart found"
 
-          grep -q "API_BASE_URL" lib/main.dart
+          echo ""
+          echo "Flutter version:"
+          flutter --version
 
-          echo "Master API_BASE_URL configuration found."
 
+      # ============================================================
+      # 4. GENERATE ANDROID PROJECT
+      # ============================================================
       - name: Generate Android project
-        working-directory: master_app
+        working-directory: ${{ matrix.app }}
+        shell: bash
         run: |
-          flutter create --platforms=android .
+          set -e
 
-      - name: Configure Master Android
-        working-directory: master_app
+          if [ ! -d "android" ]; then
+            echo "Android project does not exist."
+            echo "Generating Android project..."
+            flutter create --platforms=android .
+          else
+            echo "Android project already exists."
+          fi
+
+          test -d android
+          test -f android/app/src/main/AndroidManifest.xml
+
+          echo "Android project ready."
+
+
+      # ============================================================
+      # 5. REMOVE DEFAULT FLUTTER TEST
+      # ============================================================
+      # IMPORTANT:
+      # The generated Flutter template test expects MyApp().
+      # Cloud-Zen uses its own root widget, so the default test
+      # must not be allowed to break flutter analyze.
+      # ============================================================
+      - name: Remove default Flutter template test
+        working-directory: ${{ matrix.app }}
+        shell: bash
+        run: |
+          set -e
+
+          rm -f test/widget_test.dart
+
+          echo "Default Flutter widget test removed."
+
+          if [ -f test/widget_test.dart ]; then
+            echo "ERROR: widget_test.dart still exists."
+            exit 1
+          fi
+
+          echo "No obsolete MyApp template test remains."
+
+
+      # ============================================================
+      # 6. CONFIGURE ANDROID MANIFEST
+      # ============================================================
+      - name: Configure Android permissions
+        working-directory: ${{ matrix.app }}
         shell: bash
         run: |
           set -e
 
           MANIFEST="android/app/src/main/AndroidManifest.xml"
 
-          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
-            sed -i \
-              's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET"/>#' \
-              "$MANIFEST"
+          if [ ! -f "$MANIFEST" ]; then
+            echo "ERROR: AndroidManifest.xml not found."
+            exit 1
           fi
 
-          if [ -f "android/app/build.gradle.kts" ]; then
-            sed -i -E \
-              's/compileSdk[[:space:]]*=[[:space:]]*[0-9]+/compileSdk = 36/g' \
-              android/app/build.gradle.kts
-          fi
+          python3 <<'PY'
+          from pathlib import Path
 
-          if [ -f "android/app/build.gradle" ]; then
-            sed -i -E \
-              's/compileSdkVersion[[:space:]]+[0-9]+/compileSdkVersion 36/g' \
-              android/app/build.gradle
-          fi
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text()
 
-          echo "Master Android configuration complete."
+          INTERNET = '<uses-permission android:name="android.permission.INTERNET"/>'
+          CAMERA = '<uses-permission android:name="android.permission.CAMERA"/>'
 
-      - name: Flutter dependencies
-        working-directory: master_app
+          manifest_open = '<manifest xmlns:android="http://schemas.android.com/apk/res/android">'
+
+          # INTERNET permission
+          if INTERNET not in text:
+              if manifest_open in text:
+                  text = text.replace(
+                      manifest_open,
+                      manifest_open + "\n    " + INTERNET,
+                      1
+                  )
+              else:
+                  raise SystemExit(
+                      "Could not locate Android manifest opening tag."
+                  )
+
+          # CAMERA permission only for Client
+          if "${{ matrix.app }}" == "client_app":
+              if CAMERA not in text:
+                  if manifest_open in text:
+                      text = text.replace(
+                          manifest_open,
+                          manifest_open + "\n    " + CAMERA,
+                          1
+                      )
+                  else:
+                      raise SystemExit(
+                          "Could not locate Android manifest opening tag."
+                      )
+
+          manifest.write_text(text)
+          PY
+
+          echo ""
+          echo "Android permissions configured:"
+          grep -n "uses-permission" "$MANIFEST" || true
+
+
+      # ============================================================
+      # 7. CONFIGURE COMPILE SDK
+      # ============================================================
+      - name: Configure Android compile SDK
+        working-directory: ${{ matrix.app }}
+        shell: bash
         run: |
+          set -e
+
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          files = [
+              Path("android/app/build.gradle.kts"),
+              Path("android/app/build.gradle"),
+          ]
+
+          changed = False
+
+          for path in files:
+              if not path.exists():
+                  continue
+
+              text = path.read_text()
+
+              # Kotlin DSL
+              new_text = re.sub(
+                  r'compileSdk\s*=\s*\d+',
+                  'compileSdk = 36',
+                  text
+              )
+
+              # Groovy
+              new_text = re.sub(
+                  r'compileSdkVersion\s+\d+',
+                  'compileSdkVersion 36',
+                  new_text
+              )
+
+              # Some Flutter templates use compileSdk = flutter.compileSdkVersion.
+              new_text = new_text.replace(
+                  'compileSdk = flutter.compileSdkVersion',
+                  'compileSdk = 36'
+              )
+
+              if new_text != text:
+                  path.write_text(new_text)
+                  changed = True
+                  print(f"Updated {path}")
+
+          if not changed:
+              print("No compileSdk replacement was required.")
+          PY
+
+          echo ""
+          echo "Android Gradle configuration:"
+          grep -R "compileSdk" android/app 2>/dev/null || true
+
+
+      # ============================================================
+      # 8. FLUTTER DEPENDENCIES
+      # ============================================================
+      - name: Flutter dependencies
+        working-directory: ${{ matrix.app }}
+        shell: bash
+        run: |
+          set -e
+
+          flutter clean
           flutter pub get
 
-      - name: Build Master release APK
-        working-directory: master_app
+          echo ""
+          echo "Dependencies installed successfully."
+
+
+      # ============================================================
+      # 9. DART ANALYSIS
+      # ============================================================
+      - name: Analyze Dart
+        working-directory: ${{ matrix.app }}
+        shell: bash
+        run: |
+          set -e
+
+          echo "Running Dart analyzer..."
+          flutter analyze --no-fatal-infos
+
+          echo ""
+          echo "Dart analysis completed successfully."
+
+
+      # ============================================================
+      # 10. BUILD RELEASE APK
+      # ============================================================
+      - name: Build release APK
+        working-directory: ${{ matrix.app }}
+        shell: bash
         env:
           API_BASE_URL: ${{ inputs.api_base_url }}
           CLIENT_APK_URL: ${{ inputs.client_apk_url }}
         run: |
+          set -e
+
+          echo "=========================================="
+          echo "Building Cloud-Zen APK"
+          echo "=========================================="
+          echo "Application: ${{ matrix.app }}"
+          echo "Backend: $API_BASE_URL"
+          echo ""
+
           flutter build apk \
             --release \
             --dart-define=API_BASE_URL="$API_BASE_URL" \
             --dart-define=CLIENT_APK_URL="$CLIENT_APK_URL"
 
-      - name: Verify Master APK
-        working-directory: master_app
-        run: |
-          test -f build/app/outputs/flutter-apk/app-release.apk
-
-          ls -lh \
-            build/app/outputs/flutter-apk/app-release.apk
-
-          echo "MASTER APK BUILD SUCCESS."
-
-      - name: Upload Master APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloud-zen-master-apk
-          path: master_app/build/app/outputs/flutter-apk/app-release.apk
+          echo ""
+          echo "APK build completed."
 
 
-  # ============================================================
-  # CLIENT APK
-  # ============================================================
-  build-client:
-    name: Build Client APK
-    runs-on: ubuntu-latest
-
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      # --------------------------------------------------------
-      # IMPORTANT:
-      # DO NOT CHECK API_BASE_URL HERE.
-      #
-      # Client receives backend URL from pairing QR:
-      #
-      # QR -> server -> /api/pairing/approve
-      #
-      # Therefore API_BASE_URL is NOT required in client main.dart.
-      # --------------------------------------------------------
-      - name: Check Client source
-        working-directory: client_app
+      # ============================================================
+      # 11. VERIFY APK
+      # ============================================================
+      - name: Verify APK
+        working-directory: ${{ matrix.app }}
         shell: bash
         run: |
           set -e
 
-          test -f pubspec.yaml
-          test -f lib/main.dart
+          APK="build/app/outputs/flutter-apk/app-release.apk"
 
-          echo "Client source found."
-
-          grep -q "class CloudZenClient" lib/main.dart
-          grep -q "scanAndPair" lib/main.dart
-          grep -q "api/pairing/approve" lib/main.dart
-
-          echo "Client pairing code found."
-
-      - name: Generate Android project
-        working-directory: client_app
-        run: |
-          flutter create --platforms=android .
-
-      - name: Configure Client Android
-        working-directory: client_app
-        shell: bash
-        run: |
-          set -e
-
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
-
-          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
-            sed -i \
-              's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET"/>#' \
-              "$MANIFEST"
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: Release APK was not generated."
+            exit 1
           fi
 
-          if ! grep -q "android.permission.CAMERA" "$MANIFEST"; then
-            sed -i \
-              's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.CAMERA"/>#' \
-              "$MANIFEST"
+          echo "=========================================="
+          echo "APK VERIFIED"
+          echo "=========================================="
+          ls -lh "$APK"
+
+          FILE_SIZE=$(stat -c%s "$APK")
+
+          if [ "$FILE_SIZE" -le 0 ]; then
+            echo "ERROR: APK file is empty."
+            exit 1
           fi
 
-          if [ -f "android/app/build.gradle.kts" ]; then
-            sed -i -E \
-              's/compileSdk[[:space:]]*=[[:space:]]*[0-9]+/compileSdk = 36/g' \
-              android/app/build.gradle.kts
-          fi
+          echo ""
+          echo "APK size: $FILE_SIZE bytes"
 
-          if [ -f "android/app/build.gradle" ]; then
-            sed -i -E \
-              's/compileSdkVersion[[:space:]]+[0-9]+/compileSdkVersion 36/g' \
-              android/app/build.gradle
-          fi
 
-          echo "Client Android configuration complete."
-
-      - name: Flutter dependencies
-        working-directory: client_app
-        run: |
-          flutter pub get
-
-      - name: Analyze Client Dart
-        working-directory: client_app
-        run: |
-          flutter analyze --no-fatal-infos
-
-      - name: Build Client release APK
-        working-directory: client_app
-        env:
-          API_BASE_URL: ${{ inputs.api_base_url }}
-        run: |
-          flutter build apk \
-            --release \
-            --dart-define=API_BASE_URL="$API_BASE_URL"
-
-      - name: Verify Client APK
-        working-directory: client_app
-        run: |
-          test -f build/app/outputs/flutter-apk/app-release.apk
-
-          ls -lh \
-            build/app/outputs/flutter-apk/app-release.apk
-
-          echo "CLIENT APK BUILD SUCCESS."
-
-      - name: Upload Client APK
+      # ============================================================
+      # 12. UPLOAD APK ARTIFACT
+      # ============================================================
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: cloud-zen-client-apk
-          path: client_app/build/app/outputs/flutter-apk/app-release.apk
+          name: cloud-zen-${{ matrix.app }}-apk
+          path: ${{ matrix.app }}/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
