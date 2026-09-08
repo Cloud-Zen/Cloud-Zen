@@ -2,26 +2,32 @@ name: Cloud-Zen Android APKs
 
 on:
   workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: "Cloud-Zen backend HTTPS URL"
+        required: true
+        default: "https://cloud-zen-backend.onrender.com"
+
+      client_apk_url:
+        description: "HTTPS URL of Client APK"
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
-env:
-  API_BASE_URL: https://cloud-zen-backend.onrender.com
-
 jobs:
 
-  master:
+  # ============================================================
+  # MASTER APK
+  # ============================================================
+  build-master:
     name: Build Master APK
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: master_app
-
     steps:
 
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -30,92 +36,97 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Generate Android
-        run: flutter create --platforms=android --no-pub .
-
-      - name: Configure Master Android
+      - name: Check Master source
+        working-directory: master_app
         shell: bash
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
+          set -e
 
-          p = Path("android/app/build.gradle.kts")
+          test -f pubspec.yaml
+          test -f lib/main.dart
 
-          if p.exists():
-              s = p.read_text()
+          echo "Master source found."
 
-              s = re.sub(
-                  r'applicationId\s*=\s*"[^"]+"',
-                  'applicationId = "com.cloudzen.master"',
-                  s
-              )
+          grep -q "API_BASE_URL" lib/main.dart
 
-              s = re.sub(
-                  r'compileSdk\s*=\s*[^\n]+',
-                  'compileSdk = 36',
-                  s
-              )
+          echo "Master API_BASE_URL configuration found."
 
-              p.write_text(s)
-
-          p2 = Path("android/app/build.gradle")
-
-          if p2.exists():
-              s = p2.read_text()
-
-              s = re.sub(
-                  r'applicationId\s+"[^"]+"',
-                  'applicationId "com.cloudzen.master"',
-                  s
-              )
-
-              s = re.sub(
-                  r'compileSdkVersion\s+\S+',
-                  'compileSdkVersion 36',
-                  s
-              )
-
-              s = re.sub(
-                  r'compileSdk\s+\S+',
-                  'compileSdk 36',
-                  s
-              )
-
-              p2.write_text(s)
-          PY
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Verify API
+      - name: Generate Android project
+        working-directory: master_app
         run: |
-          grep -R "API_BASE_URL" lib/main.dart
+          flutter create --platforms=android .
 
-      - name: Build Master APK
+      - name: Configure Master Android
+        working-directory: master_app
+        shell: bash
         run: |
-          flutter build apk --release \
-            --dart-define=API_BASE_URL=$API_BASE_URL
+          set -e
+
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+
+          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
+            sed -i \
+              's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET"/>#' \
+              "$MANIFEST"
+          fi
+
+          if [ -f "android/app/build.gradle.kts" ]; then
+            sed -i -E \
+              's/compileSdk[[:space:]]*=[[:space:]]*[0-9]+/compileSdk = 36/g' \
+              android/app/build.gradle.kts
+          fi
+
+          if [ -f "android/app/build.gradle" ]; then
+            sed -i -E \
+              's/compileSdkVersion[[:space:]]+[0-9]+/compileSdkVersion 36/g' \
+              android/app/build.gradle
+          fi
+
+          echo "Master Android configuration complete."
+
+      - name: Flutter dependencies
+        working-directory: master_app
+        run: |
+          flutter pub get
+
+      - name: Build Master release APK
+        working-directory: master_app
+        env:
+          API_BASE_URL: ${{ inputs.api_base_url }}
+          CLIENT_APK_URL: ${{ inputs.client_apk_url }}
+        run: |
+          flutter build apk \
+            --release \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            --dart-define=CLIENT_APK_URL="$CLIENT_APK_URL"
+
+      - name: Verify Master APK
+        working-directory: master_app
+        run: |
+          test -f build/app/outputs/flutter-apk/app-release.apk
+
+          ls -lh \
+            build/app/outputs/flutter-apk/app-release.apk
+
+          echo "MASTER APK BUILD SUCCESS."
 
       - name: Upload Master APK
         uses: actions/upload-artifact@v4
         with:
           name: cloud-zen-master-apk
           path: master_app/build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
 
 
-  client:
+  # ============================================================
+  # CLIENT APK
+  # ============================================================
+  build-client:
     name: Build Client APK
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: client_app
-
     steps:
 
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -124,92 +135,103 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Generate Android
-        run: flutter create --platforms=android --no-pub .
-
-      - name: Configure Client Android
+      # --------------------------------------------------------
+      # IMPORTANT:
+      # DO NOT CHECK API_BASE_URL HERE.
+      #
+      # Client receives backend URL from pairing QR:
+      #
+      # QR -> server -> /api/pairing/approve
+      #
+      # Therefore API_BASE_URL is NOT required in client main.dart.
+      # --------------------------------------------------------
+      - name: Check Client source
+        working-directory: client_app
         shell: bash
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
+          set -e
 
-          p = Path("android/app/build.gradle.kts")
+          test -f pubspec.yaml
+          test -f lib/main.dart
 
-          if p.exists():
-              s = p.read_text()
+          echo "Client source found."
 
-              s = re.sub(
-                  r'applicationId\s*=\s*"[^"]+"',
-                  'applicationId = "com.cloudzen.client"',
-                  s
-              )
+          grep -q "class CloudZenClient" lib/main.dart
+          grep -q "scanAndPair" lib/main.dart
+          grep -q "api/pairing/approve" lib/main.dart
 
-              s = re.sub(
-                  r'compileSdk\s*=\s*[^\n]+',
-                  'compileSdk = 36',
-                  s
-              )
+          echo "Client pairing code found."
 
-              p.write_text(s)
-
-          p2 = Path("android/app/build.gradle")
-
-          if p2.exists():
-              s = p2.read_text()
-
-              s = re.sub(
-                  r'applicationId\s+"[^"]+"',
-                  'applicationId "com.cloudzen.client"',
-                  s
-              )
-
-              s = re.sub(
-                  r'compileSdkVersion\s+\S+',
-                  'compileSdkVersion 36',
-                  s
-              )
-
-              s = re.sub(
-                  r'compileSdk\s+\S+',
-                  'compileSdk 36',
-                  s
-              )
-
-              p2.write_text(s)
-
-          manifest = Path(
-              "android/app/src/main/AndroidManifest.xml"
-          )
-
-          if manifest.exists():
-              s = manifest.read_text()
-
-              if "android.permission.CAMERA" not in s:
-                  s = s.replace(
-                      "<application",
-                      '<uses-permission android:name="android.permission.CAMERA"/>\n\n    <application',
-                      1
-                  )
-
-              manifest.write_text(s)
-          PY
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Verify API
+      - name: Generate Android project
+        working-directory: client_app
         run: |
-          grep -R "API_BASE_URL" lib/main.dart
+          flutter create --platforms=android .
 
-      - name: Build Client APK
+      - name: Configure Client Android
+        working-directory: client_app
+        shell: bash
         run: |
-          flutter build apk --release \
-            --dart-define=API_BASE_URL=$API_BASE_URL
+          set -e
+
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+
+          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
+            sed -i \
+              's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET"/>#' \
+              "$MANIFEST"
+          fi
+
+          if ! grep -q "android.permission.CAMERA" "$MANIFEST"; then
+            sed -i \
+              's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.CAMERA"/>#' \
+              "$MANIFEST"
+          fi
+
+          if [ -f "android/app/build.gradle.kts" ]; then
+            sed -i -E \
+              's/compileSdk[[:space:]]*=[[:space:]]*[0-9]+/compileSdk = 36/g' \
+              android/app/build.gradle.kts
+          fi
+
+          if [ -f "android/app/build.gradle" ]; then
+            sed -i -E \
+              's/compileSdkVersion[[:space:]]+[0-9]+/compileSdkVersion 36/g' \
+              android/app/build.gradle
+          fi
+
+          echo "Client Android configuration complete."
+
+      - name: Flutter dependencies
+        working-directory: client_app
+        run: |
+          flutter pub get
+
+      - name: Analyze Client Dart
+        working-directory: client_app
+        run: |
+          flutter analyze --no-fatal-infos
+
+      - name: Build Client release APK
+        working-directory: client_app
+        env:
+          API_BASE_URL: ${{ inputs.api_base_url }}
+        run: |
+          flutter build apk \
+            --release \
+            --dart-define=API_BASE_URL="$API_BASE_URL"
+
+      - name: Verify Client APK
+        working-directory: client_app
+        run: |
+          test -f build/app/outputs/flutter-apk/app-release.apk
+
+          ls -lh \
+            build/app/outputs/flutter-apk/app-release.apk
+
+          echo "CLIENT APK BUILD SUCCESS."
 
       - name: Upload Client APK
         uses: actions/upload-artifact@v4
         with:
           name: cloud-zen-client-apk
           path: client_app/build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
