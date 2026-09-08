@@ -33,13 +33,15 @@ jobs:
       # ============================================================
       # 1. CHECKOUT
       # ============================================================
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
 
       # ============================================================
-      # 2. FLUTTER
+      # 2. SETUP FLUTTER
       # ============================================================
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -48,8 +50,9 @@ jobs:
 
 
       # ============================================================
-      # 3. CHECK APP DIRECTORY
+      # 3. VERIFY FLUTTER APP
       # ============================================================
+
       - name: Verify Flutter app
         working-directory: ${{ matrix.app }}
         shell: bash
@@ -57,16 +60,23 @@ jobs:
           set -e
 
           echo "=========================================="
-          echo "Cloud-Zen Flutter App Check"
+          echo "Cloud-Zen Flutter App"
           echo "=========================================="
           echo "Application: ${{ matrix.app }}"
           echo ""
 
-          test -f pubspec.yaml
-          test -f lib/main.dart
+          if [ ! -f "pubspec.yaml" ]; then
+            echo "ERROR: pubspec.yaml not found."
+            exit 1
+          fi
 
-          echo "pubspec.yaml found"
-          echo "lib/main.dart found"
+          if [ ! -f "lib/main.dart" ]; then
+            echo "ERROR: lib/main.dart not found."
+            exit 1
+          fi
+
+          echo "pubspec.yaml: OK"
+          echo "lib/main.dart: OK"
 
           echo ""
           echo "Flutter version:"
@@ -74,36 +84,47 @@ jobs:
 
 
       # ============================================================
-      # 4. GENERATE ANDROID PROJECT
+      # 4. CREATE FRESH ANDROID PROJECT
       # ============================================================
-      - name: Generate Android project
+      # IMPORTANT:
+      # CI creates a completely fresh Android project.
+      # This avoids stale/incomplete Android folders in the repository.
+      # ============================================================
+
+      - name: Generate fresh Android project
         working-directory: ${{ matrix.app }}
         shell: bash
         run: |
           set -e
 
+          echo "Removing old Android project if present..."
+
+          rm -rf android
+
+          echo "Generating fresh Android project..."
+
+          flutter create \
+            --platforms=android \
+            .
+
           if [ ! -d "android" ]; then
-            echo "Android project does not exist."
-            echo "Generating Android project..."
-            flutter create --platforms=android .
-          else
-            echo "Android project already exists."
+            echo "ERROR: Android project was not generated."
+            exit 1
           fi
 
-          test -d android
-          test -f android/app/src/main/AndroidManifest.xml
+          if [ ! -f "android/app/src/main/AndroidManifest.xml" ]; then
+            echo "ERROR: AndroidManifest.xml was not generated."
+            exit 1
+          fi
 
-          echo "Android project ready."
+          echo ""
+          echo "Fresh Android project generated successfully."
 
 
       # ============================================================
       # 5. REMOVE DEFAULT FLUTTER TEST
       # ============================================================
-      # IMPORTANT:
-      # The generated Flutter template test expects MyApp().
-      # Cloud-Zen uses its own root widget, so the default test
-      # must not be allowed to break flutter analyze.
-      # ============================================================
+
       - name: Remove default Flutter template test
         working-directory: ${{ matrix.app }}
         shell: bash
@@ -114,17 +135,16 @@ jobs:
 
           echo "Default Flutter widget test removed."
 
-          if [ -f test/widget_test.dart ]; then
-            echo "ERROR: widget_test.dart still exists."
+          if [ -f "test/widget_test.dart" ]; then
+            echo "ERROR: Default widget_test.dart still exists."
             exit 1
           fi
 
-          echo "No obsolete MyApp template test remains."
-
 
       # ============================================================
-      # 6. CONFIGURE ANDROID MANIFEST
+      # 6. CONFIGURE ANDROID PERMISSIONS
       # ============================================================
+
       - name: Configure Android permissions
         working-directory: ${{ matrix.app }}
         shell: bash
@@ -144,49 +164,50 @@ jobs:
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           text = manifest.read_text()
 
-          INTERNET = '<uses-permission android:name="android.permission.INTERNET"/>'
-          CAMERA = '<uses-permission android:name="android.permission.CAMERA"/>'
-
           manifest_open = '<manifest xmlns:android="http://schemas.android.com/apk/res/android">'
 
-          # INTERNET permission
-          if INTERNET not in text:
-              if manifest_open in text:
+          INTERNET = '    <uses-permission android:name="android.permission.INTERNET"/>'
+          CAMERA = '    <uses-permission android:name="android.permission.CAMERA"/>'
+
+          if 'android.permission.INTERNET' not in text:
+              if manifest_open not in text:
+                  raise SystemExit(
+                      "ERROR: Android manifest opening tag not found."
+                  )
+
+              text = text.replace(
+                  manifest_open,
+                  manifest_open + "\n" + INTERNET,
+                  1
+              )
+
+          if "${{ matrix.app }}" == "client_app":
+              if 'android.permission.CAMERA' not in text:
+                  if manifest_open not in text:
+                      raise SystemExit(
+                          "ERROR: Android manifest opening tag not found."
+                      )
+
                   text = text.replace(
                       manifest_open,
-                      manifest_open + "\n    " + INTERNET,
+                      manifest_open + "\n" + CAMERA,
                       1
                   )
-              else:
-                  raise SystemExit(
-                      "Could not locate Android manifest opening tag."
-                  )
-
-          # CAMERA permission only for Client
-          if "${{ matrix.app }}" == "client_app":
-              if CAMERA not in text:
-                  if manifest_open in text:
-                      text = text.replace(
-                          manifest_open,
-                          manifest_open + "\n    " + CAMERA,
-                          1
-                      )
-                  else:
-                      raise SystemExit(
-                          "Could not locate Android manifest opening tag."
-                      )
 
           manifest.write_text(text)
+
+          print("Android permissions configured successfully.")
           PY
 
           echo ""
-          echo "Android permissions configured:"
+          echo "Configured permissions:"
           grep -n "uses-permission" "$MANIFEST" || true
 
 
       # ============================================================
       # 7. CONFIGURE COMPILE SDK
       # ============================================================
+
       - name: Configure Android compile SDK
         working-directory: ${{ matrix.app }}
         shell: bash
@@ -197,79 +218,99 @@ jobs:
           from pathlib import Path
           import re
 
-          files = [
+          candidates = [
               Path("android/app/build.gradle.kts"),
               Path("android/app/build.gradle"),
           ]
 
-          changed = False
+          found = False
 
-          for path in files:
+          for path in candidates:
               if not path.exists():
                   continue
+
+              found = True
 
               text = path.read_text()
 
               # Kotlin DSL
-              new_text = re.sub(
+              text = re.sub(
                   r'compileSdk\s*=\s*\d+',
                   'compileSdk = 36',
                   text
               )
 
               # Groovy
-              new_text = re.sub(
+              text = re.sub(
                   r'compileSdkVersion\s+\d+',
                   'compileSdkVersion 36',
-                  new_text
+                  text
               )
 
-              # Some Flutter templates use compileSdk = flutter.compileSdkVersion.
-              new_text = new_text.replace(
+              # Flutter generated compile SDK
+              text = text.replace(
                   'compileSdk = flutter.compileSdkVersion',
                   'compileSdk = 36'
               )
 
-              if new_text != text:
-                  path.write_text(new_text)
-                  changed = True
-                  print(f"Updated {path}")
+              path.write_text(text)
 
-          if not changed:
-              print("No compileSdk replacement was required.")
+              print(f"Updated: {path}")
+
+          if not found:
+              raise SystemExit(
+                  "ERROR: Android Gradle build file was not found."
+              )
           PY
 
           echo ""
-          echo "Android Gradle configuration:"
+          echo "Compile SDK configuration:"
           grep -R "compileSdk" android/app 2>/dev/null || true
 
 
       # ============================================================
-      # 8. FLUTTER DEPENDENCIES
+      # 8. FLUTTER CLEAN
       # ============================================================
-      - name: Flutter dependencies
+
+      - name: Flutter clean
         working-directory: ${{ matrix.app }}
         shell: bash
         run: |
           set -e
 
           flutter clean
+
+          echo "Flutter clean completed."
+
+
+      # ============================================================
+      # 9. INSTALL DEPENDENCIES
+      # ============================================================
+
+      - name: Flutter dependencies
+        working-directory: ${{ matrix.app }}
+        shell: bash
+        run: |
+          set -e
+
           flutter pub get
 
           echo ""
-          echo "Dependencies installed successfully."
+          echo "Flutter dependencies installed successfully."
 
 
       # ============================================================
-      # 9. DART ANALYSIS
+      # 10. DART ANALYSIS
       # ============================================================
+
       - name: Analyze Dart
         working-directory: ${{ matrix.app }}
         shell: bash
         run: |
           set -e
 
-          echo "Running Dart analyzer..."
+          echo "Running Flutter analyzer..."
+
           flutter analyze --no-fatal-infos
 
           echo ""
@@ -277,22 +318,23 @@ jobs:
 
 
       # ============================================================
-      # 10. BUILD RELEASE APK
+      # 11. BUILD RELEASE APK
       # ============================================================
+
       - name: Build release APK
         working-directory: ${{ matrix.app }}
-        shell: bash
         env:
           API_BASE_URL: ${{ inputs.api_base_url }}
           CLIENT_APK_URL: ${{ inputs.client_apk_url }}
+        shell: bash
         run: |
           set -e
 
           echo "=========================================="
-          echo "Building Cloud-Zen APK"
+          echo "Cloud-Zen Release APK Build"
           echo "=========================================="
           echo "Application: ${{ matrix.app }}"
-          echo "Backend: $API_BASE_URL"
+          echo "Backend URL: $API_BASE_URL"
           echo ""
 
           flutter build apk \
@@ -301,12 +343,13 @@ jobs:
             --dart-define=CLIENT_APK_URL="$CLIENT_APK_URL"
 
           echo ""
-          echo "APK build completed."
+          echo "Release APK build completed successfully."
 
 
       # ============================================================
-      # 11. VERIFY APK
+      # 12. VERIFY APK
       # ============================================================
+
       - name: Verify APK
         working-directory: ${{ matrix.app }}
         shell: bash
@@ -315,30 +358,36 @@ jobs:
 
           APK="build/app/outputs/flutter-apk/app-release.apk"
 
+          echo "Checking APK..."
+
           if [ ! -f "$APK" ]; then
-            echo "ERROR: Release APK was not generated."
+            echo "ERROR: APK was not generated."
             exit 1
           fi
 
-          echo "=========================================="
-          echo "APK VERIFIED"
-          echo "=========================================="
-          ls -lh "$APK"
+          SIZE=$(stat -c%s "$APK")
 
-          FILE_SIZE=$(stat -c%s "$APK")
-
-          if [ "$FILE_SIZE" -le 0 ]; then
-            echo "ERROR: APK file is empty."
+          if [ "$SIZE" -le 0 ]; then
+            echo "ERROR: APK is empty."
             exit 1
           fi
 
           echo ""
-          echo "APK size: $FILE_SIZE bytes"
+          echo "=========================================="
+          echo "APK VERIFIED"
+          echo "=========================================="
+          echo "Application: ${{ matrix.app }}"
+          echo "APK: $APK"
+          echo "Size: $SIZE bytes"
+          echo ""
+
+          ls -lh "$APK"
 
 
       # ============================================================
-      # 12. UPLOAD APK ARTIFACT
+      # 13. UPLOAD APK
       # ============================================================
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
