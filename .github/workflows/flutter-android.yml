@@ -4,7 +4,12 @@ on:
   workflow_dispatch:
 
 jobs:
+
+  # ============================================================
+  # MASTER APK
+  # ============================================================
   master:
+    name: Build Master APK
     runs-on: ubuntu-latest
 
     defaults:
@@ -12,52 +17,90 @@ jobs:
         working-directory: master_app
 
     steps:
-      - name: Checkout
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
 
       - name: Generate Android project
         run: flutter create --platforms=android --no-pub .
 
-      - name: Force compileSdk 36
+      - name: Force Android compileSdk 36
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           files = [
               Path("android/app/build.gradle.kts"),
               Path("android/app/build.gradle"),
           ]
 
+          found = False
+
           for p in files:
-              if p.exists():
-                  s = p.read_text()
+              if not p.exists():
+                  continue
 
-                  s = s.replace(
-                      "compileSdk = flutter.compileSdkVersion",
-                      "compileSdk = 36"
-                  )
+              found = True
 
-                  s = s.replace(
-                      "compileSdk flutter.compileSdkVersion",
-                      "compileSdk 36"
-                  )
+              text = p.read_text()
 
-                  p.write_text(s)
+              # Kotlin DSL
+              text = re.sub(
+                  r'(?m)^\s*compileSdk\s*=.*$',
+                  '    compileSdk = 36',
+                  text
+              )
 
-          print("compileSdk 36 applied")
+              # Groovy DSL
+              text = re.sub(
+                  r'(?m)^\s*compileSdkVersion\s+.*$',
+                  '    compileSdkVersion 36',
+                  text
+              )
+
+              p.write_text(text)
+
+              print(f"Updated: {p}")
+
+          if not found:
+              raise SystemExit(
+                  "ERROR: Android app Gradle file was not found."
+              )
+
+          print("Master compileSdk 36 patch completed.")
           PY
 
-      - name: Verify compileSdk
+      - name: Verify Master compileSdk
         run: |
-          echo "Checking Android compileSdk..."
-          grep -R "compileSdk" android/app || true
+          echo "=========================================="
+          echo "MASTER ANDROID SDK CONFIGURATION"
+          echo "=========================================="
 
-      - name: Get dependencies
+          grep -RniE \
+            "compileSdk|compileSdkVersion" \
+            android/app || true
+
+          if grep -RniE \
+            "compileSdk.*34|compileSdkVersion.*34" \
+            android/app; then
+
+            echo "ERROR: Master still contains compileSdk 34."
+            exit 1
+          fi
+
+          echo "Master compileSdk verification PASSED."
+
+      - name: Get Master dependencies
         run: flutter pub get
 
       - name: Build Master APK
@@ -68,9 +111,14 @@ jobs:
         with:
           name: cloud-zen-master-apk
           path: master_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
 
 
+  # ============================================================
+  # CLIENT APK
+  # ============================================================
   client:
+    name: Build Client APK
     runs-on: ubuntu-latest
 
     defaults:
@@ -78,59 +126,150 @@ jobs:
         working-directory: client_app
 
     steps:
-      - name: Checkout
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
 
       - name: Generate Android project
         run: flutter create --platforms=android --no-pub .
 
-      - name: Force compileSdk 36
+      # ----------------------------------------------------------
+      # THIS FIXES THE ACTUAL ERROR FROM RUN #18
+      # ----------------------------------------------------------
+      - name: Force Android compileSdk 36
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           files = [
               Path("android/app/build.gradle.kts"),
               Path("android/app/build.gradle"),
           ]
 
+          found = False
+
           for p in files:
-              if p.exists():
-                  s = p.read_text()
+              if not p.exists():
+                  continue
 
-                  s = s.replace(
-                      "compileSdk = flutter.compileSdkVersion",
-                      "compileSdk = 36"
-                  )
+              found = True
 
-                  s = s.replace(
-                      "compileSdk flutter.compileSdkVersion",
-                      "compileSdk 36"
-                  )
+              text = p.read_text()
 
-                  p.write_text(s)
+              # ------------------------------------------------
+              # Kotlin DSL
+              # ------------------------------------------------
+              text = re.sub(
+                  r'(?m)^\s*compileSdk\s*=.*$',
+                  '    compileSdk = 36',
+                  text
+              )
 
-          print("compileSdk 36 applied")
+              # ------------------------------------------------
+              # Groovy DSL
+              # ------------------------------------------------
+              text = re.sub(
+                  r'(?m)^\s*compileSdkVersion\s+.*$',
+                  '    compileSdkVersion 36',
+                  text
+              )
+
+              # ------------------------------------------------
+              # Groovy compileSdk syntax
+              # ------------------------------------------------
+              text = re.sub(
+                  r'(?m)^\s*compileSdk\s+.*$',
+                  '    compileSdk 36',
+                  text
+              )
+
+              p.write_text(text)
+
+              print(f"Updated: {p}")
+
+          if not found:
+              raise SystemExit(
+                  "ERROR: Android app Gradle file was not found."
+              )
+
+          print("Client compileSdk 36 patch completed.")
           PY
 
-      - name: Verify compileSdk
+      # ----------------------------------------------------------
+      # VERIFY BEFORE BUILD
+      # ----------------------------------------------------------
+      - name: Verify Client compileSdk 36
         run: |
-          echo "Checking Android compileSdk..."
-          grep -R "compileSdk" android/app || true
+          echo ""
+          echo "=========================================="
+          echo "CLIENT ANDROID SDK CONFIGURATION"
+          echo "=========================================="
 
-      - name: Get dependencies
+          grep -RniE \
+            "compileSdk|compileSdkVersion" \
+            android/app || true
+
+          echo ""
+          echo "Checking for old Android 34 configuration..."
+
+          if grep -RniE \
+            "compileSdk.*34|compileSdkVersion.*34" \
+            android/app; then
+
+            echo ""
+            echo "ERROR: compileSdk 34 is still present."
+            echo "Build stopped before Gradle."
+            exit 1
+          fi
+
+          echo ""
+          echo "SUCCESS: Client compileSdk 36 verified."
+          echo ""
+
+      - name: Get Client dependencies
         run: flutter pub get
+
+      - name: Show important dependencies
+        run: |
+          echo "=========================================="
+          echo "IMPORTANT FLUTTER DEPENDENCIES"
+          echo "=========================================="
+
+          flutter pub deps --style=compact \
+            | grep -E \
+            "file_picker|flutter_plugin_android_lifecycle|mobile_scanner|device_info_plus" \
+            || true
 
       - name: Build Client APK
         run: flutter build apk --release
+
+      - name: Verify Client APK exists
+        run: |
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: Client APK was not generated."
+            exit 1
+          fi
+
+          echo "=========================================="
+          echo "CLIENT APK SUCCESSFULLY GENERATED"
+          echo "=========================================="
+          ls -lh "$APK"
 
       - name: Upload Client APK
         uses: actions/upload-artifact@v4
         with:
           name: cloud-zen-client-apk
           path: client_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
