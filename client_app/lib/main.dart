@@ -8,13 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-const apiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'https://cloud-zen-backend.onrender.com',
-);
+void main() => runApp(const CloudZenClient());
 
-void main() {
-  runApp(const CloudZenClient());
+String formatBytes(int n) {
+  if (n < 1024) return '$n B';
+  if (n < 1024 * 1024) {
+    return '${(n / 1024).toStringAsFixed(1)} KB';
+  }
+  if (n < 1024 * 1024 * 1024) {
+    return '${(n / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+  return '${(n / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
 }
 
 class CloudZenClient extends StatelessWidget {
@@ -25,134 +29,443 @@ class CloudZenClient extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Cloud-Zen Client',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor:
-            const Color(0xFF070A12),
+      theme: ThemeData.dark(useMaterial3: true).copyWith(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFBFA2FF),
+          seedColor: const Color(0xffb9c9ff),
           brightness: Brightness.dark,
         ),
-        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xff07080d),
       ),
-      home: const LoginPage(),
+      home: const ClientHome(),
     );
   }
 }
 
-class Api {
-  String? token;
-
-  Map<String, String> get headers => {
-        'Content-Type': 'application/json',
-        if (token != null)
-          'Authorization': 'Bearer $token',
-      };
-
-  Future<dynamic> get(String path) async {
-    final response = await http.get(
-      Uri.parse('$apiBaseUrl$path'),
-      headers: headers,
-    );
-
-    return handle(response);
-  }
-
-  Future<dynamic> post(
-    String path,
-    Map<String, dynamic> body,
-  ) async {
-    final response = await http.post(
-      Uri.parse('$apiBaseUrl$path'),
-      headers: headers,
-      body: jsonEncode(body),
-    );
-
-    return handle(response);
-  }
-
-  dynamic handle(http.Response response) {
-    dynamic data;
-
-    try {
-      data = jsonDecode(response.body);
-    } catch (_) {
-      data = {
-        'error': response.body,
-      };
-    }
-
-    if (response.statusCode < 200 ||
-        response.statusCode >= 300) {
-      throw Exception(
-        data['error'] ??
-            'Server error ${response.statusCode}',
-      );
-    }
-
-    return data;
-  }
-}
-
-final api = Api();
-
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ClientHome extends StatefulWidget {
+  const ClientHome({super.key});
 
   @override
-  State<LoginPage> createState() =>
-      _LoginPageState();
+  State<ClientHome> createState() => _ClientHomeState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final email = TextEditingController();
-  final password = TextEditingController();
+class _ClientHomeState extends State<ClientHome> {
+  String server = '';
+  String? deviceId;
+  String? deviceToken;
 
-  bool register = false;
+  bool backupEnabled = false;
   bool busy = false;
 
-  String error = '';
+  double progress = 0;
 
-  Future<void> submit() async {
-    FocusScope.of(context).unfocus();
+  String message =
+      'Scan the pairing QR shown on the Master phone.';
+
+  List<PlatformFile> selectedFiles = [];
+
+  Future<Map<String, dynamic>> deviceMeta() async {
+    final info = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final a = await info.androidInfo;
+
+      return {
+        'name': a.model,
+        'model': a.model,
+        'platform': 'android',
+        'osVersion':
+            '${a.version.release} (SDK ${a.version.sdkInt})',
+      };
+    }
+
+    return {
+      'name': 'Mobile Device',
+      'model': 'Mobile',
+      'platform': Platform.operatingSystem,
+      'osVersion': 'unknown',
+    };
+  }
+
+  Future<void> scanAndPair() async {
+    final raw = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ScannerPage(),
+      ),
+    );
+
+    if (raw == null) return;
 
     setState(() {
       busy = true;
-      error = '';
+      message = 'Checking pairing request…';
     });
 
     try {
-      final result = await api.post(
-        register
-            ? '/api/auth/register'
-            : '/api/auth/login',
-        {
-          'email': email.text.trim(),
-          'password': password.text,
+      final data = jsonDecode(raw);
+
+      if (data['type'] != 'cloud-zen-pair' ||
+          data['token'] == null ||
+          data['server'] == null) {
+        throw Exception('Invalid QR');
+      }
+
+      final meta = await deviceMeta();
+
+      final base = data['server']
+          .toString()
+          .replaceAll(RegExp(r'/+$'), '');
+
+      final r = await http.post(
+        Uri.parse('$base/api/pairing/approve'),
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: jsonEncode({
+          'token': data['token'],
+          'consent': true,
+          'device': meta,
+        }),
       );
 
-      api.token = result['token'];
+      final body = jsonDecode(r.body);
 
-      if (!mounted) return;
+      if (r.statusCode != 200) {
+        throw Exception(
+          body['error'] ?? 'Pairing failed',
+        );
+      }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const ClientHome(),
-        ),
-      );
+      deviceId = body['device']['id'];
+      deviceToken = body['deviceToken'];
+      server = base;
+
+      backupEnabled =
+          body['device']['backup_enabled'] == true;
+
+      message = backupEnabled
+          ? 'Paired. Backup permission is ON.'
+          : 'Paired. Enable Backup permission on the Master phone.';
+
+      await heartbeat();
     } catch (e) {
+      message = 'Pairing failed: $e';
+    } finally {
       if (mounted) {
         setState(() {
-          error = e
-              .toString()
-              .replaceFirst(
-                'Exception: ',
-                '',
-              );
+          busy = false;
         });
       }
+    }
+  }
+
+  Future<void> heartbeat() async {
+    if (server.isEmpty ||
+        deviceId == null ||
+        deviceToken == null) {
+      return;
+    }
+
+    try {
+      await http.post(
+        Uri.parse(
+          '$server/api/devices/$deviceId/heartbeat',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Device $deviceToken',
+        },
+        body: jsonEncode({}),
+      );
+    } catch (_) {}
+  }
+
+  Future<void> selectFiles() async {
+    if (deviceId == null) {
+      setState(() {
+        message = 'Pair this device first.';
+      });
+      return;
+    }
+
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      withData: false,
+    );
+
+    if (result == null) return;
+
+    final total = result.files.fold<int>(
+      0,
+      (a, f) => a + f.size,
+    );
+
+    setState(() {
+      selectedFiles = result.files;
+
+      message =
+          '${selectedFiles.length} file(s) selected • ${formatBytes(total)}';
+    });
+  }
+
+  Future<String> hashFile(String path) async {
+    final file = File(path);
+
+    final digest = await sha256
+        .bind(file.openRead())
+        .first;
+
+    return digest.toString();
+  }
+
+  Future<http.StreamedResponse> putFile(
+    String url,
+    File file,
+    String contentType,
+    void Function(int sent) onProgress,
+  ) async {
+    final length = await file.length();
+
+    final request = http.StreamedRequest(
+      'PUT',
+      Uri.parse(url),
+    );
+
+    request.contentLength = length;
+
+    request.headers['Content-Type'] =
+        contentType;
+
+    var sent = 0;
+
+    file.openRead().listen(
+      (chunk) {
+        sent += chunk.length;
+
+        onProgress(sent);
+
+        request.sink.add(chunk);
+      },
+      onDone: () {
+        request.sink.close();
+      },
+      onError: (e) {
+        request.sink.addError(e);
+      },
+    );
+
+    return request.send();
+  }
+
+  Future<void> startBackup() async {
+    if (deviceId == null ||
+        deviceToken == null ||
+        server.isEmpty) {
+      setState(() {
+        message = 'Pair this device first.';
+      });
+      return;
+    }
+
+    if (selectedFiles.isEmpty) {
+      setState(() {
+        message = 'Choose files first.';
+      });
+      return;
+    }
+
+    setState(() {
+      busy = true;
+      progress = 0;
+      message = 'Creating secure backup job…';
+    });
+
+    try {
+      final headers = {
+        'Authorization': 'Device $deviceToken',
+        'Content-Type': 'application/json',
+      };
+
+      final jobR = await http.post(
+        Uri.parse(
+          '$server/api/backups/client-job',
+        ),
+        headers: headers,
+        body: '{}',
+      );
+
+      if (jobR.statusCode != 201) {
+        final body = jsonDecode(jobR.body);
+
+        throw Exception(
+          body['error'] ??
+              'Backup permission is disabled',
+        );
+      }
+
+      final jobId =
+          jsonDecode(jobR.body)['job']['id'];
+
+      final manifest =
+          <Map<String, dynamic>>[];
+
+      final uploadFiles =
+          <PlatformFile>[];
+
+      for (final f in selectedFiles) {
+        if (f.path == null) continue;
+
+        final file = File(f.path!);
+
+        final size = await file.length();
+
+        uploadFiles.add(f);
+
+        manifest.add({
+          'relativePath': f.name,
+          'sizeBytes': size,
+          'modifiedAt': null,
+          'contentHash':
+              await hashFile(f.path!),
+        });
+      }
+
+      final manifestResponse =
+          await http.post(
+        Uri.parse(
+          '$server/api/backups/client-manifest',
+        ),
+        headers: headers,
+        body: jsonEncode({
+          'jobId': jobId,
+          'files': manifest,
+        }),
+      );
+
+      if (manifestResponse.statusCode != 200) {
+        final body =
+            jsonDecode(manifestResponse.body);
+
+        throw Exception(
+          body['error'] ??
+              'Manifest failed',
+        );
+      }
+
+      var completedBytes = 0;
+
+      final totalBytes =
+          manifest.fold<int>(
+        0,
+        (a, f) =>
+            a + (f['sizeBytes'] as int),
+      );
+
+      for (var i = 0;
+          i < manifest.length;
+          i++) {
+        final meta = manifest[i];
+
+        final path = uploadFiles[i].path;
+
+        if (path == null) continue;
+
+        final file = File(path);
+
+        final ticket = await http.post(
+          Uri.parse(
+            '$server/api/backups/upload-ticket',
+          ),
+          headers: headers,
+          body: jsonEncode({
+            'jobId': jobId,
+            'relativePath':
+                meta['relativePath'],
+            'contentType':
+                'application/octet-stream',
+          }),
+        );
+
+        if (ticket.statusCode != 200) {
+          final body =
+              jsonDecode(ticket.body);
+
+          throw Exception(
+            body['error'] ??
+                'Could not create upload URL',
+          );
+        }
+
+        final ticketData =
+            jsonDecode(ticket.body);
+
+        setState(() {
+          message =
+              'Uploading ${meta['relativePath']} • ${i + 1}/${manifest.length}';
+        });
+
+        final response = await putFile(
+          ticketData['uploadUrl'],
+          file,
+          'application/octet-stream',
+          (sent) {
+            if (!mounted) return;
+
+            setState(() {
+              progress = totalBytes == 0
+                  ? 1
+                  : (completedBytes + sent) /
+                      totalBytes;
+            });
+          },
+        );
+
+        if (response.statusCode < 200 ||
+            response.statusCode >= 300) {
+          throw Exception(
+            'Cloud upload failed (${response.statusCode})',
+          );
+        }
+
+        final complete =
+            await http.post(
+          Uri.parse(
+            '$server/api/backups/upload-complete',
+          ),
+          headers: headers,
+          body: jsonEncode({
+            'deviceId': deviceId,
+            'jobId': jobId,
+            'manifestId':
+                ticketData['manifestId'],
+          }),
+        );
+
+        if (complete.statusCode != 200) {
+          final body =
+              jsonDecode(complete.body);
+
+          throw Exception(
+            body['error'] ??
+                'Upload verification failed',
+          );
+        }
+
+        completedBytes +=
+            meta['sizeBytes'] as int;
+      }
+
+      setState(() {
+        progress = 1;
+
+        message =
+            'Backup completed • ${manifest.length} file(s) • ${formatBytes(totalBytes)}';
+      });
+    } catch (e) {
+      setState(() {
+        message =
+            'Backup stopped: $e';
+      });
     } finally {
       if (mounted) {
         setState(() {
@@ -165,746 +478,199 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding:
-              const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints:
-                const BoxConstraints(
-              maxWidth: 460,
-            ),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.backup_rounded,
-                  size: 76,
-                  color:
-                      Color(0xFFD7C4FF),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Cloud-Zen Client',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight:
-                        FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                TextField(
-                  controller: email,
-                  keyboardType:
-                      TextInputType
-                          .emailAddress,
-                  decoration:
-                      const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(
-                      Icons
-                          .email_outlined,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: password,
-                  obscureText: true,
-                  decoration:
-                      const InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(
-                      Icons.lock_outline,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (error.isNotEmpty)
-                  Text(
-                    error,
-                    textAlign:
-                        TextAlign.center,
-                    style:
-                        const TextStyle(
-                      color:
-                          Colors.redAccent,
-                    ),
-                  ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: FilledButton(
-                    onPressed:
-                        busy ? null : submit,
-                    child: busy
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child:
-                                CircularProgressIndicator(),
-                          )
-                        : Text(
-                            register
-                                ? 'Create Account'
-                                : 'Login',
-                          ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: busy
-                      ? null
-                      : () {
-                          setState(() {
-                            register =
-                                !register;
-                            error = '';
-                          });
-                        },
-                  child: Text(
-                    register
-                        ? 'Already have an account? Login'
-                        : 'Create a new account',
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  apiBaseUrl,
-                  style:
-                      const TextStyle(
-                    fontSize: 11,
-                    color:
-                        Colors.white30,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ClientHome extends StatefulWidget {
-  const ClientHome({super.key});
-
-  @override
-  State<ClientHome> createState() =>
-      _ClientHomeState();
-}
-
-class _ClientHomeState
-    extends State<ClientHome> {
-  String? deviceId;
-
-  String deviceName =
-      'Android Device';
-
-  bool backupEnabled = false;
-
-  String status =
-      'Registering device…';
-
-  double progress = 0;
-
-  String? uploadedFile;
-
-  @override
-  void initState() {
-    super.initState();
-    registerDevice();
-  }
-
-  Future<String> deviceKey() async {
-    final info =
-        DeviceInfoPlugin();
-
-    if (Platform.isAndroid) {
-      final android =
-          await info.androidInfo;
-
-      final raw =
-          '${android.brand}|'
-          '${android.model}|'
-          '${android.id}|'
-          '${android.device}';
-
-      return sha256
-          .convert(
-            utf8.encode(raw),
-          )
-          .toString();
-    }
-
-    return sha256
-        .convert(
-          utf8.encode(
-            Platform.operatingSystem,
-          ),
-        )
-        .toString();
-  }
-
-  Future<void> registerDevice() async {
-    try {
-      final key =
-          await deviceKey();
-
-      final info =
-          await DeviceInfoPlugin()
-              .androidInfo;
-
-      final result =
-          await api.post(
-        '/api/devices/register',
-        {
-          'name': info.model,
-          'deviceKey': key,
-        },
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        deviceId = result['id'];
-        deviceName =
-            result['name'] ??
-                info.model;
-        backupEnabled =
-            result['backup_enabled'] ==
-                true;
-        status =
-            'Device ready';
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          status = e
-              .toString()
-              .replaceFirst(
-                'Exception: ',
-                '',
-              );
-        });
-      }
-    }
-  }
-
-  Future<void> scanQr() async {
-    final payload =
-        await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            const ScannerPage(),
-      ),
-    );
-
-    if (payload == null ||
-        payload.isEmpty) {
-      return;
-    }
-
-    try {
-      final key =
-          await deviceKey();
-
-      final result =
-          await api.post(
-        '/api/pairing/claim',
-        {
-          'qrPayload': payload,
-          'deviceName': deviceName,
-          'deviceKey': key,
-        },
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        deviceId =
-            result['device']['id'];
-        backupEnabled =
-            result['device']
-                    ['backup_enabled'] ==
-                true;
-        status =
-            'Paired with Master';
-      });
-
-      snack(
-        'Pairing successful. Master can now enable backup.',
-      );
-    } catch (e) {
-      snack(
-        e.toString()
-            .replaceFirst(
-              'Exception: ',
-              '',
-            ),
-      );
-    }
-  }
-
-  Future<void> chooseFile() async {
-    if (deviceId == null) {
-      snack(
-        'Device is not registered.',
-      );
-      return;
-    }
-
-    if (!backupEnabled) {
-      snack(
-        'Master has not enabled backup permission.',
-      );
-      return;
-    }
-
-    final result =
-        await FilePicker.platform
-            .pickFiles(
-      allowMultiple: false,
-      withData: false,
-    );
-
-    if (result == null ||
-        result.files.isEmpty) {
-      return;
-    }
-
-    final selected =
-        result.files.single;
-
-    final filePath =
-        selected.path;
-
-    if (filePath == null) {
-      snack(
-        'The selected provider did not return a local file path.',
-      );
-      return;
-    }
-
-    final file =
-        File(filePath);
-
-    final size =
-        await file.length();
-
-    setState(() {
-      progress = 0;
-      uploadedFile = null;
-    });
-
-    try {
-      final init =
-          await api.post(
-        '/api/uploads/initiate',
-        {
-          'deviceId': deviceId,
-          'name': selected.name,
-          'size': size,
-          'mimeType':
-              mimeType(
-            selected.extension,
-          ),
-        },
-      );
-
-      final chunkSize =
-          (init['chunkSize']
-                  as num)
-              .toInt();
-
-      final urls =
-          List<Map<String,
-              dynamic>>.from(
-        (init['urls'] as List)
-            .map(
-          (x) =>
-              Map<String,
-                  dynamic>.from(x),
-        ),
-      );
-
-      final uploadParts =
-          <Map<String, dynamic>>[];
-
-      final randomAccess =
-          await file.open();
-
-      try {
-        for (
-          int index = 0;
-          index < urls.length;
-          index++
-        ) {
-          final partNumber =
-              (urls[index]
-                          ['partNumber']
-                      as num)
-                  .toInt();
-
-          final start =
-              (partNumber - 1) *
-                  chunkSize;
-
-          final remaining =
-              size - start;
-
-          final length =
-              remaining >
-                      chunkSize
-                  ? chunkSize
-                  : remaining;
-
-          await randomAccess
-              .setPosition(start);
-
-          final bytes =
-              await randomAccess
-                  .read(length);
-
-          final response =
-              await http.put(
-            Uri.parse(
-              urls[index]['url'],
-            ),
-            headers: {
-              'Content-Length':
-                  '${bytes.length}',
-            },
-            body: bytes,
-          );
-
-          if (response.statusCode <
-                  200 ||
-              response.statusCode >=
-                  300) {
-            throw Exception(
-              'Cloud upload failed on part $partNumber.',
-            );
-          }
-
-          final etag =
-              response.headers[
-                  'etag'];
-
-          if (etag == null ||
-              etag.isEmpty) {
-            throw Exception(
-              'Storage did not return ETag.',
-            );
-          }
-
-          uploadParts.add({
-            'partNumber':
-                partNumber,
-            'etag': etag,
-          });
-
-          if (mounted) {
-            setState(() {
-              progress =
-                  (index + 1) /
-                      urls.length;
-            });
-          }
-        }
-      } finally {
-        await randomAccess.close();
-      }
-
-      await api.post(
-        '/api/uploads/complete',
-        {
-          'fileId':
-              init['fileId'],
-          'uploadId':
-              init['uploadId'],
-          'objectKey':
-              init['objectKey'],
-          'parts':
-              uploadParts,
-        },
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        uploadedFile =
-            selected.name;
-        progress = 1;
-      });
-
-      snack(
-        'File uploaded successfully.',
-      );
-    } catch (e) {
-      snack(
-        e.toString()
-            .replaceFirst(
-              'Exception: ',
-              '',
-            ),
-      );
-    }
-  }
-
-  String mimeType(
-    String? extension,
-  ) {
-    switch (
-        (extension ?? '')
-            .toLowerCase()) {
-      case 'jpg':
-      case 'jpeg':
-        return 'image/jpeg';
-
-      case 'png':
-        return 'image/png';
-
-      case 'gif':
-        return 'image/gif';
-
-      case 'pdf':
-        return 'application/pdf';
-
-      case 'mp4':
-        return 'video/mp4';
-
-      case 'mp3':
-        return 'audio/mpeg';
-
-      case 'zip':
-        return 'application/zip';
-
-      default:
-        return 'application/octet-stream';
-    }
-  }
-
-  void snack(String text) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(text),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('Cloud-Zen Client'),
+        title: const Text(
+          'Cloud-Zen Client',
+        ),
         actions: [
           IconButton(
             onPressed:
-                registerDevice,
-            icon:
-                const Icon(Icons.refresh),
+                busy ? null : heartbeat,
+            icon: const Icon(Icons.sync),
           ),
         ],
       ),
-      body: ListView(
-        padding:
-            const EdgeInsets.all(18),
-        children: [
-          Card(
-            child: Padding(
-              padding:
-                  const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Device Status',
-                    style: TextStyle(
-                      fontSize: 21,
-                      fontWeight:
-                          FontWeight.bold,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(22),
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(
+              maxWidth: 560,
+            ),
+            child: Card(
+              child: Padding(
+                padding:
+                    const EdgeInsets.all(22),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.cloud_upload_rounded,
+                      size: 76,
                     ),
-                  ),
-                  const SizedBox(
-                      height: 10),
-                  Text(deviceName),
-                  const SizedBox(
-                      height: 5),
-                  Text(
-                    status,
-                    style:
-                        const TextStyle(
-                      color:
-                          Colors.white60,
-                    ),
-                  ),
-                  const SizedBox(
-                      height: 16),
-                  Row(
-                    children: [
-                      Icon(
-                        backupEnabled
-                            ? Icons
-                                .verified
-                            : Icons
-                                .lock_outline,
-                        color:
-                            backupEnabled
-                                ? Colors
-                                    .greenAccent
-                                : Colors
-                                    .orangeAccent,
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Cloud-Zen Backup',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight:
+                            FontWeight.w800,
                       ),
-                      const SizedBox(
-                          width: 10),
-                      Expanded(
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      message,
+                      textAlign:
+                          TextAlign.center,
+                    ),
+                    const SizedBox(height: 14),
+
+                    if (progress > 0)
+                      LinearProgressIndicator(
+                        value: progress,
+                      ),
+
+                    const SizedBox(height: 18),
+
+                    FilledButton.icon(
+                      onPressed:
+                          busy ? null : scanAndPair,
+                      icon: const Icon(
+                        Icons.qr_code_scanner,
+                      ),
+                      label: const Text(
+                        'Scan Pairing QR',
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    OutlinedButton.icon(
+                      onPressed:
+                          busy ? null : selectFiles,
+                      icon: const Icon(
+                        Icons.folder_copy_outlined,
+                      ),
+                      label: const Text(
+                        'Choose files / Downloads / media',
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    FilledButton.icon(
+                      onPressed:
+                          busy ? null : startBackup,
+                      icon: const Icon(
+                        Icons.backup,
+                      ),
+                      label: Text(
+                        busy
+                            ? 'Backup running…'
+                            : 'Start backup',
+                      ),
+                    ),
+
+                    if (selectedFiles.isNotEmpty) ...[
+                      const SizedBox(height: 18),
+
+                      const Align(
+                        alignment:
+                            Alignment.centerLeft,
                         child: Text(
-                          backupEnabled
-                              ? 'Backup permission ON'
-                              : 'Backup permission OFF',
+                          'Selected files',
+                          style: TextStyle(
+                            fontWeight:
+                                FontWeight.bold,
+                          ),
                         ),
                       ),
+
+                      const SizedBox(height: 6),
+
+                      ...selectedFiles
+                          .take(20)
+                          .map(
+                            (f) => ListTile(
+                              dense: true,
+                              leading:
+                                  const Icon(
+                                Icons
+                                    .insert_drive_file,
+                              ),
+                              title: Text(
+                                f.name,
+                                maxLines: 1,
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis,
+                              ),
+                              trailing: Text(
+                                formatBytes(
+                                  f.size,
+                                ),
+                              ),
+                            ),
+                          ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 54,
-            child: FilledButton.icon(
-              onPressed: scanQr,
-              icon: const Icon(
-                Icons
-                    .qr_code_scanner,
-              ),
-              label: const Text(
-                'Scan Master QR',
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 54,
-            child: FilledButton.icon(
-              onPressed: chooseFile,
-              icon: const Icon(
-                Icons.attach_file,
-              ),
-              label: const Text(
-                'Choose File & Upload',
-              ),
-            ),
-          ),
-          if (progress > 0 &&
-              progress < 1) ...[
-            const SizedBox(
-                height: 18),
-            LinearProgressIndicator(
-              value: progress,
-            ),
-            const SizedBox(
-                height: 8),
-            Text(
-              '${(progress * 100).toStringAsFixed(0)}%',
-            ),
-          ],
-          if (uploadedFile != null)
-            Padding(
-              padding:
-                  const EdgeInsets.only(
-                top: 18,
-              ),
-              child: Card(
-                child: ListTile(
-                  leading: const Icon(
-                    Icons
-                        .check_circle,
-                    color:
-                        Colors.greenAccent,
-                  ),
-                  title:
-                      Text(uploadedFile!),
-                  subtitle:
-                      const Text(
-                    'Upload completed',
-                  ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      backupEnabled
+                          ? 'Master permission: ON'
+                          : 'Master permission: not confirmed',
+                      style: TextStyle(
+                        color: backupEnabled
+                            ? Colors.greenAccent
+                            : Colors.orangeAccent,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    const Text(
+                      'Cloud-Zen backs up files that you explicitly grant/select. Android does not allow an ordinary app to read other apps’ private data.',
+                      textAlign:
+                          TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          const SizedBox(height: 24),
-          const Text(
-            'How it works',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight:
-                  FontWeight.bold,
-            ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            '1. Login\n'
-            '2. Scan Master QR\n'
-            '3. Master enables backup permission\n'
-            '4. Choose a file\n'
-            '5. File is uploaded to the configured cloud storage',
-            style: TextStyle(
-              color: Colors.white60,
-              height: 1.6,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class ScannerPage extends StatefulWidget {
+class ScannerPage extends StatelessWidget {
   const ScannerPage({super.key});
-
-  @override
-  State<ScannerPage> createState() =>
-      _ScannerPageState();
-}
-
-class _ScannerPageState
-    extends State<ScannerPage> {
-  bool found = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('Scan Master QR'),
+        title: const Text(
+          'Scan Cloud-Zen QR',
+        ),
       ),
       body: MobileScanner(
         onDetect: (capture) {
-          if (found) return;
-
           for (final barcode
               in capture.barcodes) {
             final value =
                 barcode.rawValue;
 
-            if (value != null &&
-                value.startsWith(
-                    'CZ1:')) {
-              found = true;
-
+            if (value != null) {
               Navigator.pop(
                 context,
                 value,
               );
-
               return;
             }
           }
