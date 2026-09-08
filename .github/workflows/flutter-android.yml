@@ -23,20 +23,39 @@ jobs:
       - name: Generate Android project
         run: flutter create --platforms=android --no-pub .
 
-      - name: Set compileSdk 36
+      - name: Force compileSdk 36
         run: |
           python3 - <<'PY'
           from pathlib import Path
 
-          p = Path("android/app/build.gradle.kts")
-          if p.exists():
-              s = p.read_text()
-              s = s.replace(
-                  "compileSdk = flutter.compileSdkVersion",
-                  "compileSdk = 36"
-              )
-              p.write_text(s)
+          files = [
+              Path("android/app/build.gradle.kts"),
+              Path("android/app/build.gradle"),
+          ]
+
+          for p in files:
+              if p.exists():
+                  s = p.read_text()
+
+                  s = s.replace(
+                      "compileSdk = flutter.compileSdkVersion",
+                      "compileSdk = 36"
+                  )
+
+                  s = s.replace(
+                      "compileSdk flutter.compileSdkVersion",
+                      "compileSdk 36"
+                  )
+
+                  p.write_text(s)
+
+          print("compileSdk 36 applied")
           PY
+
+      - name: Verify compileSdk
+        run: |
+          echo "Checking Android compileSdk..."
+          grep -R "compileSdk" android/app || true
 
       - name: Get dependencies
         run: flutter pub get
@@ -70,20 +89,39 @@ jobs:
       - name: Generate Android project
         run: flutter create --platforms=android --no-pub .
 
-      - name: Set compileSdk 36
+      - name: Force compileSdk 36
         run: |
           python3 - <<'PY'
           from pathlib import Path
 
-          p = Path("android/app/build.gradle.kts")
-          if p.exists():
-              s = p.read_text()
-              s = s.replace(
-                  "compileSdk = flutter.compileSdkVersion",
-                  "compileSdk = 36"
-              )
-              p.write_text(s)
+          files = [
+              Path("android/app/build.gradle.kts"),
+              Path("android/app/build.gradle"),
+          ]
+
+          for p in files:
+              if p.exists():
+                  s = p.read_text()
+
+                  s = s.replace(
+                      "compileSdk = flutter.compileSdkVersion",
+                      "compileSdk = 36"
+                  )
+
+                  s = s.replace(
+                      "compileSdk flutter.compileSdkVersion",
+                      "compileSdk 36"
+                  )
+
+                  p.write_text(s)
+
+          print("compileSdk 36 applied")
           PY
+
+      - name: Verify compileSdk
+        run: |
+          echo "Checking Android compileSdk..."
+          grep -R "compileSdk" android/app || true
 
       - name: Get dependencies
         run: flutter pub get
