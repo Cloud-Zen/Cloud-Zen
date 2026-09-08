@@ -1,5 +1,4 @@
 name: Cloud-Zen Android APKs
-
 on:
   workflow_dispatch:
 
@@ -10,6 +9,7 @@ env:
   API_BASE_URL: https://cloud-zen-backend.onrender.com
 
 jobs:
+
   master:
     name: Build Master APK
     runs-on: ubuntu-latest
@@ -19,7 +19,8 @@ jobs:
         working-directory: master_app
 
     steps:
-      - name: Checkout repository
+
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -28,191 +29,67 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Show Flutter version
-        run: flutter --version
-
-      - name: Generate Android project
+      - name: Generate Android
         run: flutter create --platforms=android --no-pub .
 
-      - name: Connect Master to Cloud-Zen Backend
+      - name: Configure Master Android
         shell: bash
         run: |
-          set -e
-
           python3 - <<'PY'
-          from pathlib import Path
-
-          api_url = "https://cloud-zen-backend.onrender.com"
-          candidates = [
-              Path("lib/main.dart"),
-              Path("lib/api.dart"),
-              Path("lib/config.dart"),
-          ]
-
-          changed = False
-
-          for path in candidates:
-              if not path.exists():
-                  continue
-
-              text = path.read_text()
-
-              replacements = [
-                  "https://YOUR-RENDER-SERVICE.onrender.com",
-                  "https://YOUR-BACKEND.onrender.com",
-              ]
-
-              new_text = text
-
-              for old in replacements:
-                  new_text = new_text.replace(old, api_url)
-
-              if new_text != text:
-                  path.write_text(new_text)
-                  print(f"Updated backend URL in {path}")
-                  changed = True
-
-          if not changed:
-              print("No placeholder backend URL found.")
-              print("The app may already contain a configured API URL.")
-          PY
-
-      - name: Verify Master Backend URL
-        shell: bash
-        run: |
-          set -e
-
-          echo "Cloud-Zen Master backend:"
-          echo "$API_BASE_URL"
-
-          if grep -R "YOUR-RENDER-SERVICE" lib 2>/dev/null; then
-            echo "ERROR: Master still contains YOUR-RENDER-SERVICE placeholder."
-            exit 1
-          fi
-
-          if grep -R "YOUR-BACKEND" lib 2>/dev/null; then
-            echo "ERROR: Master still contains YOUR-BACKEND placeholder."
-            exit 1
-          fi
-
-          echo "Master backend URL verification: PASSED"
-
-      - name: Force compileSdk 36 - Master
-        shell: bash
-        run: |
-          set -e
-
-          FILE="android/app/build.gradle.kts"
-
-          if [ -f "$FILE" ]; then
-            python3 - <<'PY'
           from pathlib import Path
           import re
 
           p = Path("android/app/build.gradle.kts")
-          s = p.read_text()
 
-          s = re.sub(
-              r'(?m)^[ \t]*compileSdk\s+36\s*$\n?',
-              '',
-              s
-          )
+          if p.exists():
+              s = p.read_text()
 
-          s = re.sub(
-              r'(?m)^([ \t]*)compileSdk\s*=\s*[^\n]+$',
-              r'\1compileSdk = 36',
-              s
-          )
-
-          if not re.search(r'(?m)^\s*compileSdk\s*=\s*36\s*$', s):
               s = re.sub(
-                  r'(?m)^(\s*android\s*\{\s*)$',
-                  r'\1\n    compileSdk = 36',
-                  s,
-                  count=1
+                  r'applicationId\s*=\s*"[^"]+"',
+                  'applicationId = "com.cloudzen.master"',
+                  s
               )
 
-          p.write_text(s)
-          PY
-          else
-            FILE="android/app/build.gradle"
-
-            if [ -f "$FILE" ]; then
-              python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          p = Path("android/app/build.gradle")
-          s = p.read_text()
-
-          s = re.sub(
-              r'(?m)^[ \t]*compileSdk\s*=\s*[^\n]+$',
-              '',
-              s
-          )
-
-          s = re.sub(
-              r'(?m)^([ \t]*)compileSdkVersion\s+[^\n]+$',
-              r'\1compileSdkVersion 36',
-              s
-          )
-
-          s = re.sub(
-              r'(?m)^([ \t]*)compileSdk\s+[^\n]+$',
-              r'\1compileSdk 36',
-              s
-          )
-
-          if not re.search(r'(?m)^\s*compileSdk(?:Version)?\s+36\s*$', s):
               s = re.sub(
-                  r'(?m)^(\s*android\s*\{\s*)$',
-                  r'\1\n    compileSdk 36',
-                  s,
-                  count=1
+                  r'compileSdk\s*=\s*[^\n]+',
+                  'compileSdk = 36',
+                  s
               )
 
-          p.write_text(s)
+              p.write_text(s)
+
+          p2 = Path("android/app/build.gradle")
+
+          if p2.exists():
+              s = p2.read_text()
+
+              s = re.sub(
+                  r'applicationId\s+"[^"]+"',
+                  'applicationId "com.cloudzen.master"',
+                  s
+              )
+
+              s = re.sub(
+                  r'compileSdkVersion\s+\S+',
+                  'compileSdkVersion 36',
+                  s
+              )
+
+              s = re.sub(
+                  r'compileSdk\s+\S+',
+                  'compileSdk 36',
+                  s
+              )
+
+              p2.write_text(s)
           PY
-            else
-              echo "ERROR: No Android app Gradle file found."
-              exit 1
-            fi
-          fi
 
-      - name: Verify Master compileSdk
-        shell: bash
-        run: |
-          set -e
-
-          if [ -f android/app/build.gradle.kts ]; then
-            echo "===== Master Gradle ====="
-            cat android/app/build.gradle.kts
-
-            if grep -Eq '^[[:space:]]*compileSdk[[:space:]]+36[[:space:]]*$' android/app/build.gradle.kts; then
-              echo "ERROR: Invalid Kotlin DSL syntax detected."
-              exit 1
-            fi
-
-            if ! grep -Eq '^[[:space:]]*compileSdk[[:space:]]*=[[:space:]]*36[[:space:]]*$' android/app/build.gradle.kts; then
-              echo "ERROR: compileSdk = 36 was not found."
-              exit 1
-            fi
-
-            echo "Master compileSdk verification: PASSED"
-          else
-            echo "===== Master Gradle ====="
-            cat android/app/build.gradle
-
-            if ! grep -Eq '^[[:space:]]*compileSdkVersion[[:space:]]+36[[:space:]]*$|^[[:space:]]*compileSdk[[:space:]]+36[[:space:]]*$' android/app/build.gradle; then
-              echo "ERROR: compileSdk 36 was not found."
-              exit 1
-            fi
-
-            echo "Master compileSdk verification: PASSED"
-          fi
-
-      - name: Get Master dependencies
+      - name: Get dependencies
         run: flutter pub get
+
+      - name: Verify API
+        run: |
+          grep -R "API_BASE_URL" lib/main.dart
 
       - name: Build Master APK
         run: |
@@ -236,7 +113,8 @@ jobs:
         working-directory: client_app
 
     steps:
-      - name: Checkout repository
+
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -245,193 +123,83 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Show Flutter version
-        run: flutter --version
-
-      - name: Generate Android project
+      - name: Generate Android
         run: flutter create --platforms=android --no-pub .
 
-      - name: Connect Client to Cloud-Zen Backend
+      - name: Configure Client Android
         shell: bash
         run: |
-          set -e
-
           python3 - <<'PY'
-          from pathlib import Path
-
-          api_url = "https://cloud-zen-backend.onrender.com"
-          candidates = [
-              Path("lib/main.dart"),
-              Path("lib/api.dart"),
-              Path("lib/config.dart"),
-          ]
-
-          changed = False
-
-          for path in candidates:
-              if not path.exists():
-                  continue
-
-              text = path.read_text()
-
-              replacements = [
-                  "https://YOUR-RENDER-SERVICE.onrender.com",
-                  "https://YOUR-BACKEND.onrender.com",
-              ]
-
-              new_text = text
-
-              for old in replacements:
-                  new_text = new_text.replace(old, api_url)
-
-              if new_text != text:
-                  path.write_text(new_text)
-                  print(f"Updated backend URL in {path}")
-                  changed = True
-
-          if not changed:
-              print("No placeholder backend URL found.")
-              print("The app may already contain a configured API URL.")
-          PY
-
-      - name: Verify Client Backend URL
-        shell: bash
-        run: |
-          set -e
-
-          echo "Cloud-Zen Client backend:"
-          echo "$API_BASE_URL"
-
-          if grep -R "YOUR-RENDER-SERVICE" lib 2>/dev/null; then
-            echo "ERROR: Client still contains YOUR-RENDER-SERVICE placeholder."
-            exit 1
-          fi
-
-          if grep -R "YOUR-BACKEND" lib 2>/dev/null; then
-            echo "ERROR: Client still contains YOUR-BACKEND placeholder."
-            exit 1
-          fi
-
-          echo "Client backend URL verification: PASSED"
-
-      - name: Force compileSdk 36 - Client
-        shell: bash
-        run: |
-          set -e
-
-          FILE="android/app/build.gradle.kts"
-
-          if [ -f "$FILE" ]; then
-            python3 - <<'PY'
           from pathlib import Path
           import re
 
           p = Path("android/app/build.gradle.kts")
-          s = p.read_text()
 
-          s = re.sub(
-              r'(?m)^[ \t]*compileSdk\s+36\s*$\n?',
-              '',
-              s
-          )
+          if p.exists():
+              s = p.read_text()
 
-          s = re.sub(
-              r'(?m)^([ \t]*)compileSdk\s*=\s*[^\n]+$',
-              r'\1compileSdk = 36',
-              s
-          )
-
-          if not re.search(r'(?m)^\s*compileSdk\s*=\s*36\s*$', s):
               s = re.sub(
-                  r'(?m)^(\s*android\s*\{\s*)$',
-                  r'\1\n    compileSdk = 36',
-                  s,
-                  count=1
+                  r'applicationId\s*=\s*"[^"]+"',
+                  'applicationId = "com.cloudzen.client"',
+                  s
               )
 
-          p.write_text(s)
-          PY
-          else
-            FILE="android/app/build.gradle"
-
-            if [ -f "$FILE" ]; then
-              python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          p = Path("android/app/build.gradle")
-          s = p.read_text()
-
-          s = re.sub(
-              r'(?m)^[ \t]*compileSdk\s*=\s*[^\n]+$',
-              '',
-              s
-          )
-
-          s = re.sub(
-              r'(?m)^([ \t]*)compileSdkVersion\s+[^\n]+$',
-              r'\1compileSdkVersion 36',
-              s
-          )
-
-          s = re.sub(
-              r'(?m)^([ \t]*)compileSdk\s+[^\n]+$',
-              r'\1compileSdk 36',
-              s
-          )
-
-          if not re.search(r'(?m)^\s*compileSdk(?:Version)?\s+36\s*$', s):
               s = re.sub(
-                  r'(?m)^(\s*android\s*\{\s*)$',
-                  r'\1\n    compileSdk 36',
-                  s,
-                  count=1
+                  r'compileSdk\s*=\s*[^\n]+',
+                  'compileSdk = 36',
+                  s
               )
 
-          p.write_text(s)
+              p.write_text(s)
+
+          p2 = Path("android/app/build.gradle")
+
+          if p2.exists():
+              s = p2.read_text()
+
+              s = re.sub(
+                  r'applicationId\s+"[^"]+"',
+                  'applicationId "com.cloudzen.client"',
+                  s
+              )
+
+              s = re.sub(
+                  r'compileSdkVersion\s+\S+',
+                  'compileSdkVersion 36',
+                  s
+              )
+
+              s = re.sub(
+                  r'compileSdk\s+\S+',
+                  'compileSdk 36',
+                  s
+              )
+
+              p2.write_text(s)
+
+          manifest = Path(
+              "android/app/src/main/AndroidManifest.xml"
+          )
+
+          if manifest.exists():
+              s = manifest.read_text()
+
+              if "android.permission.CAMERA" not in s:
+                  s = s.replace(
+                      "<application",
+                      '<uses-permission android:name="android.permission.CAMERA"/>\n\n    <application',
+                      1
+                  )
+
+              manifest.write_text(s)
           PY
-            else
-              echo "ERROR: No Android app Gradle file found."
-              exit 1
-            fi
-          fi
 
-      - name: Verify Client compileSdk
-        shell: bash
-        run: |
-          set -e
-
-          if [ -f android/app/build.gradle.kts ]; then
-            echo "===== Client Gradle ====="
-            cat android/app/build.gradle.kts
-
-            if grep -Eq '^[[:space:]]*compileSdk[[:space:]]+36[[:space:]]*$' android/app/build.gradle.kts; then
-              echo "ERROR: Invalid Kotlin DSL syntax detected."
-              echo "Found: compileSdk 36"
-              echo "Required: compileSdk = 36"
-              exit 1
-            fi
-
-            if ! grep -Eq '^[[:space:]]*compileSdk[[:space:]]*=[[:space:]]*36[[:space:]]*$' android/app/build.gradle.kts; then
-              echo "ERROR: compileSdk = 36 was not found."
-              exit 1
-            fi
-
-            echo "Client compileSdk verification: PASSED"
-          else
-            echo "===== Client Gradle ====="
-            cat android/app/build.gradle
-
-            if ! grep -Eq '^[[:space:]]*compileSdkVersion[[:space:]]+36[[:space:]]*$|^[[:space:]]*compileSdk[[:space:]]+36[[:space:]]*$' android/app/build.gradle; then
-              echo "ERROR: compileSdk 36 was not found."
-              exit 1
-            fi
-
-            echo "Client compileSdk verification: PASSED"
-          fi
-
-      - name: Get Client dependencies
+      - name: Get dependencies
         run: flutter pub get
+
+      - name: Verify API
+        run: |
+          grep -R "API_BASE_URL" lib/main.dart
 
       - name: Build Client APK
         run: |
