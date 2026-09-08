@@ -6,36 +6,93 @@ on:
 jobs:
   master:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: master_app
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter create --platforms=android .
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+
+      - name: Generate Android project
+        run: flutter create --platforms=android --no-pub .
+
+      - name: Set compileSdk 36
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/app/build.gradle.kts")
+          if p.exists():
+              s = p.read_text()
+              s = s.replace(
+                  "compileSdk = flutter.compileSdkVersion",
+                  "compileSdk = 36"
+              )
+              p.write_text(s)
+          PY
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Master APK
+        run: flutter build apk --release
+
+      - name: Upload Master APK
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-zen-master-apk
           path: master_app/build/app/outputs/flutter-apk/app-release.apk
 
+
   client:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: client_app
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter create --platforms=android .
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+
+      - name: Generate Android project
+        run: flutter create --platforms=android --no-pub .
+
+      - name: Set compileSdk 36
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/app/build.gradle.kts")
+          if p.exists():
+              s = p.read_text()
+              s = s.replace(
+                  "compileSdk = flutter.compileSdkVersion",
+                  "compileSdk = 36"
+              )
+              p.write_text(s)
+          PY
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Client APK
+        run: flutter build apk --release
+
+      - name: Upload Client APK
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-zen-client-apk
           path: client_app/build/app/outputs/flutter-apk/app-release.apk
