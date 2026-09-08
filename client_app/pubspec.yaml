@@ -1,8 +1,7 @@
 name: cloud_zen_client
 description: Cloud-Zen consent-based backup client.
 publish_to: "none"
-
-version: 1.1.0+2
+version: 2.2.0+4
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -10,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   http: ^1.2.2
   mobile_scanner: ^6.0.2
   device_info_plus: ^11.2.0
@@ -25,3 +23,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
