@@ -208,10 +208,31 @@ async function ensureSchema() {
       UNIQUE(backup_job_id, relative_path)
     );
 
+    CREATE TABLE IF NOT EXISTS device_commands (
+      id UUID PRIMARY KEY,
+      device_id UUID NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+      owner_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      command_type TEXT NOT NULL CHECK (command_type IN ('delete_file','delete_all')),
+      manifest_id UUID,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      processed_at TIMESTAMPTZ
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_commands_device_pending ON device_commands(device_id, processed_at);
     CREATE INDEX IF NOT EXISTS idx_devices_owner ON devices(owner_user_id);
     CREATE INDEX IF NOT EXISTS idx_pairing_master ON pairing_sessions(master_user_id);
     CREATE INDEX IF NOT EXISTS idx_backup_owner ON backup_jobs(owner_user_id);
     CREATE INDEX IF NOT EXISTS idx_manifest_job ON backup_manifest(backup_job_id);
+  `);
+
+  // Safe migrations for databases created by older Cloud-Zen builds.
+  await pool.query(`
+    ALTER TABLE devices ADD COLUMN IF NOT EXISTS device_token_hash TEXT;
+  `);
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_devices_device_token_hash
+    ON devices(device_token_hash)
+    WHERE device_token_hash IS NOT NULL;
   `);
 }
 
@@ -236,7 +257,7 @@ app.get("/health", async (_req, res) => {
     res.json({
       ok: true,
       service: "cloud-zen-backend",
-      version: "2.2.0",
+      version: "2.3.0",
       database: true,
       storage: storageConfigured,
       clientApkConfigured: Boolean(clientApkUrl),
@@ -244,6 +265,30 @@ app.get("/health", async (_req, res) => {
   } catch {
     res.status(503).json({ ok: false, database: false, storage: storageConfigured });
   }
+});
+
+app.get("/api/status", async (_req, res) => {
+  let database = false;
+  try {
+    await pool.query("SELECT 1");
+    database = true;
+  } catch (_) {}
+  res.json({
+    ok: database,
+    service: "cloud-zen-backend",
+    version: "2.3.0",
+    database,
+    storage: storageConfigured,
+    clientApkConfigured: Boolean(clientApkUrl),
+    features: {
+      auth: true,
+      pairing: true,
+      deviceBackup: true,
+      cloudFiles: storageConfigured,
+      qrPairing: true,
+      apkQr: Boolean(clientApkUrl),
+    },
+  });
 });
 
 app.post("/api/auth/register", async (req, res) => {
@@ -285,6 +330,14 @@ app.get("/api/me", auth, async (req, res) => {
   res.json({ user: rows[0] });
 });
 
+app.get('/download/client', (_req, res) => {
+  if (!clientApkUrl) {
+    return res.status(503).type('html').send('<!doctype html><html><body style="font-family:Arial;background:#07080d;color:white;padding:32px"><h2>Cloud-Zen Client APK</h2><p>The APK download URL is not configured on the server.</p></body></html>');
+  }
+  const safeUrl = clientApkUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  return res.type('html').send(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1;url=${safeUrl}"><title>Cloud-Zen Client</title></head><body style="font-family:Arial;background:#07080d;color:white;padding:32px;text-align:center"><h1>Cloud-Zen Client</h1><p>APK download is starting…</p><p><a href="${safeUrl}" style="display:inline-block;padding:14px 20px;background:#b9c9ff;color:#080910;border-radius:12px;text-decoration:none;font-weight:700">Download Client APK</a></p></body></html>`);
+});
+
 app.post("/api/pairing/session", auth, async (req, res) => {
   const rawToken = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + pairingTtl * 1000);
@@ -302,7 +355,7 @@ app.post("/api/pairing/session", auth, async (req, res) => {
       type: "cloud-zen-pair",
       server: publicBaseUrl,
       token: rawToken,
-      apkUrl: clientApkUrl || null,
+      apkUrl: clientApkUrl ? `${publicBaseUrl}/download/client` : null,
     },
   });
 });
@@ -322,12 +375,12 @@ app.get("/api/pairing/session/:id", auth, async (req, res) => {
   res.json(session);
 });
 
-app.post("/api/pairing/approve", async (req, res) => {
+app.post("/api/pairing/approve", auth, async (req, res) => {
   const token = String(req.body?.token || "");
   if (!token) return res.status(400).json({ error: "Pairing token required" });
   const { rows } = await pool.query(
-    `SELECT id,master_user_id,status,expires_at FROM pairing_sessions WHERE pairing_token_hash=$1`,
-    [sha256(token)]
+    `SELECT id,master_user_id,status,expires_at FROM pairing_sessions WHERE pairing_token_hash=$1 AND master_user_id=$2`,
+    [sha256(token), req.user.sub]
   );
   const session = rows[0];
   if (!session) return res.status(404).json({ error: "Invalid pairing token" });
@@ -435,8 +488,9 @@ app.post("/api/backups/client-manifest", deviceAuth, async (req, res) => {
 });
 
 // Device heartbeat. This only reports the backup client's own state; it does not inspect other apps.
-app.post("/api/devices/:id/heartbeat", async (req, res) => {
+app.post("/api/devices/:id/heartbeat", deviceAuth, async (req, res) => {
   const deviceId = String(req.params.id);
+  if (deviceId !== req.device.id) return res.status(403).json({ error: 'Device mismatch' });
   const { rows } = await pool.query("SELECT id FROM devices WHERE id=$1", [deviceId]);
   if (!rows[0]) return res.status(404).json({ error: "Device not found" });
   await pool.query(
@@ -619,6 +673,61 @@ app.post("/api/backups/upload-complete", deviceAuth, async (req, res) => {
   }
 });
 
+app.get('/api/device/commands', deviceAuth, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT id,command_type,manifest_id,created_at FROM device_commands
+     WHERE device_id=$1 AND processed_at IS NULL ORDER BY created_at ASC LIMIT 100`, [req.device.id]
+  );
+  res.json({ commands: rows });
+});
+
+app.post('/api/device/commands/ack', deviceAuth, async (req, res) => {
+  const ids = Array.isArray(req.body?.ids) ? req.body.ids.map(String).slice(0, 100) : [];
+  if (!ids.length) return res.json({ ok: true, acknowledged: 0 });
+  const result = await pool.query(
+    `UPDATE device_commands SET processed_at=NOW() WHERE device_id=$1 AND processed_at IS NULL AND id = ANY($2::uuid[])`,
+    [req.device.id, ids]
+  );
+  res.json({ ok: true, acknowledged: result.rowCount });
+});
+
+app.get("/api/storage/summary", auth, async (req, res) => {
+  try {
+    const devices = await pool.query(
+      `SELECT COALESCE(SUM(total_storage_bytes),0)::text AS total_device_bytes,
+              COALESCE(SUM(free_storage_bytes),0)::text AS free_device_bytes
+       FROM devices WHERE owner_user_id=$1`,
+      [req.user.sub]
+    );
+    const cloud = await pool.query(
+      `SELECT COALESCE(SUM(size_bytes),0)::text AS cloud_bytes, COUNT(*)::int AS cloud_files
+       FROM backup_manifest m
+       JOIN backup_jobs b ON b.id=m.backup_job_id
+       WHERE b.owner_user_id=$1 AND m.status='uploaded'`,
+      [req.user.sub]
+    );
+    const jobs = await pool.query(
+      `SELECT COUNT(*)::int AS total_jobs,
+              COUNT(*) FILTER (WHERE status='completed')::int AS completed_jobs,
+              COUNT(*) FILTER (WHERE status IN ('running','queued','paused'))::int AS active_jobs
+       FROM backup_jobs WHERE owner_user_id=$1`,
+      [req.user.sub]
+    );
+    res.json({
+      totalDeviceBytes: devices.rows[0].total_device_bytes,
+      freeDeviceBytes: devices.rows[0].free_device_bytes,
+      cloudBytes: cloud.rows[0].cloud_bytes,
+      cloudFiles: cloud.rows[0].cloud_files,
+      totalJobs: jobs.rows[0].total_jobs,
+      completedJobs: jobs.rows[0].completed_jobs,
+      activeJobs: jobs.rows[0].active_jobs,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Storage summary failed." });
+  }
+});
+
 app.get("/api/files", auth, async (req, res) => {
   const { rows } = await pool.query(
     `SELECT m.id,m.relative_path,m.size_bytes,m.modified_at,m.content_hash,m.status,m.object_key,
@@ -653,8 +762,17 @@ app.delete("/api/files/:id", auth, async (req, res) => {
   );
   if (!rows[0]) return res.status(404).json({ error: "File not found" });
   await s3.send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: rows[0].object_key }));
+  const meta = await pool.query(
+    `SELECT b.device_id FROM backup_manifest m JOIN backup_jobs b ON b.id=m.backup_job_id WHERE m.id=$1`, [rows[0].id]
+  );
+  if (meta.rows[0]) {
+    await pool.query(
+      `INSERT INTO device_commands(id,device_id,owner_user_id,command_type,manifest_id) VALUES($1,$2,$3,'delete_file',$4)`,
+      [crypto.randomUUID(), meta.rows[0].device_id, req.user.sub, rows[0].id]
+    );
+  }
   await pool.query("DELETE FROM backup_manifest WHERE id=$1", [rows[0].id]);
-  res.json({ ok: true, cloudCopyDeleted: true, localCopyUntouched: true });
+  res.json({ ok: true, cloudCopyDeleted: true, localDeleteQueued: Boolean(meta.rows[0]) });
 });
 
 app.post("/api/files/delete-all", auth, async (req, res) => {
@@ -669,12 +787,22 @@ app.post("/api/files/delete-all", auth, async (req, res) => {
   for (const row of rows) {
     try { await s3.send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: row.object_key })); } catch (e) { console.error("Delete object failed", e); }
   }
+  const deviceRows = await pool.query(
+    `SELECT DISTINCT b.device_id FROM backup_manifest m JOIN backup_jobs b ON b.id=m.backup_job_id WHERE b.owner_user_id=$1 AND m.status='uploaded'`,
+    [req.user.sub]
+  );
+  for (const d of deviceRows.rows) {
+    await pool.query(
+      `INSERT INTO device_commands(id,device_id,owner_user_id,command_type) VALUES($1,$2,$3,'delete_all')`,
+      [crypto.randomUUID(), d.device_id, req.user.sub]
+    );
+  }
   await pool.query(
     `DELETE FROM backup_manifest WHERE id IN (SELECT m.id FROM backup_manifest m JOIN backup_jobs b ON b.id=m.backup_job_id WHERE b.owner_user_id=$1)`,
     [req.user.sub]
   );
   await pool.query("DELETE FROM backup_jobs WHERE owner_user_id=$1", [req.user.sub]);
-  res.json({ ok: true, deletedCount: rows.length, localCopiesUntouched: true });
+  res.json({ ok: true, deletedCount: rows.length, localDeleteQueued: deviceRows.rows.length > 0 });
 });
 
 async function start() {
@@ -684,4 +812,4 @@ async function start() {
 }
 
 start().catch((e) => { console.error("Startup failed:", e); process.exit(1); });
-
+  
