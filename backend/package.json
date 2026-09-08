@@ -1,6 +1,6 @@
 {
   "name": "cloud-zen-backend",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "main": "src/server.js",
   "scripts": { "start": "node src/server.js" },
@@ -15,4 +15,5 @@
     "pg": "^8.16.3"
   }
 }
+
 
